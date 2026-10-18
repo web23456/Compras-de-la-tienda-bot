@@ -1,0 +1,1793 @@
+<!DOCTYPE html>
+<html lang="es" class="h-full bg-slate-950 text-slate-100">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Compras de la Tienda — Sistema Contable e Inventario Semanal</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- SheetJS para Excel -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: { 50: '#eef2ff', 500: '#6366f1', 600: '#4f46e5', 700: '#4338ca' }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    /* Estilos personalizados y scrollbars */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #0f172a; }
+    ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #475569; }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+  </style>
+</head>
+<body class="h-full flex flex-col font-sans selection:bg-indigo-500 selection:text-white">
+
+  <!-- ================= ENCABEZADO SUPERIOR ================= -->
+  <header class="bg-slate-900 border-b border-slate-800 px-4 py-3 shrink-0 flex flex-wrap items-center justify-between gap-4 sticky top-0 z-40">
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/20">
+        <i data-lucide="shopping-bag" class="w-5 h-5 text-white"></i>
+      </div>
+      <div>
+        <h1 class="text-base font-bold text-white flex items-center gap-2">
+          Compras de la Tienda
+          <span class="px-2 py-0.5 text-[10px] font-semibold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 rounded-full">v1.0 Pro</span>
+        </h1>
+        <p class="text-xs text-slate-400">Control Semanal • Vales con Bot • Comisiones • Inventario</p>
+      </div>
+    </div>
+
+    <!-- SELECTOR DE SEMANA -->
+    <div class="flex items-center gap-2 bg-slate-950 border border-slate-800 rounded-xl p-1.5 px-3">
+      <i data-lucide="calendar" class="w-4 h-4 text-indigo-400"></i>
+      <span class="text-xs font-semibold text-slate-300">Semana Activa:</span>
+      <select id="selector-semana" onchange="cambiarSemana(this.value)" class="bg-slate-900 text-indigo-300 text-xs font-bold rounded-lg px-2 py-1 border border-slate-700 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+        <!-- Opciones dinámicas -->
+      </select>
+      <button onclick="cerrarSemanaEIniciarNueva()" title="Cerrar semana actual y traspasar inventario final como inicial" class="ml-2 px-2.5 py-1 text-xs font-bold bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg flex items-center gap-1 transition shadow">
+        <i data-lucide="fast-forward" class="w-3.5 h-3.5"></i>
+        <span>Nueva Semana</span>
+      </button>
+    </div>
+
+    <!-- ACCIONES DE RESPALDO Y EXCEL -->
+    <div class="flex items-center gap-2">
+      <button onclick="exportarExcelCompleto()" class="px-3 py-1.5 bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 border border-emerald-500/30 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition">
+        <i data-lucide="file-spreadsheet" class="w-4 h-4"></i>
+        <span>Exportar Excel</span>
+      </button>
+      <button onclick="hacerCopiaJSON()" class="px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs font-medium flex items-center gap-1 transition" title="Descargar copia de seguridad en JSON">
+        <i data-lucide="download" class="w-4 h-4"></i>
+      </button>
+      <label class="px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs font-medium flex items-center gap-1 transition cursor-pointer" title="Cargar copia de seguridad JSON">
+        <i data-lucide="upload" class="w-4 h-4"></i>
+        <input type="file" accept=".json" onchange="restaurarCopiaJSON(event)" class="hidden">
+      </label>
+    </div>
+  </header>
+
+  <!-- ================= BARRA DE PESTAÑAS ================= -->
+  <nav class="bg-slate-900/60 border-b border-slate-800 px-4 flex space-x-1 overflow-x-auto shrink-0">
+    <button onclick="cambiarPestana('resumen')" class="nav-tab active px-4 py-2.5 text-xs font-bold border-b-2 border-indigo-500 text-indigo-400 flex items-center gap-2" id="tab-btn-resumen">
+      <i data-lucide="bar-chart-3" class="w-4 h-4"></i> Resumen Semanal
+    </button>
+    <button onclick="cambiarPestana('vales')" class="nav-tab px-4 py-2.5 text-xs font-bold border-b-2 border-transparent text-slate-400 hover:text-slate-200 flex items-center gap-2" id="tab-btn-vales">
+      <i data-lucide="receipt" class="w-4 h-4"></i> Vales & Bot Extractor
+    </button>
+    <button onclick="cambiarPestana('inventario')" class="nav-tab px-4 py-2.5 text-xs font-bold border-b-2 border-transparent text-slate-400 hover:text-slate-200 flex items-center gap-2" id="tab-btn-inventario">
+      <i data-lucide="boxes" class="w-4 h-4"></i> Inventario (Inicio/Final)
+    </button>
+    <button onclick="cambiarPestana('compras')" class="nav-tab px-4 py-2.5 text-xs font-bold border-b-2 border-transparent text-slate-400 hover:text-slate-200 flex items-center gap-2" id="tab-btn-compras">
+      <i data-lucide="truck" class="w-4 h-4"></i> Compras Nuevas & Fletes
+    </button>
+    <button onclick="cambiarPestana('gastos-inversiones')" class="nav-tab px-4 py-2.5 text-xs font-bold border-b-2 border-transparent text-slate-400 hover:text-slate-200 flex items-center gap-2" id="tab-btn-gastos-inversiones">
+      <i data-lucide="wallet" class="w-4 h-4"></i> Gastos, Inversiones & Bajas
+    </button>
+    <button onclick="cambiarPestana('equipo')" class="nav-tab px-4 py-2.5 text-xs font-bold border-b-2 border-transparent text-slate-400 hover:text-slate-200 flex items-center gap-2" id="tab-btn-equipo">
+      <i data-lucide="users" class="w-4 h-4"></i> Equipo & Comisiones
+    </button>
+  </nav>
+
+  <!-- ================= CONTENEDOR PRINCIPAL ================= -->
+  <main class="flex-1 overflow-y-auto p-4 md:p-6 space-y-6">
+
+    <!-- ================= 1. PESTAÑA: RESUMEN SEMANAL ================= -->
+    <section id="tab-resumen" class="tab-content active space-y-6">
+      
+      <!-- TARJETAS DE MÉTRICAS CLAVE -->
+      <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
+        <!-- Venta Bruta -->
+        <div class="bg-slate-900 border border-slate-800 rounded-xl p-3.5 flex flex-col justify-between">
+          <span class="text-[11px] font-medium text-slate-400 uppercase tracking-wider">Ventas Totales</span>
+          <div class="text-xl font-black text-emerald-400 mt-1" id="kpi-ventas">$ 0.00</div>
+          <span class="text-[10px] text-slate-500 mt-1" id="kpi-vales-count">0 vales facturados</span>
+        </div>
+        <!-- Costo de Mercancía -->
+        <div class="bg-slate-900 border border-slate-800 rounded-xl p-3.5 flex flex-col justify-between">
+          <span class="text-[11px] font-medium text-slate-400 uppercase tracking-wider">Costo Mercancía</span>
+          <div class="text-xl font-black text-rose-400 mt-1" id="kpi-costo">$ 0.00</div>
+          <span class="text-[10px] text-slate-500 mt-1">Precio de compra vendido</span>
+        </div>
+        <!-- Margen Bruto -->
+        <div class="bg-slate-900 border border-slate-800 rounded-xl p-3.5 flex flex-col justify-between">
+          <span class="text-[11px] font-medium text-slate-400 uppercase tracking-wider">Margen Bruto</span>
+          <div class="text-xl font-black text-cyan-400 mt-1" id="kpi-margen-bruto">$ 0.00</div>
+          <span class="text-[10px] text-cyan-500/80 mt-1" id="kpi-margen-pct">0.0% rentabilidad</span>
+        </div>
+        <!-- Comisiones Equipo -->
+        <div class="bg-slate-900 border border-slate-800 rounded-xl p-3.5 flex flex-col justify-between">
+          <span class="text-[11px] font-medium text-slate-400 uppercase tracking-wider">Comisión Equipo</span>
+          <div class="text-xl font-black text-amber-400 mt-1" id="kpi-comisiones">$ 0.00</div>
+          <span class="text-[10px] text-slate-500 mt-1">Gestores y ventas</span>
+        </div>
+        <!-- Transporte / Mensajería -->
+        <div class="bg-slate-900 border border-slate-800 rounded-xl p-3.5 flex flex-col justify-between">
+          <span class="text-[11px] font-medium text-slate-400 uppercase tracking-wider">Transportación</span>
+          <div class="text-xl font-black text-indigo-400 mt-1" id="kpi-transporte">$ 0.00</div>
+          <span class="text-[10px] text-slate-500 mt-1">Fletes y mensajería</span>
+        </div>
+        <!-- Ganancia Neta Real -->
+        <div class="bg-gradient-to-br from-indigo-950/60 to-purple-950/60 border border-indigo-500/40 rounded-xl p-3.5 flex flex-col justify-between shadow-lg">
+          <span class="text-[11px] font-bold text-indigo-300 uppercase tracking-wider">Ganancia Neta</span>
+          <div class="text-2xl font-black text-white mt-1" id="kpi-ganancia-neta">$ 0.00</div>
+          <span class="text-[10px] text-indigo-200/80 mt-1">Limpia para la tienda</span>
+        </div>
+      </div>
+
+      <!-- SEGUNDA FILA: FLUJO Y MOVIMIENTOS EXTRAS -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <!-- Gastos Operativos y Extras -->
+        <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 space-y-3">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold text-slate-300 uppercase">Gastos Totales de la Semana</span>
+            <i data-lucide="arrow-down-right" class="w-4 h-4 text-rose-400"></i>
+          </div>
+          <div class="text-2xl font-black text-rose-400" id="resumen-gastos-totales">$ 0.00</div>
+          <p class="text-xs text-slate-400 leading-relaxed">Incluye fletes de compra, locales, empaque, salarios fijos u otros gastos registrados.</p>
+        </div>
+
+        <!-- Inversiones Extras -->
+        <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 space-y-3">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold text-slate-300 uppercase">Inversiones Extras / Inyecciones</span>
+            <i data-lucide="arrow-up-right" class="w-4 h-4 text-emerald-400"></i>
+          </div>
+          <div class="text-2xl font-black text-emerald-400" id="resumen-inversiones-totales">$ 0.00</div>
+          <p class="text-xs text-slate-400 leading-relaxed">Aportes extraordinarios de capital para compras de lotes mayores o crecimiento.</p>
+        </div>
+
+        <!-- Bajas / Averías -->
+        <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 space-y-3">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold text-slate-300 uppercase">Bajas y Averías de Inventario</span>
+            <i data-lucide="alert-triangle" class="w-4 h-4 text-amber-400"></i>
+          </div>
+          <div class="text-2xl font-black text-amber-400" id="resumen-bajas-totales">$ 0.00</div>
+          <p class="text-xs text-slate-400 leading-relaxed">Pérdidas registradas por roturas, garantías técnicas o artículos defectuosos.</p>
+        </div>
+      </div>
+
+      <!-- TABLA DE BALANCE SEMANAL DETALLADO -->
+      <div class="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden">
+        <div class="p-4 border-b border-slate-800 flex items-center justify-between">
+          <h2 class="text-sm font-bold text-white flex items-center gap-2">
+            <i data-lucide="calculator" class="w-4 h-4 text-indigo-400"></i> Liquidación y Cuadre de la Semana
+          </h2>
+          <span class="text-xs text-slate-400">Todos los valores calculados en vivo</span>
+        </div>
+        <div class="p-4">
+          <div class="space-y-2.5 text-xs">
+            <div class="flex justify-between py-1.5 border-b border-slate-800">
+              <span class="text-slate-400">(+) Ingresos Brutos por Venta de Vales:</span>
+              <span class="font-bold text-emerald-400 font-mono" id="bal-ingresos">$ 0.00</span>
+            </div>
+            <div class="flex justify-between py-1.5 border-b border-slate-800">
+              <span class="text-slate-400">(-) Costo de Mercancía Vendida (Precio de Compra):</span>
+              <span class="font-bold text-rose-400 font-mono" id="bal-costo-mercancia">-$ 0.00</span>
+            </div>
+            <div class="flex justify-between py-1.5 border-b border-slate-800 font-semibold bg-slate-950/40 px-2 rounded">
+              <span class="text-slate-300">(=) Margen Comercial Bruto:</span>
+              <span class="font-bold text-cyan-300 font-mono" id="bal-margen-bruto">$ 0.00</span>
+            </div>
+            <div class="flex justify-between py-1.5 border-b border-slate-800">
+              <span class="text-slate-400">(-) Comisiones Pagadas al Equipo / Gestores:</span>
+              <span class="font-bold text-amber-400 font-mono" id="bal-comisiones">-$ 0.00</span>
+            </div>
+            <div class="flex justify-between py-1.5 border-b border-slate-800">
+              <span class="text-slate-400">(-) Costos de Transportación y Flete en Vales:</span>
+              <span class="font-bold text-indigo-400 font-mono" id="bal-transporte">-$ 0.00</span>
+            </div>
+            <div class="flex justify-between py-1.5 border-b border-slate-800">
+              <span class="text-slate-400">(-) Gastos Extras de la Semana:</span>
+              <span class="font-bold text-rose-400 font-mono" id="bal-gastos-extras">-$ 0.00</span>
+            </div>
+            <div class="flex justify-between py-1.5 border-b border-slate-800">
+              <span class="text-slate-400">(-) Costo por Bajas / Averías:</span>
+              <span class="font-bold text-amber-500 font-mono" id="bal-bajas">-$ 0.00</span>
+            </div>
+            <div class="flex justify-between py-2 text-sm font-black bg-indigo-950/30 px-3 rounded-lg border border-indigo-500/30">
+              <span class="text-indigo-200">(=) GANANCIA NETA FINAL DE LA SEMANA:</span>
+              <span class="font-bold text-white font-mono text-base" id="bal-ganancia-final">$ 0.00</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= 2. PESTAÑA: VALES & BOT EXTRACTOR ================= -->
+    <section id="tab-vales" class="tab-content space-y-6">
+
+      <!-- BOT ASISTENTE EXTRACTOR DE VALES -->
+      <div class="bg-gradient-to-r from-indigo-950/60 via-slate-900 to-slate-900 border border-indigo-500/40 rounded-xl p-4 space-y-3 shadow-xl">
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <div class="flex items-center gap-2">
+            <div class="p-1.5 rounded-lg bg-indigo-600/30 text-indigo-300">
+              <i data-lucide="bot" class="w-5 h-5"></i>
+            </div>
+            <div>
+              <h2 class="text-sm font-bold text-white">Bot Inteligente Extractor de Vales</h2>
+              <p class="text-xs text-slate-400">Pega el texto de WhatsApp o una nota rápida con múltiples productos</p>
+            </div>
+          </div>
+          <div class="flex gap-2">
+            <button onclick="pegarDelPortapapeles()" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs font-semibold flex items-center gap-1 transition">
+              <i data-lucide="clipboard" class="w-3.5 h-3.5"></i> Pegar
+            </button>
+            <button onclick="cargarPlantillaEjemplo()" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs font-semibold flex items-center gap-1 transition">
+              <i data-lucide="file-text" class="w-3.5 h-3.5"></i> Ver Ejemplo
+            </button>
+          </div>
+        </div>
+
+        <div class="flex flex-col sm:flex-row gap-3">
+          <textarea id="bot-input-texto" rows="4" placeholder="Ejemplo:&#10;Cliente: Carlos Pérez&#10;Teléfono: +53 52123456&#10;Dirección: Vedado Calle 23 #450&#10;Pedido: 2 Nevera..1 Infrarojo&#10;Precio: 300 Nevera..35 Infrarojo&#10;Transporte: 10&#10;Gestor: Yakelin&#10;Comisión: 15" class="flex-1 bg-slate-950 border border-indigo-500/30 rounded-lg p-3 text-xs font-mono text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"></textarea>
+          <div class="flex sm:flex-col justify-end gap-2 shrink-0">
+            <button onclick="procesarTextoConBot()" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs rounded-lg shadow-md flex items-center justify-center gap-1.5 transition">
+              <i data-lucide="sparkles" class="w-4 h-4 text-amber-300"></i> Procesar con Bot
+            </button>
+            <button onclick="document.getElementById('bot-input-texto').value=''" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white text-xs rounded-lg transition">
+              Limpiar
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- FORMULARIO DE VALE (ROBUSTO Y EDITABLE) -->
+      <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 space-y-4">
+        <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+          <h2 class="text-sm font-bold text-white flex items-center gap-2">
+            <i data-lucide="edit-3" class="w-4 h-4 text-indigo-400"></i> Formulario de Vale de Venta
+          </h2>
+          <span class="text-xs text-indigo-300 font-mono font-bold" id="form-vale-id">Nuevo Vale</span>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 text-xs">
+          <div>
+            <label class="block font-medium text-slate-400 mb-1">Folio / Número</label>
+            <input type="text" id="vale-folio" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1.5 text-white font-bold">
+          </div>
+          <div>
+            <label class="block font-medium text-slate-400 mb-1">Fecha</label>
+            <input type="date" id="vale-fecha" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1.5 text-white">
+          </div>
+          <div>
+            <label class="block font-medium text-slate-400 mb-1">Cliente</label>
+            <input type="text" id="vale-cliente" placeholder="Nombre del cliente" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1.5 text-white">
+          </div>
+          <div>
+            <label class="block font-medium text-slate-400 mb-1">Teléfono</label>
+            <input type="text" id="vale-telefono" placeholder="Número de contacto" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1.5 text-white">
+          </div>
+          <div class="sm:col-span-2">
+            <label class="block font-medium text-slate-400 mb-1">Dirección de Entrega</label>
+            <input type="text" id="vale-direccion" placeholder="Calle, entrecalles, municipio" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1.5 text-white">
+          </div>
+          <div>
+            <label class="block font-medium text-slate-400 mb-1">Gestor / Miembro del Equipo</label>
+            <input type="text" id="vale-gestor" placeholder="Ej: Yakelin" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1.5 text-white">
+          </div>
+          <div>
+            <label class="block font-medium text-slate-400 mb-1">Precio de Transportación ($)</label>
+            <input type="number" step="0.01" id="vale-transporte" value="0" oninput="recalcularTotalesFormularioVale()" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1.5 text-white font-mono">
+          </div>
+        </div>
+
+        <!-- TABLA DE ARTÍCULOS DENTRO DEL VALE -->
+        <div class="space-y-2 pt-2">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold text-slate-300 uppercase">Productos en este Vale</span>
+            <button onclick="agregarFilaProductoVale()" class="px-2.5 py-1 bg-indigo-600/30 hover:bg-indigo-600/50 text-indigo-300 border border-indigo-500/30 rounded text-xs font-semibold flex items-center gap-1 transition">
+              <i data-lucide="plus" class="w-3.5 h-3.5"></i> Agregar Producto
+            </button>
+          </div>
+
+          <div class="overflow-x-auto border border-slate-800 rounded-lg">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-slate-950 text-slate-400 font-semibold uppercase">
+                <tr>
+                  <th class="p-2.5">Producto</th>
+                  <th class="p-2.5 w-20">Cantidad</th>
+                  <th class="p-2.5 w-28">Precio Compra ($)</th>
+                  <th class="p-2.5 w-28">Precio Venta ($)</th>
+                  <th class="p-2.5 w-28">Comisión Equipo ($)</th>
+                  <th class="p-2.5 w-28">Margen Ganancia ($)</th>
+                  <th class="p-2.5 w-12 text-center">Acción</th>
+                </tr>
+              </thead>
+              <tbody id="vale-items-tbody" class="divide-y divide-slate-800">
+                <!-- Filas dinámicas -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- TOTALES DEL VALE Y BOTONES -->
+        <div class="bg-slate-950 p-3 rounded-lg border border-slate-800 flex flex-wrap items-center justify-between gap-4">
+          <div class="flex flex-wrap gap-4 text-xs font-mono">
+            <div><span class="text-slate-400">Total Venta:</span> <span class="font-bold text-emerald-400 ml-1" id="form-total-venta">$ 0.00</span></div>
+            <div><span class="text-slate-400">Total Compra:</span> <span class="font-bold text-rose-400 ml-1" id="form-total-compra">$ 0.00</span></div>
+            <div><span class="text-slate-400">Comisión Equipo:</span> <span class="font-bold text-amber-400 ml-1" id="form-total-comision">$ 0.00</span></div>
+            <div><span class="text-slate-400">Transportación:</span> <span class="font-bold text-indigo-400 ml-1" id="form-total-transporte">$ 0.00</span></div>
+            <div class="border-l border-slate-700 pl-3"><span class="text-slate-300 font-bold">Margen Neto:</span> <span class="font-black text-cyan-400 ml-1" id="form-total-margen">$ 0.00</span></div>
+          </div>
+          <div class="flex gap-2">
+            <button onclick="guardarValeActual()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs rounded-lg flex items-center gap-1.5 transition">
+              <i data-lucide="check" class="w-4 h-4"></i> Guardar Vale
+            </button>
+            <button onclick="nuevoFormularioVale()" class="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs rounded-lg transition">
+              Cancelar
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- LISTADO DE VALES REGISTRADOS EN LA SEMANA -->
+      <div class="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden space-y-2">
+        <div class="p-4 border-b border-slate-800 flex flex-wrap items-center justify-between gap-2">
+          <h2 class="text-sm font-bold text-white flex items-center gap-2">
+            <i data-lucide="list" class="w-4 h-4 text-indigo-400"></i> Vales Registrados en esta Semana
+          </h2>
+          <div class="flex gap-2">
+            <input type="text" id="filtro-vales" oninput="renderizarTablaVales()" placeholder="Buscar cliente, gestor, producto..." class="bg-slate-950 border border-slate-700 text-white text-xs rounded-lg px-2.5 py-1.5 focus:outline-none">
+          </div>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs">
+            <thead class="bg-slate-950 text-slate-400 font-semibold uppercase">
+              <tr>
+                <th class="p-3">Folio</th>
+                <th class="p-3">Fecha</th>
+                <th class="p-3">Cliente / Teléfono</th>
+                <th class="p-3">Productos & Cantidades</th>
+                <th class="p-3">V. Compra</th>
+                <th class="p-3">V. Venta</th>
+                <th class="p-3">Comisión</th>
+                <th class="p-3">Transporte</th>
+                <th class="p-3">Margen Ganancia</th>
+                <th class="p-3 text-center">Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="vales-lista-tbody" class="divide-y divide-slate-800">
+              <!-- Vales renderizados -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= 3. PESTAÑA: INVENTARIO (INICIO / FINAL) ================= -->
+    <section id="tab-inventario" class="tab-content space-y-6">
+
+      <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <h2 class="text-sm font-bold text-white flex items-center gap-2">
+            <i data-lucide="boxes" class="w-4 h-4 text-indigo-400"></i> Control y Cuadre de Inventario Semanal
+          </h2>
+          <p class="text-xs text-slate-400 mt-0.5">Inicio de Semana + Compras - Ventas - Bajas = Inventario Final Calculado</p>
+        </div>
+        <div class="flex gap-2">
+          <button onclick="abrirModalNuevoProducto()" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold rounded-lg flex items-center gap-1.5 transition">
+            <i data-lucide="plus-circle" class="w-4 h-4"></i> Nuevo Producto Catálogo
+          </button>
+          <button onclick="cuadrarYGuardarInventario()" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-lg flex items-center gap-1.5 transition">
+            <i data-lucide="save" class="w-4 h-4"></i> Guardar Conteo Físico
+          </button>
+        </div>
+      </div>
+
+      <div class="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs">
+            <thead class="bg-slate-950 text-slate-400 font-semibold uppercase">
+              <tr>
+                <th class="p-3">Producto</th>
+                <th class="p-3 w-28 text-center bg-slate-900/50">Inv. Inicio</th>
+                <th class="p-3 w-24 text-center text-emerald-400">Compras (+)</th>
+                <th class="p-3 w-24 text-center text-rose-400">Ventas (-)</th>
+                <th class="p-3 w-24 text-center text-amber-400">Bajas (-)</th>
+                <th class="p-3 w-28 text-center bg-indigo-950/30 text-indigo-200">Final Calculado</th>
+                <th class="p-3 w-28 text-center bg-slate-900 font-bold text-white">Final Físico (Editable)</th>
+                <th class="p-3 w-24 text-center">Diferencia</th>
+                <th class="p-3 w-28">P. Compra Ref.</th>
+                <th class="p-3 w-28">P. Venta Ref.</th>
+                <th class="p-3 text-center">Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="inventario-tbody" class="divide-y divide-slate-800">
+              <!-- Filas de inventario -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= 4. PESTAÑA: COMPRAS NUEVAS & FLETES ================= -->
+    <section id="tab-compras" class="tab-content space-y-6">
+
+      <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 space-y-4">
+        <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+          <h2 class="text-sm font-bold text-white flex items-center gap-2">
+            <i data-lucide="truck" class="w-4 h-4 text-indigo-400"></i> Registrar Compras Nuevas de Mercancía
+          </h2>
+          <span class="text-xs text-slate-400">Añade stock directamente al inventario de la semana</span>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-3 text-xs">
+          <div>
+            <label class="block font-medium text-slate-400 mb-1">Producto</label>
+            <select id="compra-producto-select" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1.5 text-white">
+              <!-- Catálogo -->
+            </select>
+          </div>
+          <div>
+            <label class="block font-medium text-slate-400 mb-1">Cantidad Comprada</label>
+            <input type="number" id="compra-cantidad" min="1" value="1" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1.5 text-white font-mono">
+          </div>
+          <div>
+            <label class="block font-medium text-slate-400 mb-1">Precio Unitario de Compra ($)</label>
+            <input type="number" step="0.01" id="compra-precio" value="0" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1.5 text-white font-mono">
+          </div>
+          <div>
+            <label class="block font-medium text-slate-400 mb-1">Flete / Transporte de Compra ($)</label>
+            <input type="number" step="0.01" id="compra-flete" value="0" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1.5 text-white font-mono">
+          </div>
+          <div>
+            <label class="block font-medium text-slate-400 mb-1">Proveedor / Nota</label>
+            <input type="text" id="compra-proveedor" placeholder="Lote, almacén o contacto" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1.5 text-white">
+          </div>
+        </div>
+
+        <div class="flex justify-end">
+          <button onclick="registrarCompraNueva()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-lg flex items-center gap-1.5 transition">
+            <i data-lucide="plus" class="w-4 h-4"></i> Añadir Compra al Inventario
+          </button>
+        </div>
+      </div>
+
+      <!-- TABLA DE COMPRAS REALIZADAS EN LA SEMANA -->
+      <div class="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden">
+        <div class="p-4 border-b border-slate-800">
+          <h2 class="text-sm font-bold text-white flex items-center gap-2">
+            <i data-lucide="receipt" class="w-4 h-4 text-indigo-400"></i> Historial de Compras Nuevas en esta Semana
+          </h2>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs">
+            <thead class="bg-slate-950 text-slate-400 font-semibold uppercase">
+              <tr>
+                <th class="p-3">Fecha</th>
+                <th class="p-3">Producto</th>
+                <th class="p-3 text-center">Cantidad</th>
+                <th class="p-3">P. Unitario Compra</th>
+                <th class="p-3">Flete / Transporte</th>
+                <th class="p-3">Subtotal Compra</th>
+                <th class="p-3">Proveedor / Nota</th>
+                <th class="p-3 text-center">Acción</th>
+              </tr>
+            </thead>
+            <tbody id="compras-tbody" class="divide-y divide-slate-800">
+              <!-- Compras -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= 5. PESTAÑA: GASTOS, INVERSIONES & BAJAS ================= -->
+    <section id="tab-gastos-inversiones" class="tab-content space-y-6">
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+        <!-- REGISTRAR GASTO EXTRA -->
+        <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 space-y-3">
+          <h3 class="text-sm font-bold text-rose-400 flex items-center gap-1.5">
+            <i data-lucide="minus-circle" class="w-4 h-4"></i> Registrar Gasto Extra
+          </h3>
+          <div class="space-y-2 text-xs">
+            <div>
+              <label class="block text-slate-400 mb-1">Concepto</label>
+              <input type="text" id="gasto-concepto" placeholder="Ej: Embalaje, Alquiler, Salario" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1.5 text-white">
+            </div>
+            <div>
+              <label class="block text-slate-400 mb-1">Monto ($)</label>
+              <input type="number" step="0.01" id="gasto-monto" value="0" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1.5 text-white font-mono">
+            </div>
+            <button onclick="registrarGastoExtra()" class="w-full py-2 bg-rose-600/30 hover:bg-rose-600/50 text-rose-200 border border-rose-500/30 rounded-lg font-bold text-xs transition">
+              Guardar Gasto
+            </button>
+          </div>
+        </div>
+
+        <!-- REGISTRAR INVERSIÓN EXTRA -->
+        <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 space-y-3">
+          <h3 class="text-sm font-bold text-emerald-400 flex items-center gap-1.5">
+            <i data-lucide="plus-circle" class="w-4 h-4"></i> Registrar Inversión Extra
+          </h3>
+          <div class="space-y-2 text-xs">
+            <div>
+              <label class="block text-slate-400 mb-1">Origen / Motivo</label>
+              <input type="text" id="inversion-motivo" placeholder="Ej: Aporte Socio, Inyección Capital" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1.5 text-white">
+            </div>
+            <div>
+              <label class="block text-slate-400 mb-1">Monto ($)</label>
+              <input type="number" step="0.01" id="inversion-monto" value="0" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1.5 text-white font-mono">
+            </div>
+            <button onclick="registrarInversionExtra()" class="w-full py-2 bg-emerald-600/30 hover:bg-emerald-600/50 text-emerald-200 border border-emerald-500/30 rounded-lg font-bold text-xs transition">
+              Guardar Inversión
+            </button>
+          </div>
+        </div>
+
+        <!-- REGISTRAR BAJA DE INVENTARIO -->
+        <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 space-y-3">
+          <h3 class="text-sm font-bold text-amber-400 flex items-center gap-1.5">
+            <i data-lucide="alert-octagon" class="w-4 h-4"></i> Registrar Baja / Avería
+          </h3>
+          <div class="space-y-2 text-xs">
+            <div>
+              <label class="block text-slate-400 mb-1">Producto</label>
+              <select id="baja-producto-select" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1.5 text-white">
+                <!-- Catálogo -->
+              </select>
+            </div>
+            <div class="grid grid-cols-2 gap-2">
+              <div>
+                <label class="block text-slate-400 mb-1">Cantidad</label>
+                <input type="number" id="baja-cantidad" min="1" value="1" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1.5 text-white font-mono">
+              </div>
+              <div>
+                <label class="block text-slate-400 mb-1">Motivo</label>
+                <input type="text" id="baja-motivo" placeholder="Rotura, defecto" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1.5 text-white">
+              </div>
+            </div>
+            <button onclick="registrarBajaInventario()" class="w-full py-2 bg-amber-600/30 hover:bg-amber-600/50 text-amber-200 border border-amber-500/30 rounded-lg font-bold text-xs transition">
+              Registrar Baja
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- TABLAS DE REGISTROS -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-xs">
+        <!-- Gastos -->
+        <div class="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden">
+          <div class="p-3 bg-slate-950 font-bold text-slate-300">Gastos Extras Semanales</div>
+          <div class="max-h-64 overflow-y-auto">
+            <table class="w-full text-left">
+              <tbody id="gastos-tbody" class="divide-y divide-slate-800"></tbody>
+            </table>
+          </div>
+        </div>
+        <!-- Inversiones -->
+        <div class="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden">
+          <div class="p-3 bg-slate-950 font-bold text-slate-300">Inversiones Extras</div>
+          <div class="max-h-64 overflow-y-auto">
+            <table class="w-full text-left">
+              <tbody id="inversiones-tbody" class="divide-y divide-slate-800"></tbody>
+            </table>
+          </div>
+        </div>
+        <!-- Bajas -->
+        <div class="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden">
+          <div class="p-3 bg-slate-950 font-bold text-slate-300">Bajas y Averías</div>
+          <div class="max-h-64 overflow-y-auto">
+            <table class="w-full text-left">
+              <tbody id="bajas-tbody" class="divide-y divide-slate-800"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= 6. PESTAÑA: EQUIPO & COMISIONES ================= -->
+    <section id="tab-equipo" class="tab-content space-y-6">
+
+      <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <h2 class="text-sm font-bold text-white flex items-center gap-2">
+            <i data-lucide="users" class="w-4 h-4 text-indigo-400"></i> Liquidación de Comisiones al Equipo
+          </h2>
+          <p class="text-xs text-slate-400 mt-0.5">Calcula automáticamente lo que corresponde pagar a cada gestor y vendedor en la semana</p>
+        </div>
+      </div>
+
+      <div class="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs">
+            <thead class="bg-slate-950 text-slate-400 font-semibold uppercase">
+              <tr>
+                <th class="p-3">Miembro del Equipo</th>
+                <th class="p-3 text-center">Vales Gestionados</th>
+                <th class="p-3 text-center">Unidades Vendidas</th>
+                <th class="p-3">Total Facturado ($)</th>
+                <th class="p-3 font-bold text-amber-400">Comisión Total Acumulada ($)</th>
+                <th class="p-3">Estado Liquidación</th>
+              </tr>
+            </thead>
+            <tbody id="equipo-tbody" class="divide-y divide-slate-800">
+              <!-- Gestores -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ================= MODAL DE NUEVO PRODUCTO ================= -->
+  <div id="modal-producto" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-5 space-y-4 shadow-2xl">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <h3 class="text-sm font-bold text-white" id="modal-producto-titulo">Nuevo Producto al Catálogo</h3>
+        <button onclick="cerrarModalProducto()" class="text-slate-400 hover:text-white"><i data-lucide="x" class="w-4 h-4"></i></button>
+      </div>
+      <div class="space-y-3 text-xs">
+        <div>
+          <label class="block text-slate-400 mb-1">Nombre del Producto *</label>
+          <input type="text" id="prod-nombre" placeholder="Ej: Split 1 Tonelada, Nevera..." class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white">
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-slate-400 mb-1">Precio Compra Base ($)</label>
+            <input type="number" step="0.01" id="prod-precio-compra" value="0" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white font-mono">
+          </div>
+          <div>
+            <label class="block text-slate-400 mb-1">Precio Venta Base ($)</label>
+            <input type="number" step="0.01" id="prod-precio-venta" value="0" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white font-mono">
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-slate-400 mb-1">Comisión Equipo Sugerida ($)</label>
+            <input type="number" step="0.01" id="prod-comision" value="0" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white font-mono">
+          </div>
+          <div>
+            <label class="block text-slate-400 mb-1">Inventario Inicial</label>
+            <input type="number" id="prod-stock-inicial" value="0" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white font-mono">
+          </div>
+        </div>
+      </div>
+      <div class="flex justify-end gap-2 pt-2">
+        <button onclick="cerrarModalProducto()" class="px-3 py-2 bg-slate-800 text-slate-300 rounded-lg text-xs font-semibold">Cancelar</button>
+        <button onclick="guardarNuevoProducto()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-bold">Guardar Producto</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= LÓGICA DE APLICACIÓN ================= -->
+  <script src="bot-parser.js"></script>
+  <script>
+    // ESTADO PRINCIPAL DE LA APLICACIÓN
+    const DB_KEY = 'COMPRAS_TIENDA_DB_v1';
+    
+    let appData = {
+      semanaActivaId: 1,
+      semanas: [
+        {
+          id: 1,
+          nombre: 'Semana 1 (13 al 19 Octubre)',
+          fechaInicio: '2026-10-13',
+          fechaFin: '2026-10-19',
+          cerrada: false
+        }
+      ],
+      catalogo: [
+        { id: 'prod-1', nombre: 'Nevera', precioCompra: 225, precioVenta: 300, comisionEquipo: 10 },
+        { id: 'prod-2', nombre: 'Infrarojo', precioCompra: 20, precioVenta: 35, comisionEquipo: 5 },
+        { id: 'prod-3', nombre: 'Olla Reina', precioCompra: 22, precioVenta: 28, comisionEquipo: 3 },
+        { id: 'prod-4', nombre: 'Ventilador de Pedestal', precioCompra: 18, precioVenta: 25, comisionEquipo: 2.5 }
+      ],
+      // Datos segmentados por semana: { [semanaId]: { inventario: {}, vales: [], compras: [], gastos: [], inversiones: [], bajas: [] } }
+      datosSemanales: {
+        1: {
+          inventario: {
+            'prod-1': { inicio: 10, compras: 0, ventas: 2, bajas: 0, finalFisico: 8 },
+            'prod-2': { inicio: 15, compras: 5, ventas: 3, bajas: 1, finalFisico: 16 },
+            'prod-3': { inicio: 8, compras: 0, ventas: 1, bajas: 0, finalFisico: 7 },
+            'prod-4': { inicio: 20, compras: 10, ventas: 5, bajas: 0, finalFisico: 25 }
+          },
+          vales: [
+            {
+              id: 'vale-demo-1',
+              folio: 'V-1001',
+              fecha: '2026-10-14',
+              cliente: 'Carlos Pérez',
+              telefono: '+53 52123456',
+              direccion: 'Vedado Calle 23 #450',
+              gestor: 'Yakelin',
+              costoTransporte: 10,
+              items: [
+                { id: 'it-1', producto: 'Nevera', cantidad: 2, precioCompra: 225, precioVenta: 300, comisionEquipo: 10, subtotalCompra: 450, subtotalVenta: 600, margenGanancia: 130 },
+                { id: 'it-2', producto: 'Infrarojo', cantidad: 1, precioCompra: 20, precioVenta: 35, comisionEquipo: 5, subtotalCompra: 20, subtotalVenta: 35, margenGanancia: 10 }
+              ],
+              totalVenta: 635,
+              totalCompra: 470,
+              comisionTotal: 25,
+              margenNetoVale: 130
+            }
+          ],
+          compras: [
+            { id: 'comp-1', fecha: '2026-10-13', productoId: 'prod-2', productoNombre: 'Infrarojo', cantidad: 5, precioCompra: 20, flete: 5, subtotal: 100, proveedor: 'Distribuidor Central' },
+            { id: 'comp-2', fecha: '2026-10-14', productoId: 'prod-4', productoNombre: 'Ventilador de Pedestal', cantidad: 10, precioCompra: 18, flete: 10, subtotal: 180, proveedor: 'Mayorista Havana' }
+          ],
+          gastos: [
+            { id: 'gas-1', concepto: 'Cintas y cajas de embalaje', monto: 15 },
+            { id: 'gas-2', concepto: 'Alquiler almacén proporción semanal', monto: 35 }
+          ],
+          inversiones: [
+            { id: 'inv-1', motivo: 'Inyección de capital para electrodomésticos', monto: 500 }
+          ],
+          bajas: [
+            { id: 'baj-1', productoId: 'prod-2', productoNombre: 'Infrarojo', cantidad: 1, motivo: 'Resistencia quemada en prueba técnica', costoEstimado: 20 }
+          ]
+        }
+      }
+    };
+
+    // INICIALIZACIÓN
+    window.addEventListener('DOMContentLoaded', () => {
+      cargarStorage();
+      renderizarTodo();
+      nuevoFormularioVale();
+      lucide.createIcons();
+    });
+
+    function guardarStorage() {
+      try {
+        localStorage.setItem(DB_KEY, JSON.stringify(appData));
+      } catch (e) {
+        console.error('Error guardando en localStorage:', e);
+      }
+    }
+
+    function cargarStorage() {
+      try {
+        const guardado = localStorage.getItem(DB_KEY);
+        if (guardado) {
+          appData = JSON.parse(guardado);
+        }
+      } catch (e) {
+        console.error('Error recuperando de localStorage:', e);
+      }
+    }
+
+    function getSemanaData(semanaId = appData.semanaActivaId) {
+      if (!appData.datosSemanales[semanaId]) {
+        appData.datosSemanales[semanaId] = {
+          inventario: {},
+          vales: [],
+          compras: [],
+          gastos: [],
+          inversiones: [],
+          bajas: []
+        };
+      }
+      return appData.datosSemanales[semanaId];
+    }
+
+    // ================= PESTAÑAS =================
+    function cambiarPestana(idTab) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.nav-tab').forEach(el => {
+        el.classList.remove('border-indigo-500', 'text-indigo-400');
+        el.classList.add('border-transparent', 'text-slate-400');
+      });
+
+      const target = document.getElementById('tab-' + idTab);
+      const btn = document.getElementById('tab-btn-' + idTab);
+      if (target) target.classList.add('active');
+      if (btn) {
+        btn.classList.add('border-indigo-500', 'text-indigo-400');
+        btn.classList.remove('border-transparent', 'text-slate-400');
+      }
+      lucide.createIcons();
+    }
+
+    // ================= SELECTOR DE SEMANA & CERRAR SEMANA =================
+    function cambiarSemana(nuevaSemanaId) {
+      appData.semanaActivaId = parseInt(nuevaSemanaId, 10);
+      guardarStorage();
+      renderizarTodo();
+    }
+
+    function cerrarSemanaEIniciarNueva() {
+      const actualId = appData.semanaActivaId;
+      const actualData = getSemanaData(actualId);
+      const nuevoId = appData.semanas.length + 1;
+
+      if (!confirm(`¿Deseas cerrar la Semana ${actualId} e iniciar la Semana ${nuevoId}?\nEl inventario final de esta semana pasará automáticamente como inventario inicial de la nueva semana.`)) {
+        return;
+      }
+
+      // Marcar actual como cerrada
+      const semActualObj = appData.semanas.find(s => s.id === actualId);
+      if (semActualObj) semActualObj.cerrada = true;
+
+      // Calcular inventario inicial para la nueva semana a partir del final
+      const nuevoInventario = {};
+      appData.catalogo.forEach(prod => {
+        const invAnt = actualData.inventario[prod.id] || { inicio: 0, compras: 0, ventas: 0, bajas: 0, finalFisico: 0 };
+        const finalCalculado = (invAnt.inicio || 0) + (invAnt.compras || 0) - (invAnt.ventas || 0) - (invAnt.bajas || 0);
+        const finalFinal = (invAnt.finalFisico !== undefined && invAnt.finalFisico !== null) ? invAnt.finalFisico : finalCalculado;
+
+        nuevoInventario[prod.id] = {
+          inicio: finalFinal,
+          compras: 0,
+          ventas: 0,
+          bajas: 0,
+          finalFisico: finalFinal
+        };
+      });
+
+      appData.semanas.push({
+        id: nuevoId,
+        nombre: `Semana ${nuevoId}`,
+        fechaInicio: new Date().toISOString().split('T')[0],
+        fechaFin: '',
+        cerrada: false
+      });
+
+      appData.datosSemanales[nuevoId] = {
+        inventario: nuevoInventario,
+        vales: [],
+        compras: [],
+        gastos: [],
+        inversiones: [],
+        bajas: []
+      };
+
+      appData.semanaActivaId = nuevoId;
+      guardarStorage();
+      renderizarTodo();
+      alert(`¡Semana ${nuevoId} iniciada con éxito! Los inventarios finales han sido traspasados como iniciales.`);
+    }
+
+    // ================= RENDERIZADO GENERAL =================
+    function renderizarTodo() {
+      renderizarSelectorSemanas();
+      recalcularInventarioDesdeMovimientos();
+      renderizarResumenKPIs();
+      renderizarTablaVales();
+      renderizarTablaInventario();
+      renderizarTablaCompras();
+      renderizarTablasGastosInversionesBajas();
+      renderizarTablaEquipo();
+      poblarSelects();
+      lucide.createIcons();
+    }
+
+    function renderizarSelectorSemanas() {
+      const sel = document.getElementById('selector-semana');
+      sel.innerHTML = '';
+      appData.semanas.forEach(s => {
+        const opt = document.createElement('option');
+        opt.value = s.id;
+        opt.textContent = `${s.nombre} ${s.cerrada ? '🔒 (Cerrada)' : '🟢 (Activa)'}`;
+        if (s.id === appData.semanaActivaId) opt.selected = true;
+        sel.appendChild(opt);
+      });
+    }
+
+    function poblarSelects() {
+      const selCompra = document.getElementById('compra-producto-select');
+      const selBaja = document.getElementById('baja-producto-select');
+      
+      const opts = appData.catalogo.map(p => `<option value="${p.id}">${p.nombre} (P.Compra: $${p.precioCompra})</option>`).join('');
+      if (selCompra) selCompra.innerHTML = opts;
+      if (selBaja) selBaja.innerHTML = opts;
+    }
+
+    // ================= CALCULO Y RESUMEN KPI =================
+    function recalcularInventarioDesdeMovimientos() {
+      const sData = getSemanaData();
+      
+      // Contar compras y ventas por producto en esta semana
+      const comprasPorProd = {};
+      const ventasPorProd = {};
+      const bajasPorProd = {};
+
+      appData.catalogo.forEach(p => {
+        comprasPorProd[p.id] = 0;
+        ventasPorProd[p.id] = 0;
+        bajasPorProd[p.id] = 0;
+      });
+
+      // Sumar compras
+      sData.compras.forEach(c => {
+        if (comprasPorProd[c.productoId] !== undefined) {
+          comprasPorProd[c.productoId] += (c.cantidad || 0);
+        }
+      });
+
+      // Sumar ventas desde los vales
+      sData.vales.forEach(v => {
+        v.items.forEach(it => {
+          // Buscar producto en catálogo por nombre
+          const prod = appData.catalogo.find(p => p.nombre.toLowerCase() === it.producto.toLowerCase());
+          if (prod) {
+            ventasPorProd[prod.id] = (ventasPorProd[prod.id] || 0) + (it.cantidad || 0);
+          }
+        });
+      });
+
+      // Sumar bajas
+      sData.bajas.forEach(b => {
+        if (bajasPorProd[b.productoId] !== undefined) {
+          bajasPorProd[b.productoId] += (b.cantidad || 0);
+        }
+      });
+
+      // Actualizar estado de inventario para la semana
+      appData.catalogo.forEach(p => {
+        if (!sData.inventario[p.id]) {
+          sData.inventario[p.id] = { inicio: 0, compras: 0, ventas: 0, bajas: 0, finalFisico: 0 };
+        }
+        sData.inventario[p.id].compras = comprasPorProd[p.id];
+        sData.inventario[p.id].ventas = ventasPorProd[p.id];
+        sData.inventario[p.id].bajas = bajasPorProd[p.id];
+
+        const calc = (sData.inventario[p.id].inicio || 0) + sData.inventario[p.id].compras - sData.inventario[p.id].ventas - sData.inventario[p.id].bajas;
+        if (sData.inventario[p.id].finalFisico === undefined || sData.inventario[p.id].finalFisico === null) {
+          sData.inventario[p.id].finalFisico = calc;
+        }
+      });
+    }
+
+    function renderizarResumenKPIs() {
+      const sData = getSemanaData();
+
+      const totalVentas = sData.vales.reduce((acc, v) => acc + (v.totalVenta || 0), 0);
+      const totalCostoVenta = sData.vales.reduce((acc, v) => acc + (v.totalCompra || 0), 0);
+      const totalComisiones = sData.vales.reduce((acc, v) => acc + (v.comisionTotal || 0), 0);
+      const totalTransporte = sData.vales.reduce((acc, v) => acc + (v.costoTransporte || 0), 0);
+
+      const margenBruto = totalVentas - totalCostoVenta;
+      const margenPct = totalVentas > 0 ? ((margenBruto / totalVentas) * 100).toFixed(1) : 0;
+
+      const totalGastosExtras = sData.gastos.reduce((acc, g) => acc + (g.monto || 0), 0);
+      const totalInversiones = sData.inversiones.reduce((acc, i) => acc + (i.monto || 0), 0);
+      const totalBajasCosto = sData.bajas.reduce((acc, b) => acc + (b.costoEstimado || 0), 0);
+
+      const gananciaNeta = margenBruto - totalComisiones - totalTransporte - totalGastosExtras - totalBajasCosto;
+
+      document.getElementById('kpi-ventas').textContent = `$ ${totalVentas.toFixed(2)}`;
+      document.getElementById('kpi-vales-count').textContent = `${sData.vales.length} vales facturados`;
+      document.getElementById('kpi-costo').textContent = `$ ${totalCostoVenta.toFixed(2)}`;
+      document.getElementById('kpi-margen-bruto').textContent = `$ ${margenBruto.toFixed(2)}`;
+      document.getElementById('kpi-margen-pct').textContent = `${margenPct}% margen rentabilidad`;
+      document.getElementById('kpi-comisiones').textContent = `$ ${totalComisiones.toFixed(2)}`;
+      document.getElementById('kpi-transporte').textContent = `$ ${totalTransporte.toFixed(2)}`;
+      document.getElementById('kpi-ganancia-neta').textContent = `$ ${gananciaNeta.toFixed(2)}`;
+
+      document.getElementById('resumen-gastos-totales').textContent = `$ ${totalGastosExtras.toFixed(2)}`;
+      document.getElementById('resumen-inversiones-totales').textContent = `$ ${totalInversiones.toFixed(2)}`;
+      document.getElementById('resumen-bajas-totales').textContent = `$ ${totalBajasCosto.toFixed(2)}`;
+
+      // Liquidación detallada
+      document.getElementById('bal-ingresos').textContent = `$ ${totalVentas.toFixed(2)}`;
+      document.getElementById('bal-costo-mercancia').textContent = `-$ ${totalCostoVenta.toFixed(2)}`;
+      document.getElementById('bal-margen-bruto').textContent = `$ ${margenBruto.toFixed(2)}`;
+      document.getElementById('bal-comisiones').textContent = `-$ ${totalComisiones.toFixed(2)}`;
+      document.getElementById('bal-transporte').textContent = `-$ ${totalTransporte.toFixed(2)}`;
+      document.getElementById('bal-gastos-extras').textContent = `-$ ${totalGastosExtras.toFixed(2)}`;
+      document.getElementById('bal-bajas').textContent = `-$ ${totalBajasCosto.toFixed(2)}`;
+      document.getElementById('bal-ganancia-final').textContent = `$ ${gananciaNeta.toFixed(2)}`;
+    }
+
+    // ================= BOT EXTRACTOR Y VALES =================
+    let valeEditandoId = null;
+    let itemsFormularioVale = [];
+
+    function pegarDelPortapapeles() {
+      navigator.clipboard.readText().then(text => {
+        document.getElementById('bot-input-texto').value = text;
+        procesarTextoConBot();
+      }).catch(() => {
+        alert('Por favor pega el texto directamente en el cuadro con Ctrl+V y pulsa "Procesar con Bot".');
+      });
+    }
+
+    function cargarPlantillaEjemplo() {
+      document.getElementById('bot-input-texto').value = 
+`📝 Factura de Entrega (Mensajería)
+✨ Cliente: Roberto González
+✨ Teléfono: +53 58990123
+✨ Dirección: Calle 10 entre 3ra y 5ta, Playa
+✨ Pedido: 2 Nevera..1 Infrarojo..1 Olla Reina
+✨ Precio del artículo: 300 Nevera..35 Infrarojo..28 Olla reina
+✨ Precio de la mensajería: 15
+✨ Nombre del gestor: Yakelin
+✨ Comisión equipo: 18`;
+    }
+
+    function procesarTextoConBot() {
+      const raw = document.getElementById('bot-input-texto').value;
+      if (!raw.trim()) {
+        alert('Escribe o pega primero el texto del vale.');
+        return;
+      }
+
+      // Usar parser inteligente
+      const res = parseValeTexto(raw, appData.catalogo);
+      if (!res) {
+        alert('No se pudo interpretar el vale.');
+        return;
+      }
+
+      // Llenar formulario
+      document.getElementById('vale-cliente').value = res.cliente || '';
+      document.getElementById('vale-telefono').value = res.telefono || '';
+      document.getElementById('vale-direccion').value = res.direccion || '';
+      document.getElementById('vale-gestor').value = res.gestor || '';
+      document.getElementById('vale-transporte').value = res.costoTransporte || 0;
+
+      // Cargar items
+      itemsFormularioVale = res.items.map(it => ({
+        id: it.id,
+        producto: it.producto,
+        cantidad: it.cantidad,
+        precioCompra: it.precioCompra,
+        precioVenta: it.precioVenta,
+        comisionEquipo: it.comisionEquipo
+      }));
+
+      // Aprender automáticamente nuevos productos si no existen en catálogo
+      res.items.forEach(it => {
+        const existe = appData.catalogo.some(p => p.nombre.toLowerCase() === it.producto.toLowerCase());
+        if (!existe && it.producto && it.producto !== 'Artículo por definir') {
+          appData.catalogo.push({
+            id: 'prod-' + Date.now() + Math.random().toString(36).substring(2, 5),
+            nombre: it.producto,
+            precioCompra: it.precioCompra,
+            precioVenta: it.precioVenta,
+            comisionEquipo: it.comisionEquipo
+          });
+        }
+      });
+
+      renderizarFilasFormularioVale();
+      recalcularTotalesFormularioVale();
+      guardarStorage();
+      poblarSelects();
+      alert('¡Vale procesado por el Bot con éxito! Revisa los campos y pulsa "Guardar Vale".');
+    }
+
+    function nuevoFormularioVale() {
+      valeEditandoId = null;
+      document.getElementById('form-vale-id').textContent = 'Nuevo Vale';
+      document.getElementById('vale-folio').value = 'V-' + (getSemanaData().vales.length + 1001);
+      document.getElementById('vale-fecha').value = new Date().toISOString().split('T')[0];
+      document.getElementById('vale-cliente').value = '';
+      document.getElementById('vale-telefono').value = '';
+      document.getElementById('vale-direccion').value = '';
+      document.getElementById('vale-gestor').value = 'Yakelin';
+      document.getElementById('vale-transporte').value = 0;
+
+      itemsFormularioVale = [
+        { id: 'it-init-1', producto: 'Nevera', cantidad: 1, precioCompra: 225, precioVenta: 300, comisionEquipo: 10 }
+      ];
+
+      renderizarFilasFormularioVale();
+      recalcularTotalesFormularioVale();
+    }
+
+    function agregarFilaProductoVale() {
+      itemsFormularioVale.push({
+        id: 'it-' + Date.now() + Math.random().toString(36).substring(2, 5),
+        producto: '',
+        cantidad: 1,
+        precioCompra: 0,
+        precioVenta: 0,
+        comisionEquipo: 0
+      });
+      renderizarFilasFormularioVale();
+      recalcularTotalesFormularioVale();
+    }
+
+    function eliminarFilaProductoVale(id) {
+      itemsFormularioVale = itemsFormularioVale.filter(i => i.id !== id);
+      if (itemsFormularioVale.length === 0) agregarFilaProductoVale();
+      renderizarFilasFormularioVale();
+      recalcularTotalesFormularioVale();
+    }
+
+    function actualizarItemVale(id, campo, valor) {
+      const it = itemsFormularioVale.find(i => i.id === id);
+      if (!it) return;
+
+      if (campo === 'producto') {
+        it.producto = valor;
+        // Si coincide con catálogo, precargar precios
+        const prod = appData.catalogo.find(p => p.nombre.toLowerCase() === valor.toLowerCase());
+        if (prod) {
+          it.precioCompra = prod.precioCompra;
+          it.precioVenta = prod.precioVenta;
+          it.comisionEquipo = prod.comisionEquipo;
+        }
+      } else {
+        it[campo] = parseFloat(valor) || 0;
+      }
+
+      renderizarFilasFormularioVale();
+      recalcularTotalesFormularioVale();
+    }
+
+    function renderizarFilasFormularioVale() {
+      const tbody = document.getElementById('vale-items-tbody');
+      tbody.innerHTML = '';
+
+      itemsFormularioVale.forEach(it => {
+        const subVenta = (it.cantidad || 0) * (it.precioVenta || 0);
+        const subCompra = (it.cantidad || 0) * (it.precioCompra || 0);
+        const subComision = (it.cantidad || 0) * (it.comisionEquipo || 0);
+        const margen = subVenta - subCompra - subComision;
+
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-slate-900/50';
+        tr.innerHTML = `
+          <td class="p-2">
+            <input type="text" list="catalogo-datalist" value="${it.producto}" onchange="actualizarItemVale('${it.id}', 'producto', this.value)" placeholder="Nombre del producto" class="w-full bg-slate-950 border border-slate-700 rounded px-2 py-1 text-white">
+          </td>
+          <td class="p-2">
+            <input type="number" min="1" value="${it.cantidad}" oninput="actualizarItemVale('${it.id}', 'cantidad', this.value)" class="w-full bg-slate-950 border border-slate-700 rounded px-2 py-1 text-white text-center font-mono">
+          </td>
+          <td class="p-2">
+            <input type="number" step="0.01" value="${it.precioCompra}" oninput="actualizarItemVale('${it.id}', 'precioCompra', this.value)" class="w-full bg-slate-950 border border-slate-700 rounded px-2 py-1 text-rose-300 font-mono">
+          </td>
+          <td class="p-2">
+            <input type="number" step="0.01" value="${it.precioVenta}" oninput="actualizarItemVale('${it.id}', 'precioVenta', this.value)" class="w-full bg-slate-950 border border-slate-700 rounded px-2 py-1 text-emerald-300 font-mono">
+          </td>
+          <td class="p-2">
+            <input type="number" step="0.01" value="${it.comisionEquipo}" oninput="actualizarItemVale('${it.id}', 'comisionEquipo', this.value)" class="w-full bg-slate-950 border border-slate-700 rounded px-2 py-1 text-amber-300 font-mono">
+          </td>
+          <td class="p-2 font-mono font-bold ${margen >= 0 ? 'text-cyan-400' : 'text-rose-400'}">
+            $ ${margen.toFixed(2)}
+          </td>
+          <td class="p-2 text-center">
+            <button onclick="eliminarFilaProductoVale('${it.id}')" class="text-rose-400 hover:text-rose-300 p-1" title="Eliminar artículo"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      // Crear o actualizar datalist
+      let dl = document.getElementById('catalogo-datalist');
+      if (!dl) {
+        dl = document.createElement('datalist');
+        dl.id = 'catalogo-datalist';
+        document.body.appendChild(dl);
+      }
+      dl.innerHTML = appData.catalogo.map(p => `<option value="${p.nombre}">`).join('');
+      lucide.createIcons();
+    }
+
+    function recalcularTotalesFormularioVale() {
+      let totVenta = 0, totCompra = 0, totComision = 0;
+      itemsFormularioVale.forEach(it => {
+        const cant = it.cantidad || 0;
+        totVenta += cant * (it.precioVenta || 0);
+        totCompra += cant * (it.precioCompra || 0);
+        totComision += cant * (it.comisionEquipo || 0);
+      });
+
+      const transp = parseFloat(document.getElementById('vale-transporte').value) || 0;
+      const margenNeto = totVenta - totCompra - totComision - transp;
+
+      document.getElementById('form-total-venta').textContent = `$ ${totVenta.toFixed(2)}`;
+      document.getElementById('form-total-compra').textContent = `$ ${totCompra.toFixed(2)}`;
+      document.getElementById('form-total-comision').textContent = `$ ${totComision.toFixed(2)}`;
+      document.getElementById('form-total-transporte').textContent = `$ ${transp.toFixed(2)}`;
+      document.getElementById('form-total-margen').textContent = `$ ${margenNeto.toFixed(2)}`;
+    }
+
+    function guardarValeActual() {
+      const folio = document.getElementById('vale-folio').value.trim() || 'V-' + Date.now();
+      const fecha = document.getElementById('vale-fecha').value || new Date().toISOString().split('T')[0];
+      const cliente = document.getElementById('vale-cliente').value.trim() || 'Cliente General';
+      const telefono = document.getElementById('vale-telefono').value.trim();
+      const direccion = document.getElementById('vale-direccion').value.trim();
+      const gestor = document.getElementById('vale-gestor').value.trim() || 'Equipo Principal';
+      const transporte = parseFloat(document.getElementById('vale-transporte').value) || 0;
+
+      const itemsValidos = itemsFormularioVale.filter(it => it.producto && it.producto.trim() !== '');
+      if (itemsValidos.length === 0) {
+        alert('Agrega al menos un producto al vale.');
+        return;
+      }
+
+      let totalVenta = 0, totalCompra = 0, comisionTotal = 0;
+      const itemsCompletos = itemsValidos.map(it => {
+        const cant = it.cantidad || 1;
+        const subVenta = cant * (it.precioVenta || 0);
+        const subCompra = cant * (it.precioCompra || 0);
+        const subComision = cant * (it.comisionEquipo || 0);
+        totalVenta += subVenta;
+        totalCompra += subCompra;
+        comisionTotal += subComision;
+
+        return {
+          id: it.id,
+          producto: it.producto,
+          cantidad: cant,
+          precioCompra: it.precioCompra,
+          precioVenta: it.precioVenta,
+          comisionEquipo: it.comisionEquipo,
+          subtotalCompra: subCompra,
+          subtotalVenta: subVenta,
+          margenGanancia: subVenta - subCompra - subComision
+        };
+      });
+
+      const margenNetoVale = totalVenta - totalCompra - comisionTotal - transporte;
+
+      const valeData = {
+        id: valeEditandoId || 'vale-' + Date.now(),
+        folio,
+        fecha,
+        cliente,
+        telefono,
+        direccion,
+        gestor,
+        costoTransporte: transporte,
+        items: itemsCompletos,
+        totalVenta,
+        totalCompra,
+        comisionTotal,
+        margenNetoVale
+      };
+
+      const sData = getSemanaData();
+      if (valeEditandoId) {
+        const idx = sData.vales.findIndex(v => v.id === valeEditandoId);
+        if (idx !== -1) sData.vales[idx] = valeData;
+      } else {
+        sData.vales.unshift(valeData);
+      }
+
+      guardarStorage();
+      renderizarTodo();
+      nuevoFormularioVale();
+      alert('¡Vale de venta guardado con éxito!');
+    }
+
+    function editarVale(id) {
+      const sData = getSemanaData();
+      const vale = sData.vales.find(v => v.id === id);
+      if (!vale) return;
+
+      valeEditandoId = vale.id;
+      document.getElementById('form-vale-id').textContent = 'Editando ' + vale.folio;
+      document.getElementById('vale-folio').value = vale.folio;
+      document.getElementById('vale-fecha').value = vale.fecha;
+      document.getElementById('vale-cliente').value = vale.cliente;
+      document.getElementById('vale-telefono').value = vale.telefono || '';
+      document.getElementById('vale-direccion').value = vale.direccion || '';
+      document.getElementById('vale-gestor').value = vale.gestor || '';
+      document.getElementById('vale-transporte').value = vale.costoTransporte || 0;
+
+      itemsFormularioVale = vale.items.map(it => ({ ...it }));
+      renderizarFilasFormularioVale();
+      recalcularTotalesFormularioVale();
+      cambiarPestana('vales');
+      window.scrollTo({ top: 300, behavior: 'smooth' });
+    }
+
+    function eliminarVale(id) {
+      if (!confirm('¿Estás seguro de eliminar este vale?')) return;
+      const sData = getSemanaData();
+      sData.vales = sData.vales.filter(v => v.id !== id);
+      guardarStorage();
+      renderizarTodo();
+    }
+
+    function renderizarTablaVales() {
+      const tbody = document.getElementById('vales-lista-tbody');
+      const filtro = (document.getElementById('filtro-vales') ? document.getElementById('filtro-vales').value : '').toLowerCase();
+      const sData = getSemanaData();
+
+      tbody.innerHTML = '';
+
+      const valesFiltrados = sData.vales.filter(v => {
+        if (!filtro) return true;
+        const texto = `${v.folio} ${v.cliente} ${v.gestor} ${v.items.map(i=>i.producto).join(' ')}`.toLowerCase();
+        return texto.includes(filtro);
+      });
+
+      if (valesFiltrados.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="10" class="p-6 text-center text-slate-500">No hay vales registrados en esta semana.</td></tr>`;
+        return;
+      }
+
+      valesFiltrados.forEach(v => {
+        const prodResumen = v.items.map(i => `<span class="bg-slate-800 px-1.5 py-0.5 rounded text-[11px] font-mono mr-1">${i.cantidad}x ${i.producto}</span>`).join(' ');
+
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-slate-900/50';
+        tr.innerHTML = `
+          <td class="p-3 font-mono font-bold text-indigo-300">${v.folio}</td>
+          <td class="p-3 text-slate-400 font-mono">${v.fecha}</td>
+          <td class="p-3">
+            <div class="font-bold text-white">${v.cliente}</div>
+            <div class="text-[11px] text-slate-400">${v.telefono || 'Sin teléfono'} • Gestor: <span class="text-amber-300">${v.gestor}</span></div>
+          </td>
+          <td class="p-3">${prodResumen}</td>
+          <td class="p-3 font-mono text-rose-300">$ ${v.totalCompra.toFixed(2)}</td>
+          <td class="p-3 font-mono text-emerald-300 font-bold">$ ${v.totalVenta.toFixed(2)}</td>
+          <td class="p-3 font-mono text-amber-300">$ ${v.comisionTotal.toFixed(2)}</td>
+          <td class="p-3 font-mono text-indigo-300">$ ${v.costoTransporte.toFixed(2)}</td>
+          <td class="p-3 font-mono font-bold ${v.margenNetoVale >= 0 ? 'text-cyan-400' : 'text-rose-400'}">$ ${v.margenNetoVale.toFixed(2)}</td>
+          <td class="p-3 text-center">
+            <div class="flex items-center justify-center gap-1.5">
+              <button onclick="editarVale('${v.id}')" class="p-1 text-indigo-400 hover:text-indigo-300" title="Editar vale"><i data-lucide="edit" class="w-4 h-4"></i></button>
+              <button onclick="eliminarVale('${v.id}')" class="p-1 text-rose-400 hover:text-rose-300" title="Eliminar vale"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+            </div>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+      lucide.createIcons();
+    }
+
+    // ================= INVENTARIO =================
+    function renderizarTablaInventario() {
+      const tbody = document.getElementById('inventario-tbody');
+      const sData = getSemanaData();
+      tbody.innerHTML = '';
+
+      appData.catalogo.forEach(prod => {
+        const inv = sData.inventario[prod.id] || { inicio: 0, compras: 0, ventas: 0, bajas: 0, finalFisico: 0 };
+        const calc = (inv.inicio || 0) + (inv.compras || 0) - (inv.ventas || 0) - (inv.bajas || 0);
+        const fisico = (inv.finalFisico !== undefined && inv.finalFisico !== null) ? inv.finalFisico : calc;
+        const dif = fisico - calc;
+
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-slate-900/50';
+        tr.innerHTML = `
+          <td class="p-3 font-bold text-white">${prod.nombre}</td>
+          <td class="p-3 text-center">
+            <input type="number" value="${inv.inicio || 0}" onchange="actualizarInicioInventario('${prod.id}', this.value)" class="w-20 bg-slate-950 border border-slate-700 rounded px-2 py-1 text-center text-white font-mono">
+          </td>
+          <td class="p-3 text-center font-mono font-bold text-emerald-400">+${inv.compras || 0}</td>
+          <td class="p-3 text-center font-mono font-bold text-rose-400">-${inv.ventas || 0}</td>
+          <td class="p-3 text-center font-mono font-bold text-amber-400">-${inv.bajas || 0}</td>
+          <td class="p-3 text-center font-mono font-bold text-indigo-300 bg-indigo-950/20">${calc}</td>
+          <td class="p-3 text-center">
+            <input type="number" id="inv-fisico-${prod.id}" value="${fisico}" onchange="actualizarFisicoInventario('${prod.id}', this.value)" class="w-20 bg-slate-950 border border-indigo-500/50 rounded px-2 py-1 text-center font-bold text-amber-300 font-mono focus:ring-1 focus:ring-indigo-500">
+          </td>
+          <td class="p-3 text-center font-mono font-bold ${dif === 0 ? 'text-slate-500' : (dif > 0 ? 'text-emerald-400' : 'text-rose-400')}">
+            ${dif > 0 ? '+' + dif : dif}
+          </td>
+          <td class="p-3 font-mono text-slate-400">$ ${prod.precioCompra.toFixed(2)}</td>
+          <td class="p-3 font-mono text-slate-400">$ ${prod.precioVenta.toFixed(2)}</td>
+          <td class="p-3 text-center">
+            <button onclick="eliminarProductoCatalogo('${prod.id}')" class="text-slate-500 hover:text-rose-400 p-1" title="Eliminar de catálogo"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+      lucide.createIcons();
+    }
+
+    function actualizarInicioInventario(prodId, valor) {
+      const sData = getSemanaData();
+      if (!sData.inventario[prodId]) sData.inventario[prodId] = { inicio: 0, compras: 0, ventas: 0, bajas: 0, finalFisico: 0 };
+      sData.inventario[prodId].inicio = parseInt(valor, 10) || 0;
+      guardarStorage();
+      renderizarTodo();
+    }
+
+    function actualizarFisicoInventario(prodId, valor) {
+      const sData = getSemanaData();
+      if (!sData.inventario[prodId]) sData.inventario[prodId] = { inicio: 0, compras: 0, ventas: 0, bajas: 0, finalFisico: 0 };
+      sData.inventario[prodId].finalFisico = parseInt(valor, 10) || 0;
+      guardarStorage();
+      renderizarTodo();
+    }
+
+    function cuadrarYGuardarInventario() {
+      guardarStorage();
+      alert('¡Conteo físico de inventario guardado correctamente!');
+    }
+
+    function abrirModalNuevoProducto() {
+      document.getElementById('modal-producto').classList.remove('hidden');
+      document.getElementById('modal-producto').classList.add('flex');
+    }
+
+    function cerrarModalProducto() {
+      document.getElementById('modal-producto').classList.add('hidden');
+      document.getElementById('modal-producto').classList.remove('flex');
+    }
+
+    function guardarNuevoProducto() {
+      const nombre = document.getElementById('prod-nombre').value.trim();
+      const pCompra = parseFloat(document.getElementById('prod-precio-compra').value) || 0;
+      const pVenta = parseFloat(document.getElementById('prod-precio-venta').value) || 0;
+      const comision = parseFloat(document.getElementById('prod-comision').value) || 0;
+      const stockInicial = parseInt(document.getElementById('prod-stock-inicial').value, 10) || 0;
+
+      if (!nombre) {
+        alert('Ingresa el nombre del producto.');
+        return;
+      }
+
+      const prodId = 'prod-' + Date.now();
+      appData.catalogo.push({
+        id: prodId,
+        nombre,
+        precioCompra: pCompra,
+        precioVenta: pVenta,
+        comisionEquipo: comision
+      });
+
+      const sData = getSemanaData();
+      sData.inventario[prodId] = {
+        inicio: stockInicial,
+        compras: 0,
+        ventas: 0,
+        bajas: 0,
+        finalFisico: stockInicial
+      };
+
+      guardarStorage();
+      cerrarModalProducto();
+      renderizarTodo();
+      alert('Producto añadido con éxito al catálogo.');
+    }
+
+    function eliminarProductoCatalogo(id) {
+      if (!confirm('¿Eliminar este producto del catálogo?')) return;
+      appData.catalogo = appData.catalogo.filter(p => p.id !== id);
+      const sData = getSemanaData();
+      delete sData.inventario[id];
+      guardarStorage();
+      renderizarTodo();
+    }
+
+    // ================= COMPRAS NUEVAS =================
+    function registrarCompraNueva() {
+      const sel = document.getElementById('compra-producto-select');
+      const prodId = sel.value;
+      const prod = appData.catalogo.find(p => p.id === prodId);
+      const cant = parseInt(document.getElementById('compra-cantidad').value, 10) || 1;
+      const precio = parseFloat(document.getElementById('compra-precio').value) || 0;
+      const flete = parseFloat(document.getElementById('compra-flete').value) || 0;
+      const prov = document.getElementById('compra-proveedor').value.trim();
+
+      if (!prod) return;
+
+      const subtotal = (cant * precio) + flete;
+      const sData = getSemanaData();
+      sData.compras.push({
+        id: 'comp-' + Date.now(),
+        fecha: new Date().toISOString().split('T')[0],
+        productoId: prod.id,
+        productoNombre: prod.nombre,
+        cantidad: cant,
+        precioCompra: precio,
+        flete: flete,
+        subtotal: subtotal,
+        proveedor: prov || 'Proveedor general'
+      });
+
+      guardarStorage();
+      renderizarTodo();
+      alert(`Compra de ${cant}x ${prod.nombre} añadida al inventario de la semana.`);
+    }
+
+    function renderizarTablaCompras() {
+      const tbody = document.getElementById('compras-tbody');
+      const sData = getSemanaData();
+      tbody.innerHTML = '';
+
+      if (sData.compras.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="8" class="p-6 text-center text-slate-500">No hay compras registradas en esta semana.</td></tr>`;
+        return;
+      }
+
+      sData.compras.forEach(c => {
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-slate-900/50';
+        tr.innerHTML = `
+          <td class="p-3 text-slate-400 font-mono">${c.fecha}</td>
+          <td class="p-3 font-bold text-white">${c.productoNombre}</td>
+          <td class="p-3 text-center font-mono font-bold text-emerald-400">${c.cantidad}</td>
+          <td class="p-3 font-mono text-slate-300">$ ${c.precioCompra.toFixed(2)}</td>
+          <td class="p-3 font-mono text-indigo-300">$ ${c.flete.toFixed(2)}</td>
+          <td class="p-3 font-mono font-bold text-emerald-400">$ ${c.subtotal.toFixed(2)}</td>
+          <td class="p-3 text-slate-400">${c.proveedor}</td>
+          <td class="p-3 text-center">
+            <button onclick="eliminarCompra('${c.id}')" class="text-rose-400 hover:text-rose-300 p-1"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+      lucide.createIcons();
+    }
+
+    function eliminarCompra(id) {
+      if (!confirm('¿Eliminar esta compra? Se descontará del inventario.')) return;
+      const sData = getSemanaData();
+      sData.compras = sData.compras.filter(c => c.id !== id);
+      guardarStorage();
+      renderizarTodo();
+    }
+
+    // ================= GASTOS, INVERSIONES & BAJAS =================
+    function registrarGastoExtra() {
+      const conc = document.getElementById('gasto-concepto').value.trim();
+      const monto = parseFloat(document.getElementById('gasto-monto').value) || 0;
+      if (!conc || monto <= 0) {
+        alert('Ingresa concepto y monto válido.');
+        return;
+      }
+      getSemanaData().gastos.push({ id: 'gas-' + Date.now(), concepto: conc, monto });
+      document.getElementById('gasto-concepto').value = '';
+      document.getElementById('gasto-monto').value = 0;
+      guardarStorage();
+      renderizarTodo();
+    }
+
+    function registrarInversionExtra() {
+      const mot = document.getElementById('inversion-motivo').value.trim();
+      const monto = parseFloat(document.getElementById('inversion-monto').value) || 0;
+      if (!mot || monto <= 0) {
+        alert('Ingresa motivo y monto válido.');
+        return;
+      }
+      getSemanaData().inversiones.push({ id: 'inv-' + Date.now(), motivo: mot, monto });
+      document.getElementById('inversion-motivo').value = '';
+      document.getElementById('inversion-monto').value = 0;
+      guardarStorage();
+      renderizarTodo();
+    }
+
+    function registrarBajaInventario() {
+      const sel = document.getElementById('baja-producto-select');
+      const prodId = sel.value;
+      const prod = appData.catalogo.find(p => p.id === prodId);
+      const cant = parseInt(document.getElementById('baja-cantidad').value, 10) || 1;
+      const mot = document.getElementById('baja-motivo').value.trim();
+
+      if (!prod) return;
+
+      const costoEst = cant * (prod.precioCompra || 0);
+      getSemanaData().bajas.push({
+        id: 'baj-' + Date.now(),
+        productoId: prod.id,
+        productoNombre: prod.nombre,
+        cantidad: cant,
+        motivo: mot || 'Baja general',
+        costoEstimado: costoEst
+      });
+
+      document.getElementById('baja-motivo').value = '';
+      guardarStorage();
+      renderizarTodo();
+      alert(`Baja de ${cant}x ${prod.nombre} descontada del inventario.`);
+    }
+
+    function renderizarTablasGastosInversionesBajas() {
+      const sData = getSemanaData();
+
+      // Gastos
+      const tbG = document.getElementById('gastos-tbody');
+      tbG.innerHTML = sData.gastos.map(g => `
+        <tr class="hover:bg-slate-950/40">
+          <td class="p-2.5 text-slate-300">${g.concepto}</td>
+          <td class="p-2.5 font-mono text-rose-400 font-bold">$ ${g.monto.toFixed(2)}</td>
+          <td class="p-2.5 text-right"><button onclick="eliminarGasto('${g.id}')" class="text-rose-400 p-1"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button></td>
+        </tr>
+      `).join('') || `<tr><td colspan="3" class="p-4 text-center text-slate-500">Sin gastos extras</td></tr>`;
+
+      // Inversiones
+      const tbI = document.getElementById('inversiones-tbody');
+      tbI.innerHTML = sData.inversiones.map(i => `
+        <tr class="hover:bg-slate-950/40">
+          <td class="p-2.5 text-slate-300">${i.motivo}</td>
+          <td class="p-2.5 font-mono text-emerald-400 font-bold">$ ${i.monto.toFixed(2)}</td>
+          <td class="p-2.5 text-right"><button onclick="eliminarInversion('${i.id}')" class="text-rose-400 p-1"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button></td>
+        </tr>
+      `).join('') || `<tr><td colspan="3" class="p-4 text-center text-slate-500">Sin inversiones extras</td></tr>`;
+
+      // Bajas
+      const tbB = document.getElementById('bajas-tbody');
+      tbB.innerHTML = sData.bajas.map(b => `
+        <tr class="hover:bg-slate-950/40">
+          <td class="p-2.5 text-slate-300">${b.cantidad}x ${b.productoNombre}<br><span class="text-[10px] text-slate-500">${b.motivo}</span></td>
+          <td class="p-2.5 font-mono text-amber-400 font-bold">$ ${b.costoEstimado.toFixed(2)}</td>
+          <td class="p-2.5 text-right"><button onclick="eliminarBaja('${b.id}')" class="text-rose-400 p-1"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button></td>
+        </tr>
+      `).join('') || `<tr><td colspan="3" class="p-4 text-center text-slate-500">Sin bajas de inventario</td></tr>`;
+      lucide.createIcons();
+    }
+
+    function eliminarGasto(id) { getSemanaData().gastos = getSemanaData().gastos.filter(g => g.id !== id); guardarStorage(); renderizarTodo(); }
+    function eliminarInversion(id) { getSemanaData().inversiones = getSemanaData().inversiones.filter(i => i.id !== id); guardarStorage(); renderizarTodo(); }
+    function eliminarBaja(id) { getSemanaData().bajas = getSemanaData().bajas.filter(b => b.id !== id); guardarStorage(); renderizarTodo(); }
+
+    // ================= EQUIPO & COMISIONES =================
+    function renderizarTablaEquipo() {
+      const tbody = document.getElementById('equipo-tbody');
+      const sData = getSemanaData();
+      tbody.innerHTML = '';
+
+      // Agrupar por gestor
+      const mapaEquipo = {};
+      sData.vales.forEach(v => {
+        const nom = v.gestor || 'Sin Gestor';
+        if (!mapaEquipo[nom]) {
+          mapaEquipo[nom] = { valesCount: 0, unidades: 0, facturado: 0, comision: 0 };
+        }
+        mapaEquipo[nom].valesCount++;
+        mapaEquipo[nom].facturado += (v.totalVenta || 0);
+        mapaEquipo[nom].comision += (v.comisionTotal || 0);
+        v.items.forEach(it => {
+          mapaEquipo[nom].unidades += (it.cantidad || 0);
+        });
+      });
+
+      const nombres = Object.keys(mapaEquipo);
+      if (nombres.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-slate-500">No hay ventas registradas con gestores en esta semana.</td></tr>`;
+        return;
+      }
+
+      nombres.forEach(nom => {
+        const d = mapaEquipo[nom];
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-slate-900/50';
+        tr.innerHTML = `
+          <td class="p-3 font-bold text-white flex items-center gap-2">
+            <div class="w-7 h-7 rounded-full bg-indigo-600/30 text-indigo-300 font-bold flex items-center justify-center text-xs">
+              ${nom.substring(0, 2).toUpperCase()}
+            </div>
+            ${nom}
+          </td>
+          <td class="p-3 text-center font-mono">${d.valesCount}</td>
+          <td class="p-3 text-center font-mono font-bold text-emerald-400">${d.unidades}</td>
+          <td class="p-3 font-mono text-slate-300">$ ${d.facturado.toFixed(2)}</td>
+          <td class="p-3 font-mono text-amber-300 font-bold text-sm">$ ${d.comision.toFixed(2)}</td>
+          <td class="p-3">
+            <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">Lista para Liquidar</span>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+      lucide.createIcons();
+    }
+
+    // ================= EXPORTACIÓN EXCEL Y RESPALDOS =================
+    function exportarExcelCompleto() {
+      const sData = getSemanaData();
+      const semObj = appData.semanas.find(s => s.id === appData.semanaActivaId) || { nombre: 'Semana' };
+
+      const wb = XLSX.utils.book_new();
+
+      // 1. Hoja de Vales
+      const valesRows = [];
+      sData.vales.forEach(v => {
+        v.items.forEach(it => {
+          valesRows.push({
+            'Folio': v.folio,
+            'Fecha': v.fecha,
+            'Cliente': v.cliente,
+            'Teléfono': v.telefono,
+            'Dirección': v.direccion,
+            'Gestor': v.gestor,
+            'Producto': it.producto,
+            'Cantidad': it.cantidad,
+            'Precio Compra': it.precioCompra,
+            'Precio Venta': it.precioVenta,
+            'Comisión Unitaria': it.comisionEquipo,
+            'Subtotal Venta': it.subtotalVenta,
+            'Margen Ganancia': it.margenGanancia,
+            'Transporte Vale': v.costoTransporte
+          });
+        });
+      });
+      const wsVales = XLSX.utils.json_to_sheet(valesRows);
+      XLSX.utils.book_append_sheet(wb, wsVales, 'Vales y Productos');
+
+      // 2. Hoja de Inventario
+      const invRows = appData.catalogo.map(prod => {
+        const inv = sData.inventario[prod.id] || { inicio: 0, compras: 0, ventas: 0, bajas: 0, finalFisico: 0 };
+        const calc = (inv.inicio || 0) + (inv.compras || 0) - (inv.ventas || 0) - (inv.bajas || 0);
+        return {
+          'Producto': prod.nombre,
+          'Inventario Inicial': inv.inicio || 0,
+          'Compras (+)': inv.compras || 0,
+          'Ventas (-)': inv.ventas || 0,
+          'Bajas (-)': inv.bajas || 0,
+          'Final Calculado': calc,
+          'Final Físico': inv.finalFisico,
+          'Diferencia': (inv.finalFisico || calc) - calc,
+          'Precio Compra': prod.precioCompra,
+          'Precio Venta': prod.precioVenta
+        };
+      });
+      const wsInv = XLSX.utils.json_to_sheet(invRows);
+      XLSX.utils.book_append_sheet(wb, wsInv, 'Inventario Semanal');
+
+      // 3. Hoja de Comisiones
+      const comRows = [];
+      const mapaEquipo = {};
+      sData.vales.forEach(v => {
+        const nom = v.gestor || 'Sin Gestor';
+        if (!mapaEquipo[nom]) mapaEquipo[nom] = { vales: 0, facturado: 0, comision: 0 };
+        mapaEquipo[nom].vales++;
+        mapaEquipo[nom].facturado += v.totalVenta;
+        mapaEquipo[nom].comision += v.comisionTotal;
+      });
+      for (const [gestor, d] of Object.entries(mapaEquipo)) {
+        comRows.push({ 'Miembro': gestor, 'Vales': d.vales, 'Facturación Total': d.facturado, 'Comisión a Pagar': d.comision });
+      }
+      const wsCom = XLSX.utils.json_to_sheet(comRows);
+      XLSX.utils.book_append_sheet(wb, wsCom, 'Liquidación Equipo');
+
+      // Descargar
+      XLSX.writeFile(wb, `Compras_Tienda_${semObj.nombre.replace(/\s+/g, '_')}.xlsx`);
+    }
+
+    function hacerCopiaJSON() {
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(appData, null, 2));
+      const a = document.createElement('a');
+      a.setAttribute("href", dataStr);
+      a.setAttribute("download", `compras_tienda_backup_${new Date().toISOString().split('T')[0]}.json`);
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+    }
+
+    function restaurarCopiaJSON(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          appData = JSON.parse(e.target.result);
+          guardarStorage();
+          renderizarTodo();
+          alert('¡Copia de seguridad restaurada con éxito!');
+        } catch (err) {
+          alert('Error al leer el archivo JSON: ' + err.message);
+        }
+      };
+      reader.readAsText(file);
+    }
+  </script>
+</body>
+</html>

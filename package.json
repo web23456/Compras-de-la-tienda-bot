@@ -1,0 +1,22 @@
+{
+  "name": "compras-de-la-tienda",
+  "version": "1.0.0",
+  "description": "Sistema integral de compras, vales multi-producto, comisiones, transporte e inventario semanal",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "keywords": [
+    "contabilidad",
+    "tienda",
+    "vales",
+    "bot",
+    "inventario-semanal"
+  ],
+  "author": "Karel",
+  "license": "MIT",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.19.2"
+  }
+}
