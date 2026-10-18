@@ -2,4 +2,7 @@ node_modules/
 .DS_Store
 Thumbs.db
 *.log
+.env
 data_backup.json
+salvas_semanales_local/
+tienda_datos.json
