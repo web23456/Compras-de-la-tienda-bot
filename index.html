@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Compras de la Tienda — Sistema Contable, Vales e Inventario Semanal</title>
+  <title>Compras de la Tienda — Control Semanal, Vales e Inventario</title>
   
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -47,54 +47,56 @@
   <!-- ======================================================== -->
   <div class="bg-gradient-to-r from-purple-950 via-indigo-950 to-slate-900 border-b border-purple-500/30 px-4 py-2 flex flex-wrap items-center justify-between gap-2 text-xs">
     <div class="flex items-center gap-2">
-      <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+      <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping"></span>
       <span class="font-bold text-white flex items-center gap-1.5">
         <i data-lucide="bot" class="w-4 h-4 text-purple-400"></i>
-        Bot de la Tienda Conectado a GitHub:
+        Gestores & Compras Bot Conectado a GitHub:
       </span>
       <a href="https://github.com/web23456/Compras-de-la-tienda-bot" target="_blank" class="font-mono text-purple-300 hover:text-white underline">web23456/Compras-de-la-tienda-bot (main)</a>
     </div>
     <div class="flex items-center gap-2 flex-wrap">
-      <button onclick="realizarCorteSemanalBot()" class="px-3 py-1 rounded-lg bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black flex items-center gap-1.5 shadow shadow-amber-950/40 text-xs transition" title="Crear salva de inventario y corte en GitHub y Local">
+      <button onclick="realizarCorteSemanalBot()" style="background: linear-gradient(135deg, #bf953f, #fcf6ba, #b38728); color: #000; font-weight: 800; padding: 5px 14px; border-radius: 8px; border: 1px solid #d4af37; cursor: pointer; display: flex; align-items: center; gap: 4px; box-shadow: 0 2px 10px rgba(212,175,55,0.3); font-size: 11px;" title="Guardar salva semanal permanente (GitHub + Local) e iniciar nueva semana">
         📦 Salva & Corte Semanal
       </button>
-      <button onclick="sincronizarConGitHubDesdeBot()" class="px-3 py-1 rounded-lg bg-purple-600 hover:bg-purple-500 text-white font-bold flex items-center gap-1 shadow transition text-xs">
-        <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Sincronizar con GitHub ✨
+      <button onclick="sincronizarConGitHubDesdeBot()" style="background: linear-gradient(135deg, #d4af37, #b8921b); color: #000; font-weight: 800; padding: 5px 14px; border-radius: 8px; border: 1px solid #ffd700; cursor: pointer; display: flex; align-items: center; gap: 4px; box-shadow: 0 2px 10px rgba(212,175,55,0.3); font-size: 11px;">
+        ⬆️ Guardar en GitHub
       </button>
-      <span id="bot-sync-status" class="text-[11px] text-amber-300 font-mono">Al día</span>
+      <button onclick="abrirModalRegistroVale()" style="background: linear-gradient(135deg, #ffd700, #b8921b); color: #000; font-weight: 800; padding: 5px 13px; border-radius: 8px; border: 1px solid #ffd700; cursor: pointer; display: flex; align-items: center; gap: 4px; box-shadow: 0 2px 10px rgba(255,215,0,0.3); font-size: 11px;" title="Pegar vales de WhatsApp y analizarlos">
+        ⚡ Pegar Vale WhatsApp
+      </button>
+      <span id="bot-sync-status" class="text-[11px] text-amber-300 font-mono font-bold">Al día</span>
     </div>
   </div>
 
   <!-- ======================================================== -->
-  <!-- BARRA DE NAVEGACIÓN Y CABECERA                           -->
+  <!-- BARRA DE NAVEGACIÓN Y CABECERA (GESTORES BOT HEADER)     -->
   <!-- ======================================================== -->
   <header class="sticky top-0 z-40 bg-slate-900/90 backdrop-blur-md border-b border-slate-800 shadow-lg">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
       
-      <!-- Marca / Logo -->
+      <!-- Marca / Logo con gradiente de Gestores Bot -->
       <div class="flex items-center gap-3">
         <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 via-purple-600 to-pink-500 flex items-center justify-center text-white shadow-md shadow-indigo-900/40">
-          <i data-lucide="shopping-cart" class="w-5 h-5"></i>
+          <i data-lucide="users-2" class="w-5 h-5"></i>
         </div>
         <div>
           <h1 class="text-base font-extrabold text-white tracking-tight leading-tight flex items-center gap-2">
-            Compras de la Tienda
+            Compras de la Tienda & Gestores
             <span class="text-[10px] px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/40 font-mono">
-              Semana a Semana
+              Lunes a Lunes
             </span>
           </h1>
-          <p class="text-xs text-slate-400">Vales con Bot • Precios de Compra/Venta • Margen • Comisiones • Fletes</p>
+          <p class="text-xs text-slate-400">Control de compras, vales WhatsApp, comisiones de equipo, transporte e inventario</p>
         </div>
       </div>
 
       <!-- Acciones de Cabecera -->
       <div class="flex items-center flex-wrap gap-2">
-        <!-- Selector de Semana -->
-        <div class="flex items-center gap-1.5 bg-slate-950 border border-slate-800 rounded-xl px-2.5 py-1.5">
-          <i data-lucide="calendar" class="w-4 h-4 text-indigo-400"></i>
-          <select id="selector-semana" onchange="cambiarSemana(this.value)" class="bg-slate-900 text-indigo-300 text-xs font-bold rounded-lg px-2 py-1 border border-slate-700 focus:outline-none">
-            <!-- Dinámico -->
-          </select>
+
+        <div id="badge-usuario-sesion" class="px-3 py-1.5 rounded-xl bg-slate-800 border border-slate-700 flex items-center gap-2 text-xs">
+          <div class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></div>
+          <span id="label-usuario-sesion" class="font-bold text-white font-mono">Karel</span>
+          <span id="label-rol-sesion" class="text-[10px] px-1.5 py-0.2 rounded bg-indigo-500/20 text-indigo-300 font-mono font-bold">ADMIN</span>
         </div>
 
         <button onclick="abrirModalRegistroVale()" 
@@ -105,7 +107,7 @@
 
         <button onclick="exportarExcelCompleto()" 
                 class="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold text-xs flex items-center gap-1.5 border border-slate-700 transition-all"
-                title="Descargar Excel semanal">
+                title="Descargar Excel semanal completo">
           <i data-lucide="file-spreadsheet" class="w-4 h-4 text-emerald-400"></i>
           <span>Excel</span>
         </button>
@@ -114,13 +116,16 @@
     </div>
   </header>
 
-  <!-- ================= BARRA DE PESTAÑAS ================= -->
+  <!-- ================= BARRA DE PESTAÑAS (TABS) ================= -->
   <nav class="bg-slate-900/60 border-b border-slate-800 px-4 flex space-x-1 overflow-x-auto shrink-0 max-w-7xl mx-auto w-full">
     <button onclick="cambiarPestana('resumen')" class="nav-tab active px-4 py-2.5 text-xs font-bold border-b-2 border-indigo-500 text-indigo-400 flex items-center gap-2" id="tab-btn-resumen">
       <i data-lucide="bar-chart-3" class="w-4 h-4"></i> Resumen Semanal
     </button>
+    <button onclick="cambiarPestana('gestores')" class="nav-tab px-4 py-2.5 text-xs font-bold border-b-2 border-transparent text-slate-400 hover:text-slate-200 flex items-center gap-2" id="tab-btn-gestores">
+      <i data-lucide="contact" class="w-4 h-4"></i> Gestores & Vales
+    </button>
     <button onclick="cambiarPestana('vales')" class="nav-tab px-4 py-2.5 text-xs font-bold border-b-2 border-transparent text-slate-400 hover:text-slate-200 flex items-center gap-2" id="tab-btn-vales">
-      <i data-lucide="receipt" class="w-4 h-4"></i> Vales & Bot Extractor
+      <i data-lucide="receipt" class="w-4 h-4"></i> Tabla de Vales & Bot
     </button>
     <button onclick="cambiarPestana('inventario')" class="nav-tab px-4 py-2.5 text-xs font-bold border-b-2 border-transparent text-slate-400 hover:text-slate-200 flex items-center gap-2" id="tab-btn-inventario">
       <i data-lucide="boxes" class="w-4 h-4"></i> Inventario (Inicio/Final)
@@ -131,129 +136,152 @@
     <button onclick="cambiarPestana('gastos-inversiones')" class="nav-tab px-4 py-2.5 text-xs font-bold border-b-2 border-transparent text-slate-400 hover:text-slate-200 flex items-center gap-2" id="tab-btn-gastos-inversiones">
       <i data-lucide="wallet" class="w-4 h-4"></i> Gastos, Inversiones & Bajas
     </button>
-    <button onclick="cambiarPestana('equipo')" class="nav-tab px-4 py-2.5 text-xs font-bold border-b-2 border-transparent text-slate-400 hover:text-slate-200 flex items-center gap-2" id="tab-btn-equipo">
-      <i data-lucide="users" class="w-4 h-4"></i> Equipo & Comisiones
-    </button>
   </nav>
 
   <!-- ================= CONTENEDOR PRINCIPAL ================= -->
-  <main class="max-w-7xl mx-auto w-full p-4 md:p-6 space-y-6 flex-1">
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-5 space-y-6">
+
+    <!-- BARRA DE CONTROL DE SEMANA (LUNES A LUNES - GESTORES BOT DESIGN) -->
+    <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 shadow-xl backdrop-blur flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-xl bg-indigo-500/10 text-indigo-400 flex items-center justify-center border border-indigo-500/20">
+          <i data-lucide="calendar" class="w-5 h-5"></i>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="text-xs uppercase font-bold text-indigo-400 tracking-wider">Período Semanal de Gestión:</span>
+            <span id="label-rango-semana-activa" class="text-xs text-slate-400 font-mono">Lunes a Lunes</span>
+          </div>
+          <h2 id="titulo-semana-activa" class="text-lg font-black text-white">Semana Actual</h2>
+        </div>
+      </div>
+
+      <!-- Filtros de Navegación por Semanas -->
+      <div class="flex items-center flex-wrap gap-2">
+        <button onclick="cambiarSemanaRelativa(-1)" class="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition-colors" title="Semana Anterior">
+          <i data-lucide="chevron-left" class="w-4 h-4"></i>
+        </button>
+
+        <select id="select-semanas" onchange="cambiarSemana(this.value)" class="bg-slate-950 border border-slate-700 text-white font-semibold text-xs rounded-xl px-3 py-2 focus:ring-1 focus:ring-indigo-500 focus:outline-none">
+          <!-- Opciones dinámicas -->
+        </select>
+
+        <button onclick="cambiarSemanaRelativa(1)" class="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition-colors" title="Semana Siguiente">
+          <i data-lucide="chevron-right" class="w-4 h-4"></i>
+        </button>
+
+        <button onclick="cerrarSemanaEIniciarNueva()" class="px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold flex items-center gap-1.5 shadow transition-all">
+          <i data-lucide="plus-circle" class="w-4 h-4"></i>
+          <span>Nueva Semana</span>
+        </button>
+      </div>
+    </div>
 
     <!-- ================= 1. PESTAÑA: RESUMEN SEMANAL ================= -->
     <section id="tab-resumen" class="tab-content active space-y-6">
       
-      <!-- TARJETAS DE MÉTRICAS CLAVE -->
-      <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
-        <!-- Venta Bruta -->
-        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 flex flex-col justify-between shadow-sm">
-          <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Ventas Totales</span>
-          <div class="text-xl font-black text-emerald-400 mt-1" id="kpi-ventas">$ 0.00</div>
-          <span class="text-[10px] text-slate-500 mt-1" id="kpi-vales-count">0 vales facturados</span>
+      <!-- TARJETAS DE MÉTRICAS GLOBALES DE LA SEMANA (ESTILO GESTORES BOT) -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 shadow-md">
+          <div class="flex items-center justify-between text-slate-400 mb-2">
+            <span class="text-xs font-medium">Vales Esta Semana</span>
+            <i data-lucide="receipt" class="w-4 h-4 text-indigo-400"></i>
+          </div>
+          <div id="kpi-total-vales" class="text-2xl font-black text-white font-mono">0</div>
+          <p class="text-[11px] text-slate-500 mt-1">Registrados de lunes a lunes</p>
         </div>
-        <!-- Costo de Mercancía -->
-        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 flex flex-col justify-between shadow-sm">
-          <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Costo Mercancía</span>
-          <div class="text-xl font-black text-rose-400 mt-1" id="kpi-costo">$ 0.00</div>
-          <span class="text-[10px] text-slate-500 mt-1">Precio de compra vendido</span>
+
+        <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 shadow-md">
+          <div class="flex items-center justify-between text-slate-400 mb-2">
+            <span class="text-xs font-medium">Equipos Vendidos</span>
+            <i data-lucide="package-check" class="w-4 h-4 text-emerald-400"></i>
+          </div>
+          <div id="kpi-total-equipos" class="text-2xl font-black text-emerald-400 font-mono">0</div>
+          <p class="text-[11px] text-slate-500 mt-1">Total unidades entregadas</p>
         </div>
-        <!-- Margen Bruto -->
-        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 flex flex-col justify-between shadow-sm">
-          <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Margen Bruto</span>
-          <div class="text-xl font-black text-cyan-400 mt-1" id="kpi-margen-bruto">$ 0.00</div>
-          <span class="text-[10px] text-cyan-500/80 mt-1" id="kpi-margen-pct">0.0% rentabilidad</span>
+
+        <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 shadow-md">
+          <div class="flex items-center justify-between text-slate-400 mb-2">
+            <span class="text-xs font-medium">Ventas Totales</span>
+            <i data-lucide="badge-dollar-sign" class="w-4 h-4 text-teal-400"></i>
+          </div>
+          <div id="kpi-total-ventas-usd" class="text-xl font-black text-teal-300 font-mono">$0.00 USD</div>
+          <div id="kpi-total-costo-mercancia" class="text-xs font-bold text-rose-400 font-mono mt-0.5">Costo: -$0.00</div>
         </div>
-        <!-- Comisiones Equipo -->
-        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 flex flex-col justify-between shadow-sm">
-          <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Comisión Equipo</span>
-          <div class="text-xl font-black text-amber-400 mt-1" id="kpi-comisiones">$ 0.00</div>
-          <span class="text-[10px] text-slate-500 mt-1">Gestores y ventas</span>
-        </div>
-        <!-- Transporte / Mensajería -->
-        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 flex flex-col justify-between shadow-sm">
-          <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Transportación</span>
-          <div class="text-xl font-black text-indigo-400 mt-1" id="kpi-transporte">$ 0.00</div>
-          <span class="text-[10px] text-slate-500 mt-1">Fletes y mensajería</span>
-        </div>
-        <!-- Ganancia Neta Real -->
-        <div class="bg-gradient-to-br from-indigo-950/70 via-purple-950/70 to-slate-900 border border-indigo-500/40 rounded-2xl p-4 flex flex-col justify-between shadow-xl">
-          <span class="text-[11px] font-black text-indigo-300 uppercase tracking-wider">Ganancia Neta</span>
-          <div class="text-2xl font-black text-white mt-1" id="kpi-ganancia-neta">$ 0.00</div>
-          <span class="text-[10px] text-indigo-200/80 mt-1">Limpia para la tienda</span>
+
+        <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 shadow-md">
+          <div class="flex items-center justify-between text-slate-400 mb-2">
+            <span class="text-xs font-medium">Ganancia Neta Tienda</span>
+            <i data-lucide="wallet" class="w-4 h-4 text-purple-400"></i>
+          </div>
+          <div id="kpi-ganancia-neta" class="text-2xl font-black text-purple-300 font-mono">$0.00</div>
+          <p id="kpi-margen-pct" class="text-[11px] text-cyan-400 font-semibold mt-1">0.0% margen comercial</p>
         </div>
       </div>
 
-      <!-- SEGUNDA FILA: FLUJO Y MOVIMIENTOS EXTRAS -->
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <!-- Gastos Operativos y Extras -->
-        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 space-y-3">
-          <div class="flex items-center justify-between">
-            <span class="text-xs font-bold text-slate-300 uppercase">Gastos Totales de la Semana</span>
-            <i data-lucide="arrow-down-right" class="w-4 h-4 text-rose-400"></i>
-          </div>
-          <div class="text-2xl font-black text-rose-400" id="resumen-gastos-totales">$ 0.00</div>
-          <p class="text-xs text-slate-400 leading-relaxed">Incluye fletes de compra, locales, empaque, salarios fijos u otros gastos registrados.</p>
+      <!-- SEGUNDA FILA: DESGLOSE COMPLETO DE COSTOS Y FLUJOS -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-xs">
+        <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-4">
+          <div class="text-slate-400 uppercase text-[10px] font-bold">Comisiones Gestores</div>
+          <div class="text-xl font-black text-amber-400 font-mono mt-1" id="kpi-comisiones">$ 0.00</div>
+          <p class="text-[10px] text-slate-500 mt-1">A pagar al equipo</p>
         </div>
-
-        <!-- Inversiones Extras -->
-        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 space-y-3">
-          <div class="flex items-center justify-between">
-            <span class="text-xs font-bold text-slate-300 uppercase">Inversiones Extras / Inyecciones</span>
-            <i data-lucide="arrow-up-right" class="w-4 h-4 text-emerald-400"></i>
-          </div>
-          <div class="text-2xl font-black text-emerald-400" id="resumen-inversiones-totales">$ 0.00</div>
-          <p class="text-xs text-slate-400 leading-relaxed">Aportes extraordinarios de capital para compras de lotes mayores o crecimiento.</p>
+        <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-4">
+          <div class="text-slate-400 uppercase text-[10px] font-bold">Transportación / Fletes</div>
+          <div class="text-xl font-black text-indigo-400 font-mono mt-1" id="kpi-transporte">$ 0.00</div>
+          <p class="text-[10px] text-slate-500 mt-1">Costos de mensajería</p>
         </div>
-
-        <!-- Bajas / Averías -->
-        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 space-y-3">
-          <div class="flex items-center justify-between">
-            <span class="text-xs font-bold text-slate-300 uppercase">Bajas y Averías de Inventario</span>
-            <i data-lucide="alert-triangle" class="w-4 h-4 text-amber-400"></i>
-          </div>
-          <div class="text-2xl font-black text-amber-400" id="resumen-bajas-totales">$ 0.00</div>
-          <p class="text-xs text-slate-400 leading-relaxed">Pérdidas registradas por roturas, garantías técnicas o artículos defectuosos.</p>
+        <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-4">
+          <div class="text-slate-400 uppercase text-[10px] font-bold">Gastos Extras Semanales</div>
+          <div class="text-xl font-black text-rose-400 font-mono mt-1" id="resumen-gastos-totales">$ 0.00</div>
+          <p class="text-[10px] text-slate-500 mt-1">Operativos y fletes</p>
+        </div>
+        <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-4">
+          <div class="text-slate-400 uppercase text-[10px] font-bold">Inversiones Extras</div>
+          <div class="text-xl font-black text-emerald-400 font-mono mt-1" id="resumen-inversiones-totales">$ 0.00</div>
+          <p class="text-[10px] text-slate-500 mt-1">Inyecciones de capital</p>
         </div>
       </div>
 
-      <!-- TABLA DE BALANCE SEMANAL DETALLADO -->
-      <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-lg">
-        <div class="p-4 border-b border-slate-800 flex items-center justify-between bg-slate-950/40">
+      <!-- LIQUIDACIÓN SEMANAL DETALLADA (ESTILO GESTORES BOT) -->
+      <div class="bg-slate-900/90 border border-slate-800 rounded-2xl overflow-hidden shadow-xl">
+        <div class="p-4 border-b border-slate-800 flex items-center justify-between bg-slate-900">
           <h2 class="text-sm font-bold text-white flex items-center gap-2">
             <i data-lucide="calculator" class="w-4 h-4 text-indigo-400"></i> Liquidación y Cuadre de la Semana
           </h2>
-          <span class="text-xs text-slate-400">Calculado en tiempo real</span>
+          <span class="text-xs text-slate-400 font-mono">Calculado en tiempo real</span>
         </div>
         <div class="p-5">
           <div class="space-y-3 text-xs">
-            <div class="flex justify-between py-1.5 border-b border-slate-800">
+            <div class="flex justify-between py-1.5 border-b border-slate-800/80">
               <span class="text-slate-400">(+) Ingresos Brutos por Venta de Vales:</span>
               <span class="font-bold text-emerald-400 font-mono" id="bal-ingresos">$ 0.00</span>
             </div>
-            <div class="flex justify-between py-1.5 border-b border-slate-800">
+            <div class="flex justify-between py-1.5 border-b border-slate-800/80">
               <span class="text-slate-400">(-) Costo de Mercancía Vendida (Precio de Compra):</span>
               <span class="font-bold text-rose-400 font-mono" id="bal-costo-mercancia">-$ 0.00</span>
             </div>
-            <div class="flex justify-between py-1.5 border-b border-slate-800 font-semibold bg-slate-950/40 px-2 rounded">
+            <div class="flex justify-between py-1.5 border-b border-slate-800/80 font-semibold bg-slate-950/60 px-3 rounded-lg">
               <span class="text-slate-300">(=) Margen Comercial Bruto:</span>
               <span class="font-bold text-cyan-300 font-mono" id="bal-margen-bruto">$ 0.00</span>
             </div>
-            <div class="flex justify-between py-1.5 border-b border-slate-800">
-              <span class="text-slate-400">(-) Comisiones Pagadas al Equipo / Gestores:</span>
+            <div class="flex justify-between py-1.5 border-b border-slate-800/80">
+              <span class="text-slate-400">(-) Comisiones al Equipo / Gestores:</span>
               <span class="font-bold text-amber-400 font-mono" id="bal-comisiones">-$ 0.00</span>
             </div>
-            <div class="flex justify-between py-1.5 border-b border-slate-800">
-              <span class="text-slate-400">(-) Costos de Transportación y Flete en Vales:</span>
+            <div class="flex justify-between py-1.5 border-b border-slate-800/80">
+              <span class="text-slate-400">(-) Costos de Transportación / Fletes:</span>
               <span class="font-bold text-indigo-400 font-mono" id="bal-transporte">-$ 0.00</span>
             </div>
-            <div class="flex justify-between py-1.5 border-b border-slate-800">
-              <span class="text-slate-400">(-) Gastos Extras de la Semana:</span>
+            <div class="flex justify-between py-1.5 border-b border-slate-800/80">
+              <span class="text-slate-400">(-) Gastos Extras Semanales:</span>
               <span class="font-bold text-rose-400 font-mono" id="bal-gastos-extras">-$ 0.00</span>
             </div>
-            <div class="flex justify-between py-1.5 border-b border-slate-800">
+            <div class="flex justify-between py-1.5 border-b border-slate-800/80">
               <span class="text-slate-400">(-) Costo por Bajas / Averías:</span>
               <span class="font-bold text-amber-500 font-mono" id="bal-bajas">-$ 0.00</span>
             </div>
-            <div class="flex justify-between py-3 text-sm font-black bg-indigo-950/40 px-3.5 rounded-xl border border-indigo-500/40">
+            <div class="flex justify-between py-3 text-sm font-black bg-gradient-to-r from-indigo-950/80 to-purple-950/80 px-4 rounded-xl border border-indigo-500/40 shadow">
               <span class="text-indigo-200">(=) GANANCIA NETA FINAL DE LA SEMANA:</span>
               <span class="font-bold text-white font-mono text-base" id="bal-ganancia-final">$ 0.00</span>
             </div>
@@ -262,19 +290,44 @@
       </div>
     </section>
 
-    <!-- ================= 2. PESTAÑA: VALES & BOT EXTRACTOR ================= -->
+    <!-- ================= 2. PESTAÑA: GESTORES & VALES ORIGINALES (VISTA GESTORES BOT) ================= -->
+    <section id="tab-gestores" class="tab-content space-y-4">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div>
+          <h3 class="text-base font-bold text-white flex items-center gap-2">
+            <i data-lucide="contact" class="w-5 h-5 text-indigo-400"></i>
+            Gestores de Ventas & Tarjetas Individuales
+          </h3>
+          <p class="text-xs text-slate-400">Consulta los vales enteros originales de WhatsApp de cada gestor con sus emojis y liquidación</p>
+        </div>
+
+        <div class="relative w-full sm:w-64">
+          <i data-lucide="search" class="w-4 h-4 absolute left-3 top-2.5 text-slate-500"></i>
+          <input type="text" id="input-buscar-gestor" oninput="renderizarTarjetasGestores()" 
+                 placeholder="Buscar por gestor, teléfono..." 
+                 class="w-full bg-slate-900 border border-slate-800 text-white rounded-xl pl-9 pr-3 py-1.5 text-xs focus:ring-1 focus:ring-indigo-500 focus:outline-none">
+        </div>
+      </div>
+
+      <!-- Contenedor dinámico de tarjetas de gestores (Estilo Gestores Bot) -->
+      <div id="contenedor-tarjetas-gestores" class="space-y-4">
+        <!-- Tarjetas dinámicas -->
+      </div>
+    </section>
+
+    <!-- ================= 3. PESTAÑA: VALES & BOT EXTRACTOR ================= -->
     <section id="tab-vales" class="tab-content space-y-6">
 
       <!-- BOT ASISTENTE EXTRACTOR DE VALES -->
-      <div class="bg-gradient-to-r from-indigo-950/70 via-slate-900 to-slate-900 border border-indigo-500/40 rounded-2xl p-5 space-y-3 shadow-xl">
+      <div class="bg-slate-900/90 border border-indigo-500/40 rounded-2xl p-5 space-y-3 shadow-xl">
         <div class="flex flex-wrap items-center justify-between gap-2">
           <div class="flex items-center gap-2.5">
-            <div class="p-2 rounded-xl bg-indigo-600/30 text-indigo-300 border border-indigo-500/30">
+            <div class="w-9 h-9 rounded-xl bg-indigo-600/30 text-indigo-300 border border-indigo-500/30 flex items-center justify-center">
               <i data-lucide="bot" class="w-5 h-5"></i>
             </div>
             <div>
               <h2 class="text-sm font-bold text-white">Bot Extractor Inteligente de Vales</h2>
-              <p class="text-xs text-slate-400">Pega notas de WhatsApp con múltiples productos (divide cantidad, compra, venta, comisión y flete)</p>
+              <p class="text-xs text-slate-400">Pega notas de WhatsApp con múltiples productos (divide cantidad, compra, venta, comisión y transporte)</p>
             </div>
           </div>
           <div class="flex gap-2">
@@ -282,7 +335,7 @@
               <i data-lucide="clipboard" class="w-3.5 h-3.5"></i> Pegar
             </button>
             <button onclick="cargarPlantillaEjemplo()" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs font-semibold flex items-center gap-1 transition">
-              <i data-lucide="file-text" class="w-3.5 h-3.5"></i> Cargar Ejemplo
+              <i data-lucide="file-text" class="w-3.5 h-3.5"></i> Ejemplo
             </button>
           </div>
         </div>
@@ -301,7 +354,7 @@
       </div>
 
       <!-- FORMULARIO DE VALE (ROBUSTO Y EDITABLE) -->
-      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-4 shadow-lg">
+      <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 space-y-4 shadow-lg">
         <div class="flex items-center justify-between border-b border-slate-800 pb-3">
           <h2 class="text-sm font-bold text-white flex items-center gap-2">
             <i data-lucide="edit-3" class="w-4 h-4 text-indigo-400"></i> Formulario de Vale de Venta
@@ -390,10 +443,10 @@
       </div>
 
       <!-- LISTADO DE VALES REGISTRADOS EN LA SEMANA -->
-      <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-lg space-y-2">
-        <div class="p-4 border-b border-slate-800 flex flex-wrap items-center justify-between gap-2 bg-slate-950/40">
+      <div class="bg-slate-900/90 border border-slate-800 rounded-2xl overflow-hidden shadow-lg space-y-2">
+        <div class="p-4 border-b border-slate-800 flex flex-wrap items-center justify-between gap-2 bg-slate-900">
           <h2 class="text-sm font-bold text-white flex items-center gap-2">
-            <i data-lucide="list" class="w-4 h-4 text-indigo-400"></i> Vales Registrados en esta Semana
+            <i data-lucide="list" class="w-4 h-4 text-indigo-400"></i> Tabla de Todos los Vales de la Semana
           </h2>
           <div class="flex gap-2">
             <input type="text" id="filtro-vales" oninput="renderizarTablaVales()" placeholder="Buscar cliente, gestor, producto..." class="bg-slate-950 border border-slate-700 text-white text-xs rounded-xl px-2.5 py-1.5 focus:outline-none">
@@ -424,10 +477,10 @@
       </div>
     </section>
 
-    <!-- ================= 3. PESTAÑA: INVENTARIO (INICIO / FINAL) ================= -->
+    <!-- ================= 4. PESTAÑA: INVENTARIO (INICIO / FINAL) ================= -->
     <section id="tab-inventario" class="tab-content space-y-6">
 
-      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 flex flex-wrap items-center justify-between gap-4 shadow-lg">
+      <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 flex flex-wrap items-center justify-between gap-4 shadow-lg">
         <div>
           <h2 class="text-sm font-bold text-white flex items-center gap-2">
             <i data-lucide="boxes" class="w-4 h-4 text-indigo-400"></i> Control y Cuadre de Inventario Semanal
@@ -444,7 +497,7 @@
         </div>
       </div>
 
-      <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-lg">
+      <div class="bg-slate-900/90 border border-slate-800 rounded-2xl overflow-hidden shadow-lg">
         <div class="overflow-x-auto">
           <table class="w-full text-left text-xs">
             <thead class="bg-slate-950 text-slate-400 font-semibold uppercase">
@@ -470,10 +523,10 @@
       </div>
     </section>
 
-    <!-- ================= 4. PESTAÑA: COMPRAS NUEVAS & FLETES ================= -->
+    <!-- ================= 5. PESTAÑA: COMPRAS NUEVAS & FLETES ================= -->
     <section id="tab-compras" class="tab-content space-y-6">
 
-      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-4 shadow-lg">
+      <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 space-y-4 shadow-lg">
         <div class="flex items-center justify-between border-b border-slate-800 pb-3">
           <h2 class="text-sm font-bold text-white flex items-center gap-2">
             <i data-lucide="truck" class="w-4 h-4 text-indigo-400"></i> Registrar Compras Nuevas de Mercancía
@@ -514,8 +567,8 @@
       </div>
 
       <!-- TABLA DE COMPRAS REALIZADAS EN LA SEMANA -->
-      <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-lg">
-        <div class="p-4 border-b border-slate-800 bg-slate-950/40">
+      <div class="bg-slate-900/90 border border-slate-800 rounded-2xl overflow-hidden shadow-lg">
+        <div class="p-4 border-b border-slate-800 bg-slate-900">
           <h2 class="text-sm font-bold text-white flex items-center gap-2">
             <i data-lucide="receipt" class="w-4 h-4 text-indigo-400"></i> Historial de Compras Nuevas en esta Semana
           </h2>
@@ -542,13 +595,13 @@
       </div>
     </section>
 
-    <!-- ================= 5. PESTAÑA: GASTOS, INVERSIONES & BAJAS ================= -->
+    <!-- ================= 6. PESTAÑA: GASTOS, INVERSIONES & BAJAS ================= -->
     <section id="tab-gastos-inversiones" class="tab-content space-y-6">
 
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
 
         <!-- REGISTRAR GASTO EXTRA -->
-        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 space-y-3 shadow-lg">
+        <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 space-y-3 shadow-lg">
           <h3 class="text-sm font-bold text-rose-400 flex items-center gap-1.5">
             <i data-lucide="minus-circle" class="w-4 h-4"></i> Registrar Gasto Extra
           </h3>
@@ -568,7 +621,7 @@
         </div>
 
         <!-- REGISTRAR INVERSIÓN EXTRA -->
-        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 space-y-3 shadow-lg">
+        <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 space-y-3 shadow-lg">
           <h3 class="text-sm font-bold text-emerald-400 flex items-center gap-1.5">
             <i data-lucide="plus-circle" class="w-4 h-4"></i> Registrar Inversión Extra
           </h3>
@@ -588,7 +641,7 @@
         </div>
 
         <!-- REGISTRAR BAJA DE INVENTARIO -->
-        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 space-y-3 shadow-lg">
+        <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 space-y-3 shadow-lg">
           <h3 class="text-sm font-bold text-amber-400 flex items-center gap-1.5">
             <i data-lucide="alert-octagon" class="w-4 h-4"></i> Registrar Baja / Avería
           </h3>
@@ -618,8 +671,7 @@
 
       <!-- TABLAS DE REGISTROS -->
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-xs">
-        <!-- Gastos -->
-        <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-lg">
+        <div class="bg-slate-900/90 border border-slate-800 rounded-2xl overflow-hidden shadow-lg">
           <div class="p-3 bg-slate-950 font-bold text-slate-300">Gastos Extras Semanales</div>
           <div class="max-h-64 overflow-y-auto">
             <table class="w-full text-left">
@@ -627,8 +679,7 @@
             </table>
           </div>
         </div>
-        <!-- Inversiones -->
-        <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-lg">
+        <div class="bg-slate-900/90 border border-slate-800 rounded-2xl overflow-hidden shadow-lg">
           <div class="p-3 bg-slate-950 font-bold text-slate-300">Inversiones Extras</div>
           <div class="max-h-64 overflow-y-auto">
             <table class="w-full text-left">
@@ -636,47 +687,13 @@
             </table>
           </div>
         </div>
-        <!-- Bajas -->
-        <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-lg">
+        <div class="bg-slate-900/90 border border-slate-800 rounded-2xl overflow-hidden shadow-lg">
           <div class="p-3 bg-slate-950 font-bold text-slate-300">Bajas y Averías</div>
           <div class="max-h-64 overflow-y-auto">
             <table class="w-full text-left">
               <tbody id="bajas-tbody" class="divide-y divide-slate-800"></tbody>
             </table>
           </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ================= 6. PESTAÑA: EQUIPO & COMISIONES ================= -->
-    <section id="tab-equipo" class="tab-content space-y-6">
-
-      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 flex flex-wrap items-center justify-between gap-4 shadow-lg">
-        <div>
-          <h2 class="text-sm font-bold text-white flex items-center gap-2">
-            <i data-lucide="users" class="w-4 h-4 text-indigo-400"></i> Liquidación de Comisiones al Equipo
-          </h2>
-          <p class="text-xs text-slate-400 mt-0.5">Calcula automáticamente lo que corresponde pagar a cada gestor y vendedor en la semana</p>
-        </div>
-      </div>
-
-      <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-lg">
-        <div class="overflow-x-auto">
-          <table class="w-full text-left text-xs">
-            <thead class="bg-slate-950 text-slate-400 font-semibold uppercase">
-              <tr>
-                <th class="p-3">Miembro del Equipo</th>
-                <th class="p-3 text-center">Vales Gestionados</th>
-                <th class="p-3 text-center">Unidades Vendidas</th>
-                <th class="p-3">Total Facturado ($)</th>
-                <th class="p-3 font-bold text-amber-400">Comisión Total Acumulada ($)</th>
-                <th class="p-3">Estado Liquidación</th>
-              </tr>
-            </thead>
-            <tbody id="equipo-tbody" class="divide-y divide-slate-800">
-              <!-- Gestores -->
-            </tbody>
-          </table>
         </div>
       </div>
     </section>
@@ -761,7 +778,7 @@
   <!-- ================= LÓGICA DE APLICACIÓN ================= -->
   <script src="bot-parser.js"></script>
   <script>
-    const DB_KEY = 'COMPRAS_TIENDA_DB_v2';
+    const DB_KEY = 'COMPRAS_TIENDA_DB_v3';
     
     let appData = {
       semanaActivaId: 1,
@@ -775,13 +792,13 @@
         { id: 'prod-4', nombre: 'Ventilador de Pedestal', precioCompra: 18, precioVenta: 25, comisionEquipo: 2.5 }
       ],
       gestores: [
-        { id: 'G-1', nombre: 'Yakelin', telefono: '54286609' },
-        { id: 'G-2', nombre: 'Dayanis García Almanza', telefono: '51349671' },
-        { id: 'G-3', nombre: 'JOSÉ MIGUEL MARTÍNEZ ACOSTA', telefono: '54822881' },
-        { id: 'G-4', nombre: 'Luis Ariel Calderin', telefono: '53186933' },
-        { id: 'G-5', nombre: 'Betty', telefono: '58709199' },
-        { id: 'G-6', nombre: 'Elizabeth', telefono: '56974248' },
-        { id: 'G-7', nombre: 'Liz Mariam', telefono: '54763168' }
+        { id: 'G-1', nombre: 'Yakelin', telefono: '54286609', zona: 'Mensajería y Redes' },
+        { id: 'G-2', nombre: 'Dayanis García Almanza', telefono: '51349671', zona: 'Mensajería / Redes' },
+        { id: 'G-3', nombre: 'JOSÉ MIGUEL MARTÍNEZ ACOSTA', telefono: '54822881', zona: 'Plaza de la Revolución' },
+        { id: 'G-4', nombre: 'Luis Ariel Calderin', telefono: '53186933', zona: 'Mensajería / Redes' },
+        { id: 'G-5', nombre: 'Betty', telefono: '58709199', zona: 'Cotorro' },
+        { id: 'G-6', nombre: 'Elizabeth', telefono: '56974248', zona: 'Cerro' },
+        { id: 'G-7', nombre: 'Liz Mariam', telefono: '54763168', zona: 'Mensajería' }
       ],
       datosSemanales: {
         1: {
@@ -808,7 +825,8 @@
               totalVenta: 635,
               totalCompra: 470,
               comisionTotal: 25,
-              margenNetoVale: 130
+              margenNetoVale: 130,
+              rawTextoWhatsApp: `📝 Factura a llenar por los gestores(Mensajería)\n✨ Fecha: 14 octubre\n✨ Nombre del Cliente: Carlos Pérez\n✨ Teléfono del Cliente: +53 52123456\n✨ Dirección del cliente : Vedado Calle 23 #450\n✨ Pedido: 2 Nevera..1 Infrarojo\n✨ Precio del artículo: 300 Nevera..35 Infrarojo\n✨ Precio de la mensajería: 10\n✨ Nombre del gestor: Yakelin\n✨ Comisión equipo: 25`
             }
           ],
           compras: [
@@ -839,7 +857,6 @@
     function guardarStorage() {
       try {
         localStorage.setItem(DB_KEY, JSON.stringify(appData));
-        // Intentar guardar en backend local si está corriendo server.js
         fetch('/api/datos', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -884,12 +901,12 @@
         const res = await fetch('/api/sync-to-github', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ database: appData, commitMessage: 'feat: sincronización desde Compras de la Tienda Bot (Karel)' })
+          body: JSON.stringify({ database: appData, commitMessage: 'feat: sincronización desde Bot Compras de la Tienda (Karel)' })
         });
         const data = await res.json();
         if (data.success) {
           if (statusEl) { statusEl.textContent = '✓ Guardado en GitHub'; statusEl.style.color = '#34d399'; }
-          alert('🚀 ¡Éxito! Cambios sincronizados con GitHub (web23456/Compras-de-la-tienda).');
+          alert('🚀 ¡Éxito! Cambios sincronizados con GitHub (web23456/Compras-de-la-tienda-bot).');
         } else {
           throw new Error(data.error || 'No se pudo sincronizar');
         }
@@ -942,6 +959,13 @@
       renderizarTodo();
     }
 
+    function cambiarSemanaRelativa(offset) {
+      const idx = appData.semanas.findIndex(s => s.id === appData.semanaActivaId);
+      if (idx !== -1 && appData.semanas[idx + offset]) {
+        cambiarSemana(appData.semanas[idx + offset].id);
+      }
+    }
+
     function cerrarSemanaEIniciarNueva() {
       const actualId = appData.semanaActivaId;
       const actualData = getSemanaData(actualId);
@@ -992,17 +1016,17 @@
       renderizarSelectorSemanas();
       recalcularInventarioDesdeMovimientos();
       renderizarResumenKPIs();
+      renderizarTarjetasGestores();
       renderizarTablaVales();
       renderizarTablaInventario();
       renderizarTablaCompras();
       renderizarTablasGastosInversionesBajas();
-      renderizarTablaEquipo();
       poblarSelects();
       lucide.createIcons();
     }
 
     function renderizarSelectorSemanas() {
-      const sel = document.getElementById('selector-semana');
+      const sel = document.getElementById('select-semanas');
       sel.innerHTML = '';
       appData.semanas.forEach(s => {
         const opt = document.createElement('option');
@@ -1011,6 +1035,12 @@
         if (s.id === appData.semanaActivaId) opt.selected = true;
         sel.appendChild(opt);
       });
+
+      const semActualObj = appData.semanas.find(s => s.id === appData.semanaActivaId);
+      if (semActualObj) {
+        document.getElementById('titulo-semana-activa').textContent = semActualObj.nombre;
+        document.getElementById('label-rango-semana-activa').textContent = `${semActualObj.fechaInicio} al ${semActualObj.fechaFin || 'Activa'}`;
+      }
     }
 
     function poblarSelects() {
@@ -1076,6 +1106,11 @@
       const totalComisiones = sData.vales.reduce((acc, v) => acc + (v.comisionTotal || 0), 0);
       const totalTransporte = sData.vales.reduce((acc, v) => acc + (v.costoTransporte || 0), 0);
 
+      let totalEquipos = 0;
+      sData.vales.forEach(v => {
+        v.items.forEach(i => { totalEquipos += (i.cantidad || 0); });
+      });
+
       const margenBruto = totalVentas - totalCostoVenta;
       const margenPct = totalVentas > 0 ? ((margenBruto / totalVentas) * 100).toFixed(1) : 0;
 
@@ -1085,18 +1120,17 @@
 
       const gananciaNeta = margenBruto - totalComisiones - totalTransporte - totalGastosExtras - totalBajasCosto;
 
-      document.getElementById('kpi-ventas').textContent = `$ ${totalVentas.toFixed(2)}`;
-      document.getElementById('kpi-vales-count').textContent = `${sData.vales.length} vales facturados`;
-      document.getElementById('kpi-costo').textContent = `$ ${totalCostoVenta.toFixed(2)}`;
-      document.getElementById('kpi-margen-bruto').textContent = `$ ${margenBruto.toFixed(2)}`;
-      document.getElementById('kpi-margen-pct').textContent = `${margenPct}% margen`;
+      document.getElementById('kpi-total-vales').textContent = sData.vales.length;
+      document.getElementById('kpi-total-equipos').textContent = totalEquipos;
+      document.getElementById('kpi-total-ventas-usd').textContent = `$${totalVentas.toFixed(2)} USD`;
+      document.getElementById('kpi-total-costo-mercancia').textContent = `Costo Compra: -$${totalCostoVenta.toFixed(2)}`;
+      document.getElementById('kpi-ganancia-neta').textContent = `$${gananciaNeta.toFixed(2)}`;
+      document.getElementById('kpi-margen-pct').textContent = `${margenPct}% margen comercial`;
+
       document.getElementById('kpi-comisiones').textContent = `$ ${totalComisiones.toFixed(2)}`;
       document.getElementById('kpi-transporte').textContent = `$ ${totalTransporte.toFixed(2)}`;
-      document.getElementById('kpi-ganancia-neta').textContent = `$ ${gananciaNeta.toFixed(2)}`;
-
       document.getElementById('resumen-gastos-totales').textContent = `$ ${totalGastosExtras.toFixed(2)}`;
       document.getElementById('resumen-inversiones-totales').textContent = `$ ${totalInversiones.toFixed(2)}`;
-      document.getElementById('resumen-bajas-totales').textContent = `$ ${totalBajasCosto.toFixed(2)}`;
 
       document.getElementById('bal-ingresos').textContent = `$ ${totalVentas.toFixed(2)}`;
       document.getElementById('bal-costo-mercancia').textContent = `-$ ${totalCostoVenta.toFixed(2)}`;
@@ -1106,6 +1140,106 @@
       document.getElementById('bal-gastos-extras').textContent = `-$ ${totalGastosExtras.toFixed(2)}`;
       document.getElementById('bal-bajas').textContent = `-$ ${totalBajasCosto.toFixed(2)}`;
       document.getElementById('bal-ganancia-final').textContent = `$ ${gananciaNeta.toFixed(2)}`;
+    }
+
+    // ================= TARJETAS INDIVIDUALES DE GESTORES (ESTILO GESTORES BOT) =================
+    function renderizarTarjetasGestores() {
+      const contenedor = document.getElementById('contenedor-tarjetas-gestores');
+      const filtro = (document.getElementById('input-buscar-gestor') ? document.getElementById('input-buscar-gestor').value : '').toLowerCase();
+      const sData = getSemanaData();
+
+      contenedor.innerHTML = '';
+
+      appData.gestores.forEach(g => {
+        if (filtro && !g.nombre.toLowerCase().includes(filtro) && !(g.telefono || '').includes(filtro)) {
+          return;
+        }
+
+        const valesGestor = sData.vales.filter(v => v.gestor.toLowerCase().includes(g.nombre.toLowerCase()) || g.nombre.toLowerCase().includes(v.gestor.toLowerCase()));
+        let totalFacturado = 0;
+        let totalComision = 0;
+        let totalEquipos = 0;
+
+        valesGestor.forEach(v => {
+          totalFacturado += (v.totalVenta || 0);
+          totalComision += (v.comisionTotal || 0);
+          v.items.forEach(it => { totalEquipos += (it.cantidad || 0); });
+        });
+
+        let valesCardsHtml = '';
+        valesGestor.forEach(v => {
+          valesCardsHtml += `
+            <div class="bg-slate-900/90 border border-slate-800 rounded-xl p-3.5 space-y-2">
+              <div class="flex items-center justify-between border-b border-slate-800/80 pb-1.5">
+                <span class="font-mono text-[10px] font-bold text-indigo-400">${v.folio} • ${v.fecha}</span>
+                <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                  Comisión: $${v.comisionTotal.toFixed(2)}
+                </span>
+              </div>
+              <pre class="text-[11px] text-slate-300 font-mono whitespace-pre-wrap leading-relaxed max-h-56 overflow-y-auto bg-slate-950 p-2.5 rounded-lg border border-slate-800/60">${v.rawTextoWhatsApp || `Cliente: ${v.cliente}\nTel: ${v.telefono}\nItems: ${v.items.map(i=>i.cantidad+'x '+i.producto).join(', ')}\nTotal: $${v.totalVenta}`}</pre>
+            </div>
+          `;
+        });
+
+        const card = document.createElement('div');
+        card.className = 'bg-slate-900/90 border border-slate-800 hover:border-slate-700/80 rounded-2xl overflow-hidden shadow-lg transition-all';
+        card.innerHTML = `
+          <div class="p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 bg-slate-900">
+            <div class="flex items-center gap-3.5">
+              <div class="w-14 h-14 rounded-2xl bg-indigo-950/80 border border-indigo-500/30 flex items-center justify-center text-white overflow-hidden shrink-0 shadow-md">
+                <span class="text-xl font-black text-indigo-400">${g.nombre.charAt(0).toUpperCase()}</span>
+              </div>
+              <div>
+                <div class="flex items-center gap-2">
+                  <h4 class="text-base font-bold text-white tracking-tight">${g.nombre}</h4>
+                  <span class="text-[10px] px-2 py-0.5 rounded-full bg-indigo-500/10 text-indigo-300 border border-indigo-500/30">
+                    ${g.zona || 'Gestor'}
+                  </span>
+                </div>
+                <div class="flex items-center flex-wrap gap-x-3 gap-y-1 text-xs text-slate-400 mt-1">
+                  <span class="flex items-center gap-1 font-mono">
+                    <i data-lucide="phone" class="w-3.5 h-3.5 text-emerald-400"></i> ${g.telefono || 'Sin teléfono'}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <div class="flex items-center flex-wrap gap-3">
+              <div class="bg-slate-950/80 border border-slate-800 px-3 py-1.5 rounded-xl text-center">
+                <span class="text-[10px] uppercase font-bold text-slate-400 block">Vales</span>
+                <span class="text-sm font-black text-white font-mono">${valesGestor.length}</span>
+              </div>
+              <div class="bg-slate-950/80 border border-slate-800 px-3 py-1.5 rounded-xl text-center">
+                <span class="text-[10px] uppercase font-bold text-slate-400 block">Equipos</span>
+                <span class="text-sm font-black text-emerald-400 font-mono">${totalEquipos}</span>
+              </div>
+              <div class="bg-slate-950/80 border border-slate-800 px-3 py-1.5 rounded-xl text-center">
+                <span class="text-[10px] uppercase font-bold text-slate-400 block">Facturado</span>
+                <span class="text-sm font-black text-teal-300 font-mono">$${totalFacturado.toFixed(2)}</span>
+              </div>
+              <div class="bg-slate-950/80 border border-slate-800 px-3 py-1.5 rounded-xl text-center">
+                <span class="text-[10px] uppercase font-bold text-amber-400 block">Comisión Total</span>
+                <span class="text-sm font-black text-amber-400 font-mono">$${totalComision.toFixed(2)}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="p-5 border-t border-slate-800/80 space-y-3 bg-slate-950/40">
+            <div class="flex items-center justify-between">
+              <h6 class="text-[11px] font-bold text-indigo-300 uppercase tracking-wider flex items-center gap-1.5">
+                <i data-lucide="file-text" class="w-3.5 h-3.5 text-amber-400"></i>
+                Vales Completos Originales de WhatsApp (con Emojis y Formato):
+              </h6>
+              <span class="text-[10px] text-slate-500 font-mono">${valesGestor.length} vales listados</span>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+              ${valesCardsHtml || '<div class="col-span-2 text-center py-4 text-xs text-slate-500">Sin vales registrados en esta semana.</div>'}
+            </div>
+          </div>
+        `;
+        contenedor.appendChild(card);
+      });
+      lucide.createIcons();
     }
 
     // ================= MODAL DE REGISTRO RÁPIDO =================
@@ -1121,7 +1255,7 @@
 
     function copiarFormatoEjemploModal() {
       document.getElementById('modal-vale-textarea').value = 
-`📝 Factura de Entrega
+`📝 Factura de Entrega (WhatsApp)
 Cliente: Roberto González
 Teléfono: +53 58990123
 Dirección: Calle 10 entre 3ra y 5ta, Playa
@@ -1195,7 +1329,6 @@ Comisión equipo: 12`;
         comisionEquipo: it.comisionEquipo
       }));
 
-      // Aprender nuevos productos si no existen
       res.items.forEach(it => {
         const existe = appData.catalogo.some(p => p.nombre.toLowerCase() === it.producto.toLowerCase());
         if (!existe && it.producto && it.producto !== 'Artículo General') {
@@ -1349,6 +1482,7 @@ Comisión equipo: 12`;
       const direccion = document.getElementById('vale-direccion').value.trim();
       const gestor = document.getElementById('vale-gestor').value.trim() || 'Equipo Principal';
       const transporte = parseFloat(document.getElementById('vale-transporte').value) || 0;
+      const rawTexto = document.getElementById('bot-input-texto') ? document.getElementById('bot-input-texto').value : '';
 
       const itemsValidos = itemsFormularioVale.filter(it => it.producto && it.producto.trim() !== '');
       if (itemsValidos.length === 0) {
@@ -1394,7 +1528,8 @@ Comisión equipo: 12`;
         totalVenta,
         totalCompra,
         comisionTotal,
-        margenNetoVale
+        margenNetoVale,
+        rawTextoWhatsApp: rawTexto || `Folio: ${folio}\nCliente: ${cliente}\nTel: ${telefono}\nDir: ${direccion}\nGestor: ${gestor}\nTotal: $${totalVenta}`
       };
 
       const sData = getSemanaData();
@@ -1755,56 +1890,6 @@ Comisión equipo: 12`;
     function eliminarGasto(id) { getSemanaData().gastos = getSemanaData().gastos.filter(g => g.id !== id); guardarStorage(); renderizarTodo(); }
     function eliminarInversion(id) { getSemanaData().inversiones = getSemanaData().inversiones.filter(i => i.id !== id); guardarStorage(); renderizarTodo(); }
     function eliminarBaja(id) { getSemanaData().bajas = getSemanaData().bajas.filter(b => b.id !== id); guardarStorage(); renderizarTodo(); }
-
-    // ================= EQUIPO & COMISIONES =================
-    function renderizarTablaEquipo() {
-      const tbody = document.getElementById('equipo-tbody');
-      const sData = getSemanaData();
-      tbody.innerHTML = '';
-
-      const mapaEquipo = {};
-      sData.vales.forEach(v => {
-        const nom = v.gestor || 'Sin Gestor';
-        if (!mapaEquipo[nom]) {
-          mapaEquipo[nom] = { valesCount: 0, unidades: 0, facturado: 0, comision: 0 };
-        }
-        mapaEquipo[nom].valesCount++;
-        mapaEquipo[nom].facturado += (v.totalVenta || 0);
-        mapaEquipo[nom].comision += (v.comisionTotal || 0);
-        v.items.forEach(it => {
-          mapaEquipo[nom].unidades += (it.cantidad || 0);
-        });
-      });
-
-      const nombres = Object.keys(mapaEquipo);
-      if (nombres.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-slate-500">No hay ventas registradas con gestores en esta semana.</td></tr>`;
-        return;
-      }
-
-      nombres.forEach(nom => {
-        const d = mapaEquipo[nom];
-        const tr = document.createElement('tr');
-        tr.className = 'hover:bg-slate-900/50';
-        tr.innerHTML = `
-          <td class="p-3 font-bold text-white flex items-center gap-2">
-            <div class="w-7 h-7 rounded-full bg-indigo-600/30 text-indigo-300 font-bold flex items-center justify-center text-xs">
-              ${nom.substring(0, 2).toUpperCase()}
-            </div>
-            ${nom}
-          </td>
-          <td class="p-3 text-center font-mono">${d.valesCount}</td>
-          <td class="p-3 text-center font-mono font-bold text-emerald-400">${d.unidades}</td>
-          <td class="p-3 font-mono text-slate-300">$ ${d.facturado.toFixed(2)}</td>
-          <td class="p-3 font-mono text-amber-300 font-bold text-sm">$ ${d.comision.toFixed(2)}</td>
-          <td class="p-3">
-            <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">Lista para Liquidar</span>
-          </td>
-        `;
-        tbody.appendChild(tr);
-      });
-      lucide.createIcons();
-    }
 
     // ================= EXPORTACIÓN EXCEL =================
     function exportarExcelCompleto() {
