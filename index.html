@@ -64,7 +64,7 @@
       <a href="https://github.com/web23456/Compras-de-la-tienda-bot" target="_blank" class="font-mono text-amber-300 hover:text-white underline">web23456/Compras-de-la-tienda-bot</a>
     </div>
 
-    <!-- Moneda Base de Trabajo y Comisión Global Editable -->
+    <!-- Moneda Base de Trabajo, Tasas de Conversión y Comisión Global Editable -->
     <div class="flex items-center gap-3 flex-wrap">
       <!-- Selector de Moneda de Registro -->
       <div class="flex items-center gap-1.5 bg-slate-950 border border-amber-500/40 px-2.5 py-1 rounded-xl">
@@ -76,11 +76,25 @@
         </select>
       </div>
 
+      <!-- Tasa de Conversión USD -> CUP -->
+      <div class="flex items-center gap-1.5 bg-slate-950 border border-emerald-500/40 px-2.5 py-1 rounded-xl" title="Tasa para convertir USD a CUP (ej: 1 USD = 350 CUP)">
+        <span class="text-[11px] font-bold text-emerald-400">1 USD =</span>
+        <input type="number" step="0.1" id="input-tasa-usd-a-cup" value="350" onchange="actualizarTasasConversion()" class="w-16 bg-black border border-emerald-500/50 rounded px-1.5 py-0.5 text-center font-mono font-bold text-emerald-300 focus:outline-none text-xs">
+        <span class="text-[10px] text-emerald-400 font-bold">CUP</span>
+      </div>
+
+      <!-- Tasa de Conversión CUP -> USD -->
+      <div class="flex items-center gap-1.5 bg-slate-950 border border-amber-500/40 px-2.5 py-1 rounded-xl" title="Tasa para cambiar o comprar USD con CUP (ej: 360 CUP = 1 USD)">
+        <span class="text-[11px] font-bold text-amber-400">1 USD (Compra) =</span>
+        <input type="number" step="0.1" id="input-tasa-cup-a-usd" value="360" onchange="actualizarTasasConversion()" class="w-16 bg-black border border-amber-500/50 rounded px-1.5 py-0.5 text-center font-mono font-bold text-amber-300 focus:outline-none text-xs">
+        <span class="text-[10px] text-amber-400 font-bold">CUP</span>
+      </div>
+
       <!-- Comisión Gestores Editable (Por defecto 1500) -->
       <div class="flex items-center gap-1.5 bg-slate-950 border border-amber-500/40 px-2.5 py-1 rounded-xl">
         <i data-lucide="percent" class="w-3.5 h-3.5 text-amber-400"></i>
         <span class="text-[11px] font-bold text-slate-300">Comisión Gestores:</span>
-        <input type="number" id="input-comision-default" value="1500" onchange="actualizarComisionDefault(this.value)" class="w-20 bg-black border border-amber-500/50 rounded px-1.5 py-0.5 text-center font-mono font-bold text-amber-300 focus:outline-none text-xs">
+        <input type="number" id="input-comision-default" value="1500" onchange="actualizarComisionDefault(this.value)" class="w-16 bg-black border border-amber-500/50 rounded px-1.5 py-0.5 text-center font-mono font-bold text-amber-300 focus:outline-none text-xs">
         <select id="select-moneda-comision-default" onchange="actualizarMonedaComisionDefault(this.value)" class="bg-black text-amber-300 font-bold border border-amber-500/50 rounded px-1 py-0.5 text-[10px]">
           <option value="CUP" selected>CUP</option>
           <option value="USD">USD</option>
@@ -160,6 +174,7 @@
         <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Costo Compra</span>
         <div class="text-base font-black text-rose-400 mt-1 font-mono" id="kpi-costo-usd">$ 0.00 USD</div>
         <div class="text-xs font-bold text-rose-300 font-mono" id="kpi-costo-cup">0.00 CUP</div>
+        <div class="text-[10px] text-slate-500 font-mono mt-1 border-t border-slate-900 pt-1" id="kpi-costo-consolidado">Eq: $0.00 USD</div>
       </div>
 
       <!-- Venta Proyectada Bimoneda -->
@@ -167,6 +182,7 @@
         <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Venta Proyectada</span>
         <div class="text-base font-black text-emerald-400 mt-1 font-mono" id="kpi-venta-usd">$ 0.00 USD</div>
         <div class="text-xs font-bold text-emerald-300 font-mono" id="kpi-venta-cup">0.00 CUP</div>
+        <div class="text-[10px] text-slate-500 font-mono mt-1 border-t border-slate-900 pt-1" id="kpi-venta-consolidado">Eq: $0.00 USD</div>
       </div>
 
       <!-- Comisiones Gestores -->
@@ -174,6 +190,7 @@
         <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Comisión Gestores</span>
         <div class="text-base font-black text-amber-400 mt-1 font-mono" id="kpi-comision-cup">0.00 CUP</div>
         <div class="text-xs font-bold text-amber-300 font-mono" id="kpi-comision-usd">$ 0.00 USD</div>
+        <div class="text-[10px] text-slate-500 font-mono mt-1 border-t border-slate-900 pt-1" id="kpi-comision-consolidado">Eq: 0 CUP</div>
       </div>
 
       <!-- Transporte / Flete -->
@@ -181,6 +198,7 @@
         <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Transportación Total</span>
         <div class="text-base font-black text-indigo-400 mt-1 font-mono" id="kpi-transporte-usd">$ 0.00 USD</div>
         <div class="text-xs font-bold text-indigo-300 font-mono" id="kpi-transporte-cup">0.00 CUP</div>
+        <div class="text-[10px] text-slate-500 font-mono mt-1 border-t border-slate-900 pt-1" id="kpi-transporte-consolidado">Eq: $0.00 USD</div>
       </div>
 
       <!-- Ganancia Neta -->
@@ -188,6 +206,7 @@
         <span class="text-[10px] font-bold text-amber-300 uppercase tracking-wider">Margen Neto Tienda</span>
         <div class="text-base font-black text-white mt-1 font-mono" id="kpi-margen-usd">$ 0.00 USD</div>
         <div class="text-xs font-bold text-amber-300 font-mono" id="kpi-margen-cup">0.00 CUP</div>
+        <div class="text-[11px] font-black text-amber-400 font-mono mt-1 border-t border-amber-500/30 pt-1" id="kpi-margen-consolidado">Total Eq: $0.00 USD</div>
       </div>
     </div>
 
@@ -462,6 +481,8 @@
       comisionDefault: 1500,
       monedaComisionDefault: 'CUP',
       monedaGlobal: 'USD',
+      tasaUsdACup: 350, // 1 USD = 350 CUP
+      tasaCupAUsd: 360, // 360 CUP = 1 USD (tasa compra USD)
       semanas: [
         { id: 1, nombre: 'Semana 1 (Actual)', cerrada: false }
       ],
@@ -519,6 +540,8 @@
       document.getElementById('input-comision-default').value = appData.comisionDefault || 1500;
       document.getElementById('select-moneda-comision-default').value = appData.monedaComisionDefault || 'CUP';
       document.getElementById('select-moneda-global').value = appData.monedaGlobal || 'USD';
+      document.getElementById('input-tasa-usd-a-cup').value = appData.tasaUsdACup || 350;
+      document.getElementById('input-tasa-cup-a-usd').value = appData.tasaCupAUsd || 360;
       document.getElementById('vale-fecha').value = new Date().toISOString().split('T')[0];
 
       inicializarFormularioValeConItemsPorDefecto();
@@ -541,6 +564,13 @@
         };
       }
       return appData.datosSemanales[semanaId];
+    }
+
+    function actualizarTasasConversion() {
+      appData.tasaUsdACup = parseFloat(document.getElementById('input-tasa-usd-a-cup').value) || 350;
+      appData.tasaCupAUsd = parseFloat(document.getElementById('input-tasa-cup-a-usd').value) || 360;
+      persistirEstado();
+      renderizarTodo();
     }
 
     function cambiarMonedaGlobal(mon) {
@@ -1169,23 +1199,41 @@ Transporte: 2500
       const margenUSD = ventaUSD - costoUSD - transpUSD - gastosUSD - comisionUSD;
       const margenCUP = ventaCUP - costoCUP - transpCUP - gastosCUP - comisionCUP;
 
+      // Tasas de conversión configuradas
+      const rateUsdToCup = appData.tasaUsdACup || 350;
+      const rateCupToUsd = appData.tasaCupAUsd || 360;
+
+      // Consolidación en USD (convirtiendo CUP a USD usando tasaCupAUsd)
+      const costoConsolidadoUSD = costoUSD + (costoCUP > 0 ? (costoCUP / rateCupToUsd) : 0);
+      const ventaConsolidadaUSD = ventaUSD + (ventaCUP > 0 ? (ventaCUP / rateCupToUsd) : 0);
+      const transpConsolidadoUSD = transpUSD + (transpCUP > 0 ? (transpCUP / rateCupToUsd) : 0);
+      const margenConsolidadoUSD = margenUSD + (margenCUP !== 0 ? (margenCUP / rateCupToUsd) : 0);
+
+      // Consolidación de comisiones en CUP (convirtiendo USD a CUP usando tasaUsdACup)
+      const comisionConsolidadaCUP = comisionCUP + (comisionUSD > 0 ? (comisionUSD * rateUsdToCup) : 0);
+
       document.getElementById('kpi-unidades').textContent = totalUnidades;
       document.getElementById('kpi-vales-count').textContent = `${sData.valesEntrada.length} vales guardados`;
 
       document.getElementById('kpi-costo-usd').textContent = `$ ${costoUSD.toFixed(2)} USD`;
       document.getElementById('kpi-costo-cup').textContent = `${costoCUP.toLocaleString('es-ES', { minimumFractionDigits: 2 })} CUP`;
+      document.getElementById('kpi-costo-consolidado').textContent = `Eq Total: $${costoConsolidadoUSD.toFixed(2)} USD`;
 
       document.getElementById('kpi-venta-usd').textContent = `$ ${ventaUSD.toFixed(2)} USD`;
       document.getElementById('kpi-venta-cup').textContent = `${ventaCUP.toLocaleString('es-ES', { minimumFractionDigits: 2 })} CUP`;
+      document.getElementById('kpi-venta-consolidado').textContent = `Eq Total: $${ventaConsolidadaUSD.toFixed(2)} USD`;
 
       document.getElementById('kpi-comision-cup').textContent = `${comisionCUP.toLocaleString('es-ES', { minimumFractionDigits: 2 })} CUP`;
       document.getElementById('kpi-comision-usd').textContent = `$ ${comisionUSD.toFixed(2)} USD`;
+      document.getElementById('kpi-comision-consolidado').textContent = `Eq Total: ${comisionConsolidadaCUP.toLocaleString('es-ES', { maximumFractionDigits: 0 })} CUP`;
 
       document.getElementById('kpi-transporte-usd').textContent = `$ ${transpUSD.toFixed(2)} USD`;
       document.getElementById('kpi-transporte-cup').textContent = `${transpCUP.toLocaleString('es-ES', { minimumFractionDigits: 2 })} CUP`;
+      document.getElementById('kpi-transporte-consolidado').textContent = `Eq Total: $${transpConsolidadoUSD.toFixed(2)} USD`;
 
       document.getElementById('kpi-margen-usd').textContent = `$ ${margenUSD.toFixed(2)} USD`;
       document.getElementById('kpi-margen-cup').textContent = `${margenCUP.toLocaleString('es-ES', { minimumFractionDigits: 2 })} CUP`;
+      document.getElementById('kpi-margen-consolidado').textContent = `Total Eq: $${margenConsolidadoUSD.toFixed(2)} USD`;
 
       document.getElementById('resumen-gastos-box').textContent = `$${gastosUSD.toFixed(2)} USD / ${gastosCUP.toFixed(0)} CUP`;
 
