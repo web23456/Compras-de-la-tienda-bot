@@ -1,6 +1,7 @@
 /**
- * Bot Extractor de Vales de Entrada de Mercancía al Almacén
- * Extrae productos, cantidades, precios de compra y venta, y fletes.
+ * Bot Extractor Inteligente de Vales de Entrada de Mercancía al Almacén
+ * Soporte Bimoneda (USD y CUP) con detección automática
+ * Desglose independiente de productos y detección de lotes
  */
 
 function normalizarTexto(str) {
@@ -12,7 +13,7 @@ function normalizarTexto(str) {
     .trim();
 }
 
-function parseValeEntrada(rawTexto, comisionDefault = 1500) {
+function parseValeEntrada(rawTexto, comisionDefault = 1500, monedaDefault = 'USD') {
   if (!rawTexto || !rawTexto.trim()) return null;
 
   const lineas = rawTexto.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
@@ -33,7 +34,7 @@ function parseValeEntrada(rawTexto, comisionDefault = 1500) {
     /folio\s*:\s*([^:\n\r]+)/i,
     /vale\s*:\s*([^:\n\r]+)/i,
     /factura\s*:\s*([^:\n\r]+)/i,
-    /#\s*(\w+)/i
+    /#\s*([a-zA-Z0-9_-]+)/i
   ]) || 'ENT-' + Date.now().toString().slice(-4);
 
   const proveedor = extraerCampo([
@@ -46,6 +47,9 @@ function parseValeEntrada(rawTexto, comisionDefault = 1500) {
   const fecha = extraerCampo([
     /fecha\s*:\s*([^:\n\r]+)/i
   ]) || new Date().toISOString().split('T')[0];
+
+  // Moneda general del vale (USD o CUP)
+  const monedaDetectada = (/cup|moneda nacional|mn\b/i.test(rawTexto)) ? 'CUP' : ((/usd|dolar|\$/i.test(rawTexto)) ? 'USD' : monedaDefault);
 
   // Transporte / Flete general del vale
   const fleteRaw = extraerCampo([
@@ -64,20 +68,21 @@ function parseValeEntrada(rawTexto, comisionDefault = 1500) {
   // Lista de productos extraídos
   const items = [];
 
-  // Buscar bloque o líneas de pedido/artículos
   for (const linea of lineas) {
-    if (/^(folio|proveedor|fecha|flete|transporte|total)/i.test(linea)) continue;
+    if (/^(folio|proveedor|fecha|flete|transporte|total|moneda)/i.test(linea)) continue;
 
-    // Si viene en formato: "2 Nevera..1 Infrarojo" o "1 Olla Reina 25 compra 35 venta"
     const partes = linea.split(/\.{2,}|\s*,\s*|\s*;\s*/).map(p => p.trim()).filter(Boolean);
 
     for (const parte of partes) {
-      // Intentar extraer: [Cantidad] [Nombre Producto] [Precio Compra] [Precio Venta]
-      // Ejemplos: "5 Nevera 225 compra 300 venta", "10 Infrarojo a 20", "2 Neveras 220 300"
       const mCant = parte.match(/^(\d+)\s*(.*)/);
       if (mCant) {
         const cant = parseInt(mCant[1], 10);
         let resto = mCant[2].trim();
+
+        // Detección de moneda por ítem si especifica CUP o USD
+        let itemMoneda = monedaDetectada;
+        if (/cup|mn\b/i.test(parte)) itemMoneda = 'CUP';
+        else if (/usd|dolar|\$/i.test(parte)) itemMoneda = 'USD';
 
         // Extraer números
         const numeros = [];
@@ -90,7 +95,7 @@ function parseValeEntrada(rawTexto, comisionDefault = 1500) {
         // Limpiar nombre quitando números y palabras clave
         let nombreLimpio = resto
           .replace(/(\d+(?:\.\d+)?)/g, '')
-          .replace(/\b(compra|costo|venta|precio|a|usd|cup|c\/u)\b/gi, '')
+          .replace(/\b(compra|costo|venta|precio|a|usd|cup|mn|c\/u)\b/gi, '')
           .replace(/\s+/g, ' ')
           .trim();
 
@@ -110,28 +115,31 @@ function parseValeEntrada(rawTexto, comisionDefault = 1500) {
             id: 'item-' + Math.random().toString(36).substring(2, 9),
             nombre: nombreLimpio,
             cantidad: cant,
+            moneda: itemMoneda,
             precioCompra: precioCompra,
             precioVenta: precioVenta,
             comisionGestores: comisionDefault,
+            comisionMoneda: 'CUP',
             transporteUnitario: 0,
             subtotalCompra: cant * precioCompra,
             subtotalVenta: cant * precioVenta,
-            margenGanancia: (cant * precioVenta) - (cant * precioCompra) - (cant * comisionDefault)
+            margenGanancia: (cant * precioVenta) - (cant * precioCompra)
           });
         }
       }
     }
   }
 
-  // Si no se extrajeron con el split, intentar línea por línea clásica
   if (items.length === 0) {
     items.push({
       id: 'item-1',
       nombre: 'Mercancía General',
       cantidad: 1,
+      moneda: monedaDetectada,
       precioCompra: 0,
       precioVenta: 0,
       comisionGestores: comisionDefault,
+      comisionMoneda: 'CUP',
       transporteUnitario: transporteTotal,
       subtotalCompra: 0,
       subtotalVenta: 0,
@@ -145,7 +153,7 @@ function parseValeEntrada(rawTexto, comisionDefault = 1500) {
     const fleteUnitario = Math.round((transporteTotal / totalUnidades) * 100) / 100;
     items.forEach(it => {
       it.transporteUnitario = fleteUnitario;
-      it.margenGanancia = (it.cantidad * it.precioVenta) - (it.cantidad * it.precioCompra) - (it.cantidad * it.comisionGestores) - (it.cantidad * fleteUnitario);
+      it.margenGanancia = (it.cantidad * it.precioVenta) - (it.cantidad * it.precioCompra) - (it.cantidad * fleteUnitario);
     });
   }
 
@@ -153,6 +161,7 @@ function parseValeEntrada(rawTexto, comisionDefault = 1500) {
     folio,
     proveedor,
     fecha,
+    moneda: monedaDetectada,
     transporteTotal,
     items,
     rawTexto
