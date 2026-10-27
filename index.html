@@ -68,9 +68,9 @@
       <span class="w-2.5 h-2.5 rounded-full bg-amber-400 animate-ping"></span>
       <span class="font-bold text-white flex items-center gap-1.5">
         <i data-lucide="bot" class="w-4 h-4 text-amber-400"></i>
-        Bot de Compras Conectado a GitHub:
+        Panel de Compras & Almacén Central
       </span>
-      <a href="https://github.com/web23456/Compras-de-la-tienda-bot" target="_blank" class="font-mono text-amber-300 hover:text-white underline">web23456/Compras-de-la-tienda-bot</a>
+      <span class="text-[10px] px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40 font-mono">Modo Estático / API Bot</span>
     </div>
 
     <!-- Moneda Base de Trabajo, Tasas de Conversión y Comisión Global Editable -->
@@ -314,7 +314,7 @@
 
       <!-- Ganancia Neta -->
       <div class="bg-gradient-to-br from-amber-950/50 via-black to-black border border-amber-500/50 rounded-2xl p-3.5">
-        <span class="text-[10px] font-bold text-amber-300 uppercase tracking-wider">Margen Neto Tienda</span>
+        <span class="text-[10px] font-bold text-amber-300 uppercase tracking-wider">Ganancia Neta Tienda</span>
         <div class="text-base font-black text-white mt-1 font-mono" id="kpi-margen-usd">$ 0.00 USD</div>
         <div class="text-xs font-bold text-amber-300 font-mono" id="kpi-margen-cup">0.00 CUP</div>
         <div class="text-[11px] font-black text-amber-400 font-mono mt-1 border-t border-amber-500/30 pt-1" id="kpi-margen-consolidado">Total Eq: $0.00 USD</div>
@@ -402,7 +402,7 @@
                 <th class="p-3 w-32">Precio Venta</th>
                 <th class="p-3 w-36">Comisión Gestor</th>
                 <th class="p-3 w-28">Transporte</th>
-                <th class="p-3 w-32">Margen Ganancia</th>
+                <th class="p-3 w-32">Ganancia</th>
                 <th class="p-3 w-12 text-center">Acción</th>
               </tr>
             </thead>
@@ -456,15 +456,17 @@
               <th class="p-3"># Llegada</th>
               <th class="p-3">Producto</th>
               <th class="p-3">Vale / Lote</th>
-              <th class="p-3 text-center w-24">Moneda</th>
-              <th class="p-3 text-center w-24">Inv. Inicio</th>
-              <th class="p-3 text-center w-24 text-emerald-400">Entradas (+)</th>
+              <th class="p-3 text-center w-20">Moneda</th>
+              <th class="p-3 text-center w-20">Inv. Inicio</th>
+              <th class="p-3 text-center w-20 text-emerald-400">Entradas (+)</th>
               <th class="p-3 text-center w-20 text-rose-400">Bajas (-)</th>
+              <th class="p-3 text-center w-20 text-amber-500 font-bold">Merma</th>
+              <th class="p-3 text-center w-20 text-purple-400 font-bold">Errores</th>
               <th class="p-3 text-center w-24 bg-amber-950/20 text-amber-300">Final Calc.</th>
-              <th class="p-3 text-center w-28 bg-black text-white font-bold">Final Real</th>
-              <th class="p-3 w-28">P. Compra</th>
-              <th class="p-3 w-28">P. Venta</th>
-              <th class="p-3 w-32">Comisión</th>
+              <th class="p-3 text-center w-24 bg-black text-white font-bold">Final Real</th>
+              <th class="p-3 w-24">P. Compra</th>
+              <th class="p-3 w-24">P. Venta</th>
+              <th class="p-3 w-28">Comisión</th>
               <th class="p-3 w-24 text-center">Fecha Entrada</th>
               <th class="p-3 w-20 text-center text-rose-400">Acciones</th>
             </tr>
@@ -571,7 +573,7 @@
               <th class="p-3">Productos & Cantidades</th>
               <th class="p-3">Transporte</th>
               <th class="p-3">Total Compra</th>
-              <th class="p-3">Margen Estimado</th>
+              <th class="p-3">Ganancia Estimada</th>
               <th class="p-3 text-center">Acciones</th>
             </tr>
           </thead>
@@ -601,40 +603,7 @@
       ],
       datosSemanales: {
         1: {
-          lotesInventario: [
-            {
-              id: 'lote-demo-1',
-              ordenLlegada: 1,
-              producto: 'Nevera',
-              folioVale: 'ENT-DEMO',
-              moneda: 'USD',
-              inicio: 10,
-              entradas: 0,
-              bajas: 0,
-              finalReal: 10,
-              precioCompra: 225,
-              precioVenta: 300,
-              comisionGestores: 1500,
-              comisionMoneda: 'CUP',
-              transporteUnitario: 5
-            },
-            {
-              id: 'lote-demo-2',
-              ordenLlegada: 2,
-              producto: 'Infrarojo',
-              folioVale: 'ENT-DEMO',
-              moneda: 'USD',
-              inicio: 15,
-              entradas: 0,
-              bajas: 0,
-              finalReal: 15,
-              precioCompra: 20,
-              precioVenta: 35,
-              comisionGestores: 1500,
-              comisionMoneda: 'CUP',
-              transporteUnitario: 2
-            }
-          ],
+          lotesInventario: [],
           valesEntrada: [],
           gastos: [],
           inversiones: [],
@@ -649,6 +618,14 @@
     window.addEventListener('DOMContentLoaded', async () => {
       // Inicializar memoria multicapa
       appData = await window.memoryEngine.init(DEFAULT_APP_STATE);
+      // Limpiar lotes demo si existían en datos locales anteriores
+      if (appData && appData.datosSemanales) {
+        Object.keys(appData.datosSemanales).forEach(k => {
+          if (appData.datosSemanales[k] && appData.datosSemanales[k].lotesInventario) {
+            appData.datosSemanales[k].lotesInventario = appData.datosSemanales[k].lotesInventario.filter(l => !l.id.includes('demo') && l.folioVale !== 'ENT-DEMO');
+          }
+        });
+      }
 
       document.getElementById('input-comision-default').value = appData.comisionDefault || 1500;
       document.getElementById('select-moneda-comision-default').value = appData.monedaComisionDefault || 'CUP';
@@ -845,8 +822,7 @@ Transporte: 2500
 
     function inicializarFormularioValeConItemsPorDefecto() {
       itemsValeEnEdicion = [
-        { id: 'it-1', nombre: 'Nevera', cantidad: 5, moneda: appData.monedaGlobal || 'USD', precioCompra: 225, precioVenta: 300, comisionGestores: appData.comisionDefault, comisionMoneda: 'CUP', transporteUnitario: 0, margenGanancia: 0 },
-        { id: 'it-2', nombre: 'Infrarojo', cantidad: 10, moneda: appData.monedaGlobal || 'USD', precioCompra: 20, precioVenta: 35, comisionGestores: appData.comisionDefault, comisionMoneda: 'CUP', transporteUnitario: 0, margenGanancia: 0 }
+        { id: 'it-1', nombre: '', cantidad: 1, moneda: appData.monedaGlobal || 'USD', precioCompra: 0, precioVenta: 0, comisionGestores: appData.comisionDefault, comisionMoneda: 'CUP', transporteUnitario: 0, margenGanancia: 0 }
       ];
       recalcularTotalesValeEnEdicion();
     }
@@ -1107,12 +1083,14 @@ Transporte: 2500
       tbody.innerHTML = '';
 
       if (sData.lotesInventario.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="14" class="p-6 text-center text-slate-500">No hay productos ni lotes en inventario. Pega un vale arriba para registrar la mercancía.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="16" class="p-6 text-center text-slate-500">No hay productos ni lotes en inventario. Pega un vale arriba para registrar la mercancía.</td></tr>`;
         return;
       }
 
       sData.lotesInventario.forEach((lote, idx) => {
-        const calc = (lote.inicio || 0) + (lote.entradas || 0) - (lote.bajas || 0);
+        const merma = lote.merma || 0;
+        const errores = lote.errores || 0;
+        const calc = (lote.inicio || 0) + (lote.entradas || 0) - (lote.bajas || 0) - merma - errores;
         const real = (lote.finalReal !== undefined && lote.finalReal !== null) ? lote.finalReal : calc;
         const dif = real - calc;
         const estaDadoDeBaja = lote.dadoDeBaja === true;
@@ -1129,6 +1107,12 @@ Transporte: 2500
           </td>
           <td class="p-3 text-center font-mono font-bold text-emerald-400">+${lote.entradas || 0}</td>
           <td class="p-3 text-center font-mono font-bold text-rose-400">-${lote.bajas || 0}</td>
+          <td class="p-3 text-center">
+            <input type="number" min="0" value="${merma}" onchange="actualizarLoteMerma('${lote.id}', this.value)" title="Merma / Daños del producto" class="w-16 bg-black border border-amber-500/60 rounded px-1 py-1 text-center font-mono text-amber-400 font-bold text-xs" ${estaDadoDeBaja ? 'disabled' : ''}>
+          </td>
+          <td class="p-3 text-center">
+            <input type="number" min="0" value="${errores}" onchange="actualizarLoteErrores('${lote.id}', this.value)" title="Errores de conteo / descuadres" class="w-16 bg-black border border-purple-500/60 rounded px-1 py-1 text-center font-mono text-purple-300 font-bold text-xs" ${estaDadoDeBaja ? 'disabled' : ''}>
+          </td>
           <td class="p-3 text-center font-mono font-bold text-amber-300 bg-amber-950/20">${calc}</td>
           <td class="p-3 text-center">
             <input type="number" value="${real}" onchange="actualizarLoteFinalReal('${lote.id}', this.value)" class="w-20 bg-black border border-amber-500 rounded px-2 py-1 text-center font-bold text-amber-300 font-mono" ${estaDadoDeBaja ? 'disabled' : ''}>
@@ -1173,6 +1157,26 @@ Transporte: 2500
       const lote = sData.lotesInventario.find(l => l.id === id);
       if (lote) {
         lote.finalReal = parseInt(val, 10) || 0;
+        persistirEstado();
+        renderizarTodo();
+      }
+    }
+
+    function actualizarLoteMerma(id, val) {
+      const sData = getSemanaData();
+      const lote = sData.lotesInventario.find(l => l.id === id);
+      if (lote) {
+        lote.merma = Math.max(0, parseInt(val, 10) || 0);
+        persistirEstado();
+        renderizarTodo();
+      }
+    }
+
+    function actualizarLoteErrores(id, val) {
+      const sData = getSemanaData();
+      const lote = sData.lotesInventario.find(l => l.id === id);
+      if (lote) {
+        lote.errores = Math.max(0, parseInt(val, 10) || 0);
         persistirEstado();
         renderizarTodo();
       }
@@ -1504,7 +1508,7 @@ Transporte: 2500
             'Precio Venta': it.precioVenta,
             'Comisión Gestor': it.comisionGestores,
             'Transporte Unitario': it.transporteUnitario,
-            'Margen Estimado': it.margenGanancia
+            'Ganancia Estimada': it.margenGanancia
           });
         });
       });
