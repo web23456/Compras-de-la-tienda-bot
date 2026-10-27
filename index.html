@@ -11,7 +11,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Compras Tienda">
   <link rel="manifest" href="./manifest.json">
-  <link rel="icon" type="image/svg+xml" href="./logo.svg">
+  <link rel="icon" type="image/jpeg" href="./logo.jpeg">
   <link rel="apple-touch-icon" href="./icon-192.png">
 
   <!-- Tailwind CSS CDN -->
@@ -118,6 +118,14 @@
         <i data-lucide="archive" class="w-3.5 h-3.5"></i> Corte Semanal
       </button>
       <span id="sync-status" class="text-[11px] text-amber-400 font-mono">Memoria Activa</span>
+
+      <!-- Botón Instalar Aplicación (PWA) -->
+      <button id="btn-instalar-app-pwa" onclick="ejecutarInstalacionPWA()"
+              class="hidden px-3 py-1 rounded-lg bg-gradient-to-r from-amber-400 via-yellow-400 to-yellow-500 hover:from-amber-300 hover:to-yellow-400 text-black font-extrabold text-xs items-center gap-1.5 shadow-lg shadow-yellow-950/40 border border-yellow-300/60 transition-all animate-pulse"
+              title="Instalar como aplicación en este dispositivo">
+        <i data-lucide="download" class="w-3.5 h-3.5"></i>
+        <span>📲 Instalar</span>
+      </button>
     </div>
   </div>
 
@@ -127,8 +135,8 @@
   <header class="bg-black/95 backdrop-blur border-b border-amber-500/30 sticky top-0 z-40">
     <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-4">
       <div class="flex items-center gap-3">
-        <div class="w-10 h-10 rounded-xl gold-gradient flex items-center justify-center font-black text-black shadow-lg shadow-amber-500/20">
-          <i data-lucide="warehouse" class="w-6 h-6"></i>
+        <div class="w-10 h-10 rounded-xl overflow-hidden shadow-lg shadow-amber-500/20">
+          <img src="./logo.jpeg" alt="Compras Tienda" class="w-full h-full object-cover">
         </div>
         <div>
           <h1 class="text-base font-extrabold text-white flex items-center gap-2">
@@ -168,6 +176,100 @@
   <!-- CONTENEDOR PRINCIPAL                                     -->
   <!-- ======================================================== -->
   <main class="max-w-7xl mx-auto w-full px-4 py-5 space-y-6 flex-1">
+
+    <!-- CARTEL DESTACADO: INSTALAR COMO APLICACIÓN -->
+    <div id="cartel-instalar-app" class="hidden relative overflow-hidden rounded-2xl bg-gradient-to-r from-amber-950/60 via-yellow-950/40 to-black border-2 border-yellow-500/50 p-4 sm:p-5 shadow-2xl backdrop-blur-md transition-all">
+      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div class="flex items-center gap-3.5">
+          <div class="w-14 h-14 rounded-2xl overflow-hidden shadow-xl border-2 border-yellow-400/40">
+            <img src="./logo.jpeg" alt="Compras Tienda" class="w-full h-full object-cover">
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <h2 class="text-white font-extrabold text-sm sm:text-base tracking-wide">Instalar como Aplicación</h2>
+              <span class="px-2 py-0.5 rounded-full text-[9px] font-mono font-bold bg-yellow-400/20 text-yellow-300 border border-yellow-400/30">100% OFFLINE</span>
+            </div>
+            <p class="text-[11px] text-yellow-200/70 mt-0.5">Accede sin internet, recibe actualizaciones automáticas y usa desde tu escritorio o celular.</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-2.5 w-full sm:w-auto justify-end shrink-0">
+          <button id="btn-instalar-banner" onclick="ejecutarInstalacionPWA()"
+                  class="flex-1 sm:flex-initial px-5 py-2.5 rounded-xl bg-gradient-to-r from-amber-400 via-yellow-400 to-yellow-500 hover:from-amber-300 hover:to-yellow-400 text-black font-extrabold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-xl shadow-yellow-950/50 border border-yellow-300 transition-all cursor-pointer">
+            <i data-lucide="download" class="w-4 h-4 stroke-[2.5]"></i>
+            <span>Instalar Aplicación</span>
+          </button>
+          <button onclick="descartarCartelInstalacion()" title="Ocultar cartel"
+                  class="p-2 rounded-xl bg-zinc-800/80 hover:bg-zinc-700 text-yellow-300/70 hover:text-white transition-colors">
+            <i data-lucide="x" class="w-4 h-4"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- FILTRO POR RANGO DE FECHAS Y RECIBOS -->
+    <div class="bg-slate-950 border border-amber-500/30 rounded-2xl p-4 space-y-3">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+        <h3 class="text-xs font-bold text-cyan-400 uppercase tracking-wider flex items-center gap-1.5">
+          <i data-lucide="calendar-range" class="w-4 h-4"></i> Consultar Recibos por Rango de Fechas
+        </h3>
+        <span class="text-xs text-slate-500 font-mono" id="filtro-rango-count">Todos los vales</span>
+      </div>
+      <div class="flex flex-wrap items-end gap-3 text-xs">
+        <div>
+          <label class="text-[10px] text-slate-400 font-bold uppercase block mb-1">Desde:</label>
+          <input type="date" id="filtro-fecha-desde" class="bg-black border border-slate-700 rounded-lg px-2.5 py-1.5 text-white font-mono focus:outline-none focus:border-amber-500">
+        </div>
+        <div>
+          <label class="text-[10px] text-slate-400 font-bold uppercase block mb-1">Hasta:</label>
+          <input type="date" id="filtro-fecha-hasta" class="bg-black border border-slate-700 rounded-lg px-2.5 py-1.5 text-white font-mono focus:outline-none focus:border-amber-500">
+        </div>
+        <button onclick="filtrarValesPorRango()" class="gold-btn px-4 py-1.5 rounded-lg text-xs flex items-center gap-1.5">
+          <i data-lucide="search" class="w-3.5 h-3.5"></i> Filtrar
+        </button>
+        <button onclick="limpiarFiltroRango()" class="px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-700 rounded-lg text-xs font-bold flex items-center gap-1 transition">
+          <i data-lucide="x" class="w-3.5 h-3.5"></i> Limpiar
+        </button>
+        <button onclick="generarReciboRango()" class="px-4 py-1.5 bg-cyan-600/20 hover:bg-cyan-600/40 text-cyan-300 border border-cyan-500/30 rounded-lg text-xs font-bold flex items-center gap-1 transition">
+          <i data-lucide="file-text" class="w-3.5 h-3.5"></i> Generar Recibo
+        </button>
+      </div>
+      <!-- Resultado del filtro -->
+      <div id="filtro-resultado-container" class="hidden space-y-3">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <div class="bg-black border border-amber-500/20 rounded-xl p-3">
+            <span class="text-[10px] text-slate-400 uppercase font-bold">Vales en Rango</span>
+            <div class="text-lg font-black text-amber-300 font-mono mt-1" id="filtro-total-vales">0</div>
+          </div>
+          <div class="bg-black border border-emerald-500/20 rounded-xl p-3">
+            <span class="text-[10px] text-slate-400 uppercase font-bold">Total Compra USD</span>
+            <div class="text-lg font-black text-emerald-400 font-mono mt-1" id="filtro-total-usd">$0.00</div>
+          </div>
+          <div class="bg-black border border-amber-500/20 rounded-xl p-3">
+            <span class="text-[10px] text-slate-400 uppercase font-bold">Total Compra CUP</span>
+            <div class="text-lg font-black text-amber-300 font-mono mt-1" id="filtro-total-cup">0</div>
+          </div>
+          <div class="bg-black border border-cyan-500/20 rounded-xl p-3">
+            <span class="text-[10px] text-slate-400 uppercase font-bold">Productos Distintos</span>
+            <div class="text-lg font-black text-cyan-300 font-mono mt-1" id="filtro-total-productos">0</div>
+          </div>
+        </div>
+        <div class="overflow-x-auto border border-slate-800 rounded-xl max-h-80 overflow-y-auto">
+          <table class="w-full text-left text-xs">
+            <thead class="bg-black text-cyan-400 font-semibold uppercase sticky top-0">
+              <tr>
+                <th class="p-2.5">Folio</th>
+                <th class="p-2.5">Fecha Entrada</th>
+                <th class="p-2.5">Proveedor</th>
+                <th class="p-2.5 text-center">Moneda</th>
+                <th class="p-2.5">Productos</th>
+                <th class="p-2.5">Total Compra</th>
+              </tr>
+            </thead>
+            <tbody id="filtro-vales-tbody" class="divide-y divide-slate-800 bg-slate-950"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
 
     <!-- KPI DASHBOARD RESUMEN BIMONEDA (USD Y CUP) -->
     <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
@@ -363,6 +465,8 @@
               <th class="p-3 w-28">P. Compra</th>
               <th class="p-3 w-28">P. Venta</th>
               <th class="p-3 w-32">Comisión</th>
+              <th class="p-3 w-24 text-center">Fecha Entrada</th>
+              <th class="p-3 w-20 text-center text-rose-400">Acciones</th>
             </tr>
           </thead>
           <tbody id="inventario-tbody" class="divide-y divide-slate-800 bg-slate-950">
@@ -920,10 +1024,12 @@ Transporte: 2500
           ordenLlegada: nuevoOrden,
           producto: prodNombre,
           folioVale: valeParsed.folio,
+          fechaEntrada: valeParsed.fecha || new Date().toISOString().split('T')[0],
           moneda: it.moneda,
           inicio: 0,
           entradas: it.cantidad,
           bajas: 0,
+          dadoDeBaja: false,
           finalReal: it.cantidad,
           precioCompra: it.precioCompra,
           precioVenta: it.precioVenta,
@@ -1001,7 +1107,7 @@ Transporte: 2500
       tbody.innerHTML = '';
 
       if (sData.lotesInventario.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="12" class="p-6 text-center text-slate-500">No hay productos ni lotes en inventario. Pega un vale arriba para registrar la mercancía.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="14" class="p-6 text-center text-slate-500">No hay productos ni lotes en inventario. Pega un vale arriba para registrar la mercancía.</td></tr>`;
         return;
       }
 
@@ -1009,31 +1115,42 @@ Transporte: 2500
         const calc = (lote.inicio || 0) + (lote.entradas || 0) - (lote.bajas || 0);
         const real = (lote.finalReal !== undefined && lote.finalReal !== null) ? lote.finalReal : calc;
         const dif = real - calc;
+        const estaDadoDeBaja = lote.dadoDeBaja === true;
 
         const tr = document.createElement('tr');
-        tr.className = 'hover:bg-slate-900';
+        tr.className = estaDadoDeBaja ? 'opacity-40 line-through bg-rose-950/10' : 'hover:bg-slate-900';
         tr.innerHTML = `
           <td class="p-3 font-mono text-amber-400 font-bold">#${lote.ordenLlegada || (idx + 1)}</td>
-          <td class="p-3 font-bold text-white">${lote.producto}</td>
+          <td class="p-3 font-bold text-white">${lote.producto} ${estaDadoDeBaja ? '<span class=\"text-[10px] text-rose-400 ml-1\">[BAJA]</span>' : ''}</td>
           <td class="p-3 text-slate-400 font-mono text-xs">${lote.folioVale}</td>
           <td class="p-3 text-center font-bold font-mono ${lote.moneda === 'USD' ? 'text-emerald-400' : 'text-amber-300'}">${lote.moneda}</td>
           <td class="p-3 text-center">
-            <input type="number" value="${lote.inicio || 0}" onchange="actualizarLoteInicio('${lote.id}', this.value)" class="w-20 bg-black border border-slate-700 rounded px-2 py-1 text-center font-mono text-white">
+            <input type="number" value="${lote.inicio || 0}" onchange="actualizarLoteInicio('${lote.id}', this.value)" class="w-20 bg-black border border-slate-700 rounded px-2 py-1 text-center font-mono text-white" ${estaDadoDeBaja ? 'disabled' : ''}>
           </td>
           <td class="p-3 text-center font-mono font-bold text-emerald-400">+${lote.entradas || 0}</td>
           <td class="p-3 text-center font-mono font-bold text-rose-400">-${lote.bajas || 0}</td>
           <td class="p-3 text-center font-mono font-bold text-amber-300 bg-amber-950/20">${calc}</td>
           <td class="p-3 text-center">
-            <input type="number" value="${real}" onchange="actualizarLoteFinalReal('${lote.id}', this.value)" class="w-20 bg-black border border-amber-500 rounded px-2 py-1 text-center font-bold text-amber-300 font-mono">
+            <input type="number" value="${real}" onchange="actualizarLoteFinalReal('${lote.id}', this.value)" class="w-20 bg-black border border-amber-500 rounded px-2 py-1 text-center font-bold text-amber-300 font-mono" ${estaDadoDeBaja ? 'disabled' : ''}>
           </td>
           <td class="p-3 font-mono text-rose-300">
-            <input type="number" step="0.01" value="${lote.precioCompra}" onchange="actualizarLotePrecioCompra('${lote.id}', this.value)" class="w-20 bg-black border border-slate-700 rounded px-1.5 py-0.5 text-rose-300 font-mono">
+            <input type="number" step="0.01" value="${lote.precioCompra}" onchange="actualizarLotePrecioCompra('${lote.id}', this.value)" class="w-20 bg-black border border-slate-700 rounded px-1.5 py-0.5 text-rose-300 font-mono" ${estaDadoDeBaja ? 'disabled' : ''}>
           </td>
           <td class="p-3 font-mono text-emerald-300">
-            <input type="number" step="0.01" value="${lote.precioVenta}" onchange="actualizarLotePrecioVenta('${lote.id}', this.value)" class="w-20 bg-black border border-slate-700 rounded px-1.5 py-0.5 text-emerald-300 font-mono">
+            <input type="number" step="0.01" value="${lote.precioVenta}" onchange="actualizarLotePrecioVenta('${lote.id}', this.value)" class="w-20 bg-black border border-slate-700 rounded px-1.5 py-0.5 text-emerald-300 font-mono" ${estaDadoDeBaja ? 'disabled' : ''}>
           </td>
           <td class="p-3 font-mono text-amber-400 font-bold">
-            <input type="number" step="0.01" value="${lote.comisionGestores}" onchange="actualizarLoteComision('${lote.id}', this.value)" class="w-20 bg-black border border-amber-500/50 rounded px-1.5 py-0.5 text-amber-400 font-mono">
+            <input type="number" step="0.01" value="${lote.comisionGestores}" onchange="actualizarLoteComision('${lote.id}', this.value)" class="w-20 bg-black border border-amber-500/50 rounded px-1.5 py-0.5 text-amber-400 font-mono" ${estaDadoDeBaja ? 'disabled' : ''}>
+          </td>
+          <td class="p-3 text-center font-mono text-[11px] text-slate-400">${lote.fechaEntrada || '—'}</td>
+          <td class="p-3 text-center">
+            <div class="flex items-center gap-1 justify-center">
+              ${estaDadoDeBaja
+                ? `<button onclick="reactivarProductoLote('${lote.id}')" class="p-1 text-emerald-400 hover:text-emerald-300" title="Reactivar producto"><i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i></button>`
+                : `<button onclick="darDeBajaProductoLote('${lote.id}')" class="p-1 text-rose-400 hover:text-rose-300" title="Dar de baja este producto"><i data-lucide="ban" class="w-3.5 h-3.5"></i></button>`
+              }
+              <button onclick="eliminarLoteDirecto('${lote.id}')" class="p-1 text-slate-500 hover:text-rose-400" title="Eliminar lote"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
+            </div>
           </td>
         `;
         tbody.appendChild(tr);
@@ -1394,6 +1511,237 @@ Transporte: 2500
       XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(valesRows), 'Vales_Entrada');
 
       XLSX.writeFile(wb, `Almacen_Compras_${semObj.nombre.replace(/\s+/g, '_')}.xlsx`);
+    }
+
+    // ================= DAR DE BAJA / REACTIVAR PRODUCTO =================
+    function darDeBajaProductoLote(id) {
+      const sData = getSemanaData();
+      const lote = sData.lotesInventario.find(l => l.id === id);
+      if (!lote) return;
+      if (!confirm(`¿Dar de BAJA el producto "${lote.producto}" (Vale: ${lote.folioVale})?\n\nEl producto quedará desactivado del inventario activo.`)) return;
+      lote.dadoDeBaja = true;
+      lote.fechaBaja = new Date().toISOString().split('T')[0];
+      persistirEstado();
+      renderizarTodo();
+      alert(`Producto "${lote.producto}" dado de baja correctamente.`);
+    }
+
+    function reactivarProductoLote(id) {
+      const sData = getSemanaData();
+      const lote = sData.lotesInventario.find(l => l.id === id);
+      if (!lote) return;
+      lote.dadoDeBaja = false;
+      delete lote.fechaBaja;
+      persistirEstado();
+      renderizarTodo();
+      alert(`Producto "${lote.producto}" reactivado en inventario.`);
+    }
+
+    function eliminarLoteDirecto(id) {
+      if (!confirm('¿Eliminar este lote permanentemente del inventario?')) return;
+      const sData = getSemanaData();
+      sData.lotesInventario = sData.lotesInventario.filter(l => l.id !== id);
+      persistirEstado();
+      renderizarTodo();
+    }
+
+    // ================= FILTRO POR RANGO DE FECHAS =================
+    let valesFiltrados = null;
+
+    function filtrarValesPorRango() {
+      const desde = document.getElementById('filtro-fecha-desde').value;
+      const hasta = document.getElementById('filtro-fecha-hasta').value;
+      const sData = getSemanaData();
+
+      if (!desde && !hasta) {
+        alert('Selecciona al menos una fecha (Desde o Hasta) para filtrar.');
+        return;
+      }
+
+      valesFiltrados = sData.valesEntrada.filter(v => {
+        const fv = v.fecha || '';
+        if (desde && hasta) return fv >= desde && fv <= hasta;
+        if (desde) return fv >= desde;
+        if (hasta) return fv <= hasta;
+        return true;
+      });
+
+      renderizarResultadoFiltro();
+    }
+
+    function limpiarFiltroRango() {
+      valesFiltrados = null;
+      document.getElementById('filtro-fecha-desde').value = '';
+      document.getElementById('filtro-fecha-hasta').value = '';
+      document.getElementById('filtro-resultado-container').classList.add('hidden');
+      document.getElementById('filtro-rango-count').textContent = 'Todos los vales';
+    }
+
+    function renderizarResultadoFiltro() {
+      if (!valesFiltrados) return;
+      const container = document.getElementById('filtro-resultado-container');
+      container.classList.remove('hidden');
+
+      let totalUSD = 0, totalCUP = 0;
+      const productosSet = new Set();
+
+      valesFiltrados.forEach(v => {
+        totalUSD += v.totalCompraUSD || 0;
+        totalCUP += v.totalCompraCUP || 0;
+        v.items.forEach(it => productosSet.add(it.nombre));
+      });
+
+      document.getElementById('filtro-total-vales').textContent = valesFiltrados.length;
+      document.getElementById('filtro-total-usd').textContent = `$${totalUSD.toFixed(2)}`;
+      document.getElementById('filtro-total-cup').textContent = `${totalCUP.toLocaleString('es-ES')} CUP`;
+      document.getElementById('filtro-total-productos').textContent = productosSet.size;
+      document.getElementById('filtro-rango-count').textContent = `${valesFiltrados.length} vales filtrados`;
+
+      const tbody = document.getElementById('filtro-vales-tbody');
+      tbody.innerHTML = '';
+
+      if (valesFiltrados.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-slate-500">No se encontraron vales en el rango de fechas seleccionado.</td></tr>`;
+        return;
+      }
+
+      valesFiltrados.forEach(v => {
+        const prodBadges = v.items.map(i => `<span class="bg-black border border-amber-500/30 px-1.5 py-0.5 rounded text-[10px] font-mono mr-0.5">${i.cantidad}x ${i.nombre}</span>`).join(' ');
+        const totalTxt = v.moneda === 'USD' ? `$${(v.totalCompraUSD || 0).toFixed(2)} USD` : `${(v.totalCompraCUP || 0).toLocaleString('es-ES')} CUP`;
+
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-slate-900';
+        tr.innerHTML = `
+          <td class="p-2.5 font-mono font-bold text-amber-300">${v.folio}</td>
+          <td class="p-2.5 text-cyan-300 font-mono">${v.fecha}</td>
+          <td class="p-2.5 text-slate-300">${v.proveedor}</td>
+          <td class="p-2.5 text-center font-bold ${v.moneda === 'USD' ? 'text-emerald-400' : 'text-amber-300'}">${v.moneda}</td>
+          <td class="p-2.5">${prodBadges}</td>
+          <td class="p-2.5 font-mono text-rose-300 font-bold">${totalTxt}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+      lucide.createIcons();
+    }
+
+    function generarReciboRango() {
+      if (!valesFiltrados || valesFiltrados.length === 0) {
+        alert('Primero filtra un rango de fechas que contenga vales.');
+        return;
+      }
+
+      const desde = document.getElementById('filtro-fecha-desde').value || 'Inicio';
+      const hasta = document.getElementById('filtro-fecha-hasta').value || 'Actualidad';
+
+      let totalUSD = 0, totalCUP = 0, totalUnidades = 0;
+      const detallesProductos = [];
+
+      valesFiltrados.forEach(v => {
+        totalUSD += v.totalCompraUSD || 0;
+        totalCUP += v.totalCompraCUP || 0;
+        v.items.forEach(it => {
+          totalUnidades += it.cantidad || 0;
+          detallesProductos.push(`  • ${it.cantidad}x ${it.nombre} — ${it.precioCompra} ${it.moneda} (Vale: ${v.folio}, Fecha: ${v.fecha})`);
+        });
+      });
+
+      const recibo = `
+══════════════════════════════════════════
+   RECIBO DE COMPRAS — ALMACÉN CENTRAL
+══════════════════════════════════════════
+Período: ${desde} → ${hasta}
+Total de Vales: ${valesFiltrados.length}
+Total de Unidades: ${totalUnidades}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+DETALLE POR PRODUCTO:
+${detallesProductos.join('\n')}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+TOTAL COMPRAS USD: $${totalUSD.toFixed(2)}
+TOTAL COMPRAS CUP: ${totalCUP.toLocaleString('es-ES')} CUP
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Generado: ${new Date().toLocaleString()}
+══════════════════════════════════════════
+      `.trim();
+
+      // Copiar al portapapeles y descargar
+      navigator.clipboard.writeText(recibo).catch(() => {});
+      const blob = new Blob([recibo], { type: 'text/plain;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `Recibo_Compras_${desde}_a_${hasta}.txt`;
+      a.click();
+      URL.revokeObjectURL(url);
+      alert(`📄 Recibo generado y descargado.\n\nPeríodo: ${desde} → ${hasta}\nVales: ${valesFiltrados.length}\nTotal USD: $${totalUSD.toFixed(2)}\nTotal CUP: ${totalCUP.toLocaleString('es-ES')}`);
+    }
+
+    // ================= PWA INSTALACIÓN =================
+    var deferredPromptPWA = null;
+
+    function estaEnModoInstalado() {
+      return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+    }
+
+    function ocultarOpcionesInstalacionSiYaInstalada() {
+      if (estaEnModoInstalado()) {
+        var btnHeader = document.getElementById('btn-instalar-app-pwa');
+        if (btnHeader) { btnHeader.classList.add('hidden'); btnHeader.classList.remove('flex'); }
+        var cartel = document.getElementById('cartel-instalar-app');
+        if (cartel) cartel.classList.add('hidden');
+        return true;
+      }
+      return false;
+    }
+
+    window.addEventListener('DOMContentLoaded', ocultarOpcionesInstalacionSiYaInstalada);
+
+    window.addEventListener('beforeinstallprompt', function(e) {
+      e.preventDefault();
+      deferredPromptPWA = e;
+      if (ocultarOpcionesInstalacionSiYaInstalada()) return;
+      var btnHeader = document.getElementById('btn-instalar-app-pwa');
+      if (btnHeader) { btnHeader.classList.remove('hidden'); btnHeader.classList.add('flex'); }
+      var cartel = document.getElementById('cartel-instalar-app');
+      if (cartel && !sessionStorage.getItem('cartel_instalacion_descartado')) {
+        cartel.classList.remove('hidden');
+      }
+    });
+
+    window.addEventListener('appinstalled', function() {
+      deferredPromptPWA = null;
+      var btnHeader = document.getElementById('btn-instalar-app-pwa');
+      if (btnHeader) btnHeader.classList.add('hidden');
+      var cartel = document.getElementById('cartel-instalar-app');
+      if (cartel) cartel.classList.add('hidden');
+      console.log('🎉 PWA Compras de la Tienda instalada exitosamente!');
+    });
+
+    async function ejecutarInstalacionPWA() {
+      if (deferredPromptPWA) {
+        deferredPromptPWA.prompt();
+        var choice = await deferredPromptPWA.userChoice;
+        if (choice.outcome === 'accepted') {
+          deferredPromptPWA = null;
+          var cartel = document.getElementById('cartel-instalar-app');
+          if (cartel) cartel.classList.add('hidden');
+        }
+      } else {
+        var isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+        var isStandalone = estaEnModoInstalado();
+        if (isStandalone) {
+          alert('✅ La aplicación ya está instalada y funcionando en este dispositivo.');
+        } else if (isIOS) {
+          alert('📲 Para instalar en iPhone o iPad:\n\n1. Toca el botón Compartir en Safari\n2. Selecciona "Agregar al inicio"\n3. ¡Listo! Funcionará 100% offline.');
+        } else {
+          alert('📲 Para instalar:\n\n1. Haz clic en los tres puntos ⋮ del menú de tu navegador\n2. Selecciona "Instalar Compras de la Tienda"\n3. ¡Listo!');
+        }
+      }
+    }
+
+    function descartarCartelInstalacion() {
+      var cartel = document.getElementById('cartel-instalar-app');
+      if (cartel) cartel.classList.add('hidden');
+      sessionStorage.setItem('cartel_instalacion_descartado', 'true');
     }
   </script>
 </body>

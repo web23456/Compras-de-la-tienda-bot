@@ -1,12 +1,12 @@
 // Service Worker PWA para Compras de la Tienda — Almacén Central
 // Soporte 100% Offline, Cache Inteligente y Sincronización Automática
 
-const CACHE_NAME = 'compras-tienda-v2';
+const CACHE_NAME = 'compras-tienda-v3';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
   './manifest.json',
-  './logo.svg',
+  './logo.jpeg',
   './icon-192.png',
   './icon-512.png',
   './bot-parser.js',
