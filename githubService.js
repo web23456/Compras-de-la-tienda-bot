@@ -12,7 +12,7 @@ function getEnvConfig() {
     PORT: process.env.PORT || 3060,
     GITHUB_TOKEN: process.env.GITHUB_TOKEN || '',
     GITHUB_OWNER: process.env.GITHUB_OWNER || 'web23456',
-    GITHUB_REPO: process.env.GITHUB_REPO || 'Compras-de-la-tienda'
+    GITHUB_REPO: process.env.GITHUB_REPO || 'Compras-de-la-tienda-bot'
   };
 
   if (fs.existsSync(envPath)) {
@@ -93,10 +93,36 @@ async function crearSalvaSemanalEnGitHub(nombreSemana, datosJSON) {
   return await commitFile(filePath, content, null, commitMsg);
 }
 
+// Listar todas las salvas históricas guardadas en GitHub
+async function listWeeklyBackups() {
+  const url = `https://api.github.com/repos/${owner}/${repo}/contents/salvas_semanales`;
+  const res = await fetch(url, {
+    headers: {
+      'Authorization': `token ${token}`,
+      'User-Agent': 'Compras-Tienda-Bot',
+      'Accept': 'application/vnd.github.v3+json'
+    }
+  });
+
+  if (!res.ok) {
+    if (res.status === 404) return [];
+    throw new Error(`Error ${res.status} listando salvas: ${res.statusText}`);
+  }
+
+  const items = await res.json();
+  return items.map(item => ({
+    name: item.name,
+    path: item.path,
+    sha: item.sha,
+    download_url: item.download_url
+  }));
+}
+
 module.exports = {
   fetchFile,
   commitFile,
   crearSalvaSemanalEnGitHub,
+  listWeeklyBackups,
   owner,
   repo
 };

@@ -5,6 +5,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Compras de la Tienda — Entrada de Mercancía e Inventario Bimoneda</title>
   
+  <!-- PWA & Mobile Meta Tags -->
+  <meta name="theme-color" content="#ffd700">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Compras Tienda">
+  <link rel="manifest" href="./manifest.json">
+  <link rel="icon" type="image/svg+xml" href="./logo.svg">
+  <link rel="apple-touch-icon" href="./icon-192.png">
+
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Lucide Icons -->
@@ -547,6 +556,15 @@
       inicializarFormularioValeConItemsPorDefecto();
       renderizarTodo();
       lucide.createIcons();
+
+      // Registro de Service Worker para PWA Offline
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('./sw.js').then(reg => {
+          console.log('Service Worker de Compras registrado correctamente:', reg.scope);
+        }).catch(err => {
+          console.warn('Fallo registro Service Worker:', err);
+        });
+      }
     });
 
     async function persistirEstado() {
@@ -729,12 +747,19 @@ Transporte: 2500
       recalcularTotalesValeEnEdicion();
     }
 
-    function procesarValesConBot() {
+    async function procesarValesConBot() {
       const raw = document.getElementById('input-texto-vale').value;
       if (!raw.trim()) {
         alert('Pega primero el texto del vale o vales.');
         return;
       }
+
+      // Obtener catálogo de productos existentes para autocorrección difusa
+      const sDataActual = getSemanaData();
+      const catalogoProds = Array.from(new Set(sDataActual.lotesInventario.map(l => l.producto).filter(Boolean)));
+
+      // Intentar primero con el bot API si está disponible
+      let parsedApi = await window.memoryEngine.parseValeConBotApi(raw, appData.comisionDefault, appData.monedaGlobal, catalogoProds);
 
       // Dividir si pegó múltiples vales separados por "---" o bloques "Folio:"
       const bloques = raw.split(/---+|\b(?=folio\s*:)/i).map(b => b.trim()).filter(Boolean);
@@ -742,15 +767,20 @@ Transporte: 2500
       if (bloques.length > 1) {
         // Múltiples vales detectados: procesar y registrar cada uno automáticamente
         let valesProcesados = 0;
-        const sData = getSemanaData();
 
-        bloques.forEach(bloque => {
-          const res = parseValeEntrada(bloque, appData.comisionDefault, appData.monedaGlobal);
+        for (const bloque of bloques) {
+          let res = null;
+          if (window.memoryEngine) {
+            res = await window.memoryEngine.parseValeConBotApi(bloque, appData.comisionDefault, appData.monedaGlobal, catalogoProds);
+          }
+          if (!res) {
+            res = parseValeEntrada(bloque, appData.comisionDefault, appData.monedaGlobal, catalogoProds);
+          }
           if (res && res.items.length > 0) {
             registrarValeDirectoAlAlmacen(res);
             valesProcesados++;
           }
-        });
+        }
 
         persistirEstado();
         renderizarTodo();
@@ -760,7 +790,7 @@ Transporte: 2500
       }
 
       // Si es un solo vale, cargarlo al formulario editable
-      const res = parseValeEntrada(raw, appData.comisionDefault, appData.monedaGlobal);
+      const res = parsedApi || parseValeEntrada(raw, appData.comisionDefault, appData.monedaGlobal, catalogoProds);
       if (!res) {
         alert('No se pudo procesar el vale.');
         return;

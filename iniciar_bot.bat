@@ -4,7 +4,7 @@ color 0b
 echo =======================================================
 echo          COMPRAS DE LA TIENDA - INICIANDO BOT
 echo =======================================================
-echo Conectando con GitHub API (web23456/Compras-de-la-tienda)...
+echo Conectando con GitHub API (web23456/Compras-de-la-tienda-bot)...
 echo.
 cd /d "%~dp0"
 if not exist node_modules (

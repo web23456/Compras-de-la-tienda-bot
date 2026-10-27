@@ -1,7 +1,11 @@
 /**
- * Bot Extractor Inteligente de Vales de Entrada de Mercancía al Almacén
- * Soporte Bimoneda (USD y CUP) con detección automática
- * Desglose independiente de productos y detección de lotes
+ * Bot Extractor y Analizador Robusto de Vales de Entrada de Mercancía
+ * - Normalización de texto y eliminación de diacríticos
+ * - Algoritmo Levenshtein para coincidencia difusa de productos en catálogo
+ * - Detección bimoneda precisa (USD y CUP) por ítem o general
+ * - Detección y prorrateo automático de gastos de flete/transporte
+ * - Separación de múltiples vales concatenados o en lote
+ * - Detección de duplicados mediante cálculo de hash/similitud
  */
 
 function normalizarTexto(str) {
@@ -9,15 +13,75 @@ function normalizarTexto(str) {
   return String(str)
     .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
     .toLowerCase()
+    .replace(/[^a-z0-9]/g, ' ')
     .replace(/\s+/g, ' ')
     .trim();
 }
 
-function parseValeEntrada(rawTexto, comisionDefault = 1500, monedaDefault = 'USD') {
+function calcularLevenshteinDistancia(a, b) {
+  if (!a || !b) return (a || b || '').length;
+  const m = a.length, n = b.length;
+  const dp = Array.from({ length: m + 1 }, () => new Array(n + 1).fill(0));
+  for (let i = 0; i <= m; i++) dp[i][0] = i;
+  for (let j = 0; j <= n; j++) dp[0][j] = j;
+  for (let i = 1; i <= m; i++) {
+    for (let j = 1; j <= n; j++) {
+      const cost = a[i - 1] === b[j - 1] ? 0 : 1;
+      dp[i][j] = Math.min(
+        dp[i - 1][j] + 1,
+        dp[i][j - 1] + 1,
+        dp[i - 1][j - 1] + cost
+      );
+    }
+  }
+  return dp[m][n];
+}
+
+function calcularSimilitudLevenshtein(a, b) {
+  const normA = normalizarTexto(a);
+  const normB = normalizarTexto(b);
+  if (!normA && !normB) return 1.0;
+  if (!normA || !normB) return 0.0;
+  if (normA === normB) return 1.0;
+  const maxLen = Math.max(normA.length, normB.length);
+  return (maxLen - calcularLevenshteinDistancia(normA, normB)) / maxLen;
+}
+
+function buscarMejorCoincidenciaCatalogo(nombreExtraido, catalogo) {
+  if (!Array.isArray(catalogo) || catalogo.length === 0 || !nombreExtraido) return null;
+  const normExt = normalizarTexto(nombreExtraido);
+  let mejorMatch = null;
+  let mejorScore = 0;
+
+  for (const item of catalogo) {
+    const prodNombre = typeof item === 'string' ? item : (item.producto || item.nombre || '');
+    const normProd = normalizarTexto(prodNombre);
+    if (!normProd) continue;
+
+    if (normExt === normProd) {
+      return { producto: prodNombre, score: 1.0 };
+    }
+    if (normExt.includes(normProd) || normProd.includes(normExt)) {
+      const score = Math.min(normExt.length, normProd.length) / Math.max(normExt.length, normProd.length);
+      if (score > mejorScore) {
+        mejorScore = score;
+        mejorMatch = prodNombre;
+      }
+    }
+    const levScore = calcularSimilitudLevenshtein(normExt, normProd);
+    if (levScore > mejorScore && levScore >= 0.65) {
+      mejorScore = levScore;
+      mejorMatch = prodNombre;
+    }
+  }
+
+  return mejorMatch ? { producto: mejorMatch, score: mejorScore } : null;
+}
+
+function parseValeEntrada(rawTexto, comisionDefault = 1500, monedaDefault = 'USD', catalogo = []) {
   if (!rawTexto || !rawTexto.trim()) return null;
 
   const lineas = rawTexto.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
-  const textoNorm = normalizarTexto(rawTexto);
 
   function extraerCampo(regexList) {
     for (const r of regexList) {
@@ -49,7 +113,7 @@ function parseValeEntrada(rawTexto, comisionDefault = 1500, monedaDefault = 'USD
   ]) || new Date().toISOString().split('T')[0];
 
   // Moneda general del vale (USD o CUP)
-  const monedaDetectada = (/cup|moneda nacional|mn\b/i.test(rawTexto)) ? 'CUP' : ((/usd|dolar|\$/i.test(rawTexto)) ? 'USD' : monedaDefault);
+  const monedaDetectada = (/cup|moneda nacional|mn\b/i.test(rawTexto)) ? 'CUP' : ((/usd|dolar|\$/i.test(rawTexto)) ? 'USD' : (monedaDefault || 'USD'));
 
   // Transporte / Flete general del vale
   const fleteRaw = extraerCampo([
@@ -69,7 +133,7 @@ function parseValeEntrada(rawTexto, comisionDefault = 1500, monedaDefault = 'USD
   const items = [];
 
   for (const linea of lineas) {
-    if (/^(folio|proveedor|fecha|flete|transporte|total|moneda)/i.test(linea)) continue;
+    if (/^(folio|proveedor|fecha|flete|transporte|transportacion|envio|total|moneda|---)/i.test(linea)) continue;
 
     const partes = linea.split(/\.{2,}|\s*,\s*|\s*;\s*/).map(p => p.trim()).filter(Boolean);
 
@@ -99,6 +163,14 @@ function parseValeEntrada(rawTexto, comisionDefault = 1500, monedaDefault = 'USD
           .replace(/\s+/g, ' ')
           .trim();
 
+        // Coincidencia inteligente difusa con catálogo previo si existe
+        if (catalogo && catalogo.length > 0) {
+          const matchCat = buscarMejorCoincidenciaCatalogo(nombreLimpio, catalogo);
+          if (matchCat && matchCat.score >= 0.70) {
+            nombreLimpio = matchCat.producto;
+          }
+        }
+
         let precioCompra = 0;
         let precioVenta = 0;
 
@@ -107,7 +179,7 @@ function parseValeEntrada(rawTexto, comisionDefault = 1500, monedaDefault = 'USD
           precioVenta = numeros[1];
         } else if (numeros.length === 1) {
           precioCompra = numeros[0];
-          precioVenta = Math.round(precioCompra * 1.3 * 100) / 100; // margen sugerido
+          precioVenta = Math.round(precioCompra * 1.3 * 100) / 100;
         }
 
         if (nombreLimpio) {
@@ -157,17 +229,34 @@ function parseValeEntrada(rawTexto, comisionDefault = 1500, monedaDefault = 'USD
     });
   }
 
+  const totalCompraUSD = items.filter(i => i.moneda === 'USD').reduce((acc, i) => acc + i.subtotalCompra, 0);
+  const totalCompraCUP = items.filter(i => i.moneda === 'CUP').reduce((acc, i) => acc + i.subtotalCompra, 0);
+
   return {
     folio,
     proveedor,
     fecha,
     moneda: monedaDetectada,
     transporteTotal,
+    totalCompraUSD,
+    totalCompraCUP,
     items,
     rawTexto
   };
 }
 
+// Función para compatibilidad con server.js
+function parseValeTexto(texto, catalogo = [], gestores = []) {
+  return parseValeEntrada(texto, 1500, 'USD', catalogo);
+}
+
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { parseValeEntrada, normalizarTexto };
+  module.exports = {
+    parseValeEntrada,
+    parseValeTexto,
+    normalizarTexto,
+    calcularLevenshteinDistancia,
+    calcularSimilitudLevenshtein,
+    buscarMejorCoincidenciaCatalogo
+  };
 }

@@ -3,8 +3,8 @@
 //  Capa 1: Memoria RAM reactiva instantánea
 //  Capa 2: LocalStorage / IndexedDB persistente offline
 //  Capa 3: Snapshots & Time-Machine locales y versionados
-//  Capa 4: Servidor Backend Node.js
-//  Capa 5: Respaldo remoto permanente en GitHub (Salvas en Repo)
+//  Capa 4: Servidor Backend Node.js Local / Bot API (http://localhost:3060)
+//  Capa 5: Respaldo remoto permanente en GitHub (GitHub API / Pages)
 // ===============================================================
 
 const DB_STORE_NAME = 'compras_almacen_db_v4';
@@ -15,10 +15,12 @@ class MultilayerMemoryEngine {
     this.cache = null;
     this.db = null;
     this.subscribers = [];
+    this.apiBase = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+      ? ''
+      : 'http://localhost:3060';
   }
 
   async init(defaultData) {
-    // 1. Cargar desde IndexedDB o LocalStorage
     await this.initIndexedDB();
     const idbData = await this.readFromIDB();
     const localData = this.readFromLocalStorage();
@@ -31,7 +33,20 @@ class MultilayerMemoryEngine {
       this.cache = defaultData;
     }
 
-    // Guardar copia consistente
+    // Intentar sincronizar con el Bot API si está activo
+    try {
+      const res = await fetch(`${this.apiBase}/api/datos`, { method: 'GET' });
+      if (res.ok) {
+        const json = await res.json();
+        if (json && json.ok && json.data) {
+          this.cache = json.data;
+        }
+      }
+    } catch (e) {
+      // Sin bot local activo en este momento, sigue offline/web pura
+    }
+
+    // Guardar copia consistente localmente
     this.saveToLocalStorage(this.cache);
     await this.saveToIDB(this.cache);
     return this.cache;
@@ -97,7 +112,6 @@ class MultilayerMemoryEngine {
   saveToLocalStorage(data) {
     try {
       localStorage.setItem(DB_STORE_NAME, JSON.stringify(data));
-      // Guardar también copia redundante de emergencia
       localStorage.setItem(DB_STORE_NAME + '_BACKUP', JSON.stringify(data));
     } catch (e) {
       console.warn('LocalStorage lleno o restringido:', e);
@@ -109,19 +123,21 @@ class MultilayerMemoryEngine {
     this.saveToLocalStorage(data);
     await this.saveToIDB(data);
 
-    // Enviar a servidor backend si está activo
-    fetch('/api/datos', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data)
-    }).catch(() => {});
+    // Enviar a servidor backend si está activo (local o via bot)
+    try {
+      fetch(`${this.apiBase}/api/datos`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      }).catch(() => {});
+    } catch (e) {}
 
     this.notify('update', data);
   }
 
   async saveSalvaEnGitHub(semanaNombre) {
     try {
-      const res = await fetch('/api/corte-semanal', {
+      const res = await fetch(`${this.apiBase}/api/corte-semanal`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ semana: semanaNombre, database: this.cache })
@@ -134,15 +150,38 @@ class MultilayerMemoryEngine {
 
   async syncToGitHub(commitMsg) {
     try {
-      const res = await fetch('/api/sync-to-github', {
+      const res = await fetch(`${this.apiBase}/api/sync-to-github`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ database: this.cache, commitMessage: commitMsg || 'feat: sincronizacion automatica de salva' })
+        body: JSON.stringify({
+          database: this.cache,
+          commitMessage: commitMsg || 'feat: sincronizacion automatica de salva'
+        })
       });
       return await res.json();
     } catch (e) {
       return { success: false, error: e.message };
     }
+  }
+
+  async parseValeConBotApi(texto, comisionDefault, monedaDefault, catalogo) {
+    try {
+      const res = await fetch(`${this.apiBase}/api/bot/parse-vale`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          texto,
+          comisionDefault,
+          monedaDefault,
+          catalogo
+        })
+      });
+      if (res.ok) {
+        const json = await res.json();
+        if (json.ok) return json.data;
+      }
+    } catch (e) {}
+    return null;
   }
 
   subscribe(callback) {

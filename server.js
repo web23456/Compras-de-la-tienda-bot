@@ -2,7 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const fs = require('fs');
 const path = require('path');
-const { parseValeTexto } = require('./bot-parser');
+const { parseValeEntrada, parseValeTexto } = require('./bot-parser');
 const githubService = require('./githubService');
 
 const app = express();
@@ -36,12 +36,12 @@ function guardarDatos(data) {
 
 // 1. Endpoint: Analizar texto de vale con el bot robusto
 app.post('/api/bot/parse-vale', (req, res) => {
-  const { texto, catalogo, gestores } = req.body;
+  const { texto, catalogo, comisionDefault, monedaDefault } = req.body;
   if (!texto) {
     return res.status(400).json({ error: 'Falta el texto del vale' });
   }
   try {
-    const resultado = parseValeTexto(texto, catalogo || [], gestores || []);
+    const resultado = parseValeEntrada(texto, comisionDefault || 1500, monedaDefault || 'USD', catalogo || []);
     res.json({ ok: true, data: resultado });
   } catch (error) {
     res.status(500).json({ ok: false, error: error.message });
@@ -64,7 +64,7 @@ app.get('/api/datos', (req, res) => {
   res.json({ ok: true, data: db });
 });
 
-// 4. Endpoint: Sincronizar cambios completos a GitHub
+// 4. Endpoint: Sincronizar cambios completos a GitHub (tienda_datos.json y/o index.html)
 app.post('/api/sync-to-github', async (req, res) => {
   const { database, commitMessage } = req.body;
   try {
@@ -121,6 +121,28 @@ app.post('/api/corte-semanal', async (req, res) => {
     console.error('Error en corte semanal:', err);
     res.status(500).json({ success: false, error: err.message });
   }
+});
+
+// 6. Endpoint: Listar historial de salvas semanales de GitHub
+app.get('/api/historial-salvas', async (req, res) => {
+  try {
+    const salvas = await githubService.listWeeklyBackups();
+    res.json({ ok: true, salvas });
+  } catch (err) {
+    res.status(500).json({ ok: false, error: err.message });
+  }
+});
+
+// 7. Endpoint: Estado del Bot y conexión
+app.get('/api/estado', (req, res) => {
+  res.json({
+    ok: true,
+    bot: 'Bot de Compras de la Tienda',
+    puerto: PORT,
+    owner: githubService.owner,
+    repo: githubService.repo,
+    tiempo: new Date().toISOString()
+  });
 });
 
 app.listen(PORT, () => {
