@@ -61,7 +61,7 @@
 <body class="min-h-screen flex flex-col font-sans antialiased selection:bg-amber-400 selection:text-black">
 
   <!-- ======================================================== -->
-  <!-- BARRA SUPERIOR BOT GITHUB (ORO Y NEGRO)                  -->
+  <!-- BARRA SUPERIOR DE CONTROL (ORO Y NEGRO)                  -->
   <!-- ======================================================== -->
   <div class="bg-black border-b border-amber-500/30 px-4 py-2 flex flex-wrap items-center justify-between gap-3 text-xs">
     <div class="flex items-center gap-2">
@@ -70,7 +70,7 @@
         <i data-lucide="bot" class="w-4 h-4 text-amber-400"></i>
         Panel de Compras & Almacén Central
       </span>
-      <span class="text-[10px] px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40 font-mono">Modo Estático / API Bot</span>
+      
     </div>
 
     <!-- Moneda Base de Trabajo, Tasas de Conversión y Comisión Global Editable -->
@@ -111,8 +111,8 @@
       </div>
 
       <!-- Memoria y Salva en GitHub -->
-      <button onclick="guardarSalvaEnGitHub()" class="gold-btn px-3 py-1 rounded-lg text-xs flex items-center gap-1.5" title="Guardar Salva en GitHub permanente">
-        <i data-lucide="cloud-upload" class="w-3.5 h-3.5"></i> Salva en GitHub
+      <button onclick="guardarSalvaEnGitHub()" class="gold-btn px-3 py-1 rounded-lg text-xs flex items-center gap-1.5" title="Guardar copia de seguridad permanente">
+        <i data-lucide="cloud-upload" class="w-3.5 h-3.5"></i> Guardar Salva
       </button>
       <button onclick="realizarCorteSemanalBot()" class="px-3 py-1 bg-slate-900 hover:bg-slate-800 text-amber-300 border border-amber-500/50 rounded-lg text-xs font-bold flex items-center gap-1 transition" title="Corte semanal con traspaso de inventario">
         <i data-lucide="archive" class="w-3.5 h-3.5"></i> Corte Semanal
@@ -712,23 +712,23 @@
 
       if (res && res.success) {
         if (st) { st.textContent = '✓ Salva en Repo'; st.style.color = '#34d399'; }
-        alert(`🎉 ¡Salva guardada con éxito en el repositorio!\nArchivo: ${res.backupFileGitHub}`);
+        alert("🎉 ¡Copia de seguridad guardada con éxito!");
       } else {
         // Respaldar con commit estándar
         const resSync = await window.memoryEngine.syncToGitHub('backup: Salva manual de compras e inventario');
         if (resSync && resSync.success) {
           if (st) { st.textContent = '✓ Sincronizado'; st.style.color = '#34d399'; }
-          alert('🚀 Salva guardada y sincronizada directamente en GitHub.');
+          alert("🚀 Salva guardada y respaldada exitosamente.");
         } else {
           if (st) { st.textContent = 'Guardado Local'; st.style.color = '#d4af37'; }
-          alert('Guardado en memoria y base local. Para enviar a GitHub ejecuta iniciar_bot.bat.');
+          alert("Guardado en memoria local correctamente.");
         }
       }
     }
 
     async function realizarCorteSemanalBot() {
       const semActual = appData.semanas.find(s => s.id === appData.semanaActivaId) || { nombre: 'Semana Actual' };
-      if (!confirm(`📦 ¿Deseas realizar el CORTE SEMANAL de ${semActual.nombre}?\n\n- Se guardará una copia permanente de la salva en GitHub.\n- Los inventarios finales pasarán automáticamente como iniciales de la siguiente semana.`)) {
+      if (!confirm(`📦 ¿Deseas realizar el CORTE SEMANAL de ${semActual.nombre}?\n\n- Se guardará una copia de respaldo permanente.\n- Los inventarios finales pasarán automáticamente como iniciales de la siguiente semana.`)) {
         return;
       }
       await guardarSalvaEnGitHub();
