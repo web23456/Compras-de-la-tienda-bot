@@ -48,10 +48,23 @@ app.post('/api/bot/parse-vale', (req, res) => {
   }
 });
 
-// 2. Endpoint: Guardar base de datos localmente
-app.post('/api/datos', (req, res) => {
+// 2. Endpoint: Guardar base de datos localmente y sincronizar en GitHub
+app.post('/api/datos', async (req, res) => {
   try {
     guardarDatos(req.body);
+    // Intentar sincronizar con GitHub en segundo plano si hay cambios
+    githubService.fetchFile('tienda_datos.json')
+      .then(file => {
+        const sha = file ? file.sha : null;
+        return githubService.commitFile(
+          'tienda_datos.json',
+          JSON.stringify(req.body, null, 2),
+          sha,
+          'feat: sincronización automática de datos desde el Bot [' + new Date().toLocaleTimeString() + ']'
+        );
+      })
+      .catch(e => console.warn('Sync automático a GitHub en segundo plano:', e.message));
+
     res.json({ ok: true });
   } catch (err) {
     res.status(500).json({ ok: false, error: err.message });

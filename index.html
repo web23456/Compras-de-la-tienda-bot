@@ -652,9 +652,20 @@
             }
           };
 
-          window.addEventListener('online', () => {
-            console.log('Conexión reestablecida: actualizando cache con la web real de GitHub...');
+          window.addEventListener('online', async () => {
+            console.log('Conexión reestablecida: actualizando cache y datos con la web real de GitHub...');
             verificarNuevaVersion();
+            try {
+              const resJson = await fetch('./tienda_datos.json', { cache: 'no-cache' });
+              if (resJson.ok) {
+                const remote = await resJson.json();
+                if (remote && (remote.semanas || remote.datosSemanales)) {
+                  appData = remote;
+                  await window.memoryEngine.persist(appData);
+                  renderizarTodo();
+                }
+              }
+            } catch (e) {}
           });
 
           // Chequeo periódico cada 5 minutos si hay internet
@@ -752,24 +763,20 @@
     // ================= SALVA EN REPOSITORIO GITHUB =================
     async function guardarSalvaEnGitHub() {
       const st = document.getElementById('sync-status');
-      if (st) { st.textContent = 'Guardando en Repo...'; st.style.color = '#ffd700'; }
+      if (st) { st.textContent = 'Sincronizando con GitHub...'; st.style.color = '#ffd700'; }
 
       const semActual = appData.semanas.find(s => s.id === appData.semanaActivaId) || { nombre: 'Semana' };
-      const res = await window.memoryEngine.saveSalvaEnGitHub(semActual.nombre);
+      
+      // Sincronizar tanto la salva semanal como los datos principales en GitHub
+      const resSync = await window.memoryEngine.syncToGitHub('feat: Guardar cambios y sincronizar datos en GitHub');
+      const resSalva = await window.memoryEngine.saveSalvaEnGitHub(semActual.nombre);
 
-      if (res && res.success) {
-        if (st) { st.textContent = '✓ Salva en Repo'; st.style.color = '#34d399'; }
-        alert("🎉 ¡Copia de seguridad guardada con éxito!");
+      if ((resSync && resSync.success) || (resSalva && resSalva.success)) {
+        if (st) { st.textContent = '✓ Sincronizado en GitHub'; st.style.color = '#34d399'; }
+        alert("🎉 ¡Datos y cambios guardados y sincronizados exitosamente con la web de GitHub!");
       } else {
-        // Respaldar con commit estándar
-        const resSync = await window.memoryEngine.syncToGitHub('backup: Salva manual de compras e inventario');
-        if (resSync && resSync.success) {
-          if (st) { st.textContent = '✓ Sincronizado'; st.style.color = '#34d399'; }
-          alert("🚀 Salva guardada y respaldada exitosamente.");
-        } else {
-          if (st) { st.textContent = 'Guardado Local'; st.style.color = '#d4af37'; }
-          alert("Guardado en memoria local correctamente.");
-        }
+        if (st) { st.textContent = 'Guardado Local'; st.style.color = '#d4af37'; }
+        alert("Guardado en memoria local correctamente. (Asegúrate de que el Bot local esté activo para enviar a GitHub)");
       }
     }
 

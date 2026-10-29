@@ -33,17 +33,41 @@ class MultilayerMemoryEngine {
       this.cache = defaultData;
     }
 
-    // Intentar sincronizar con el Bot API si está activo
+    let datosRemotosObtenidos = false;
+
+    // 1. Intentar sincronizar primero con el Bot API si está activo
     try {
-      const res = await fetch(`${this.apiBase}/api/datos`, { method: 'GET' });
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 2000);
+      const res = await fetch(`${this.apiBase}/api/datos`, { method: 'GET', signal: controller.signal });
+      clearTimeout(timeoutId);
       if (res.ok) {
         const json = await res.json();
-        if (json && json.ok && json.data) {
+        if (json && json.ok && json.data && Object.keys(json.data).length > 0) {
           this.cache = json.data;
+          datosRemotosObtenidos = true;
         }
       }
     } catch (e) {
-      // Sin bot local activo en este momento, sigue offline/web pura
+      // Sin bot local activo
+    }
+
+    // 2. Si no hay bot activo (por ej. visita directa a GitHub Pages con internet),
+    // cargar el archivo real tienda_datos.json alojado en GitHub Pages
+    if (!datosRemotosObtenidos) {
+      try {
+        const resJson = await fetch('./tienda_datos.json', { cache: 'no-cache' });
+        if (resJson.ok) {
+          const remoteData = await resJson.json();
+          if (remoteData && (remoteData.semanas || remoteData.datosSemanales)) {
+            // Actualizar si la data de GitHub existe
+            this.cache = remoteData;
+            datosRemotosObtenidos = true;
+          }
+        }
+      } catch (errJson) {
+        // Modo offline estricto: se mantiene cache de IDB / LocalStorage
+      }
     }
 
     // Guardar copia consistente localmente
