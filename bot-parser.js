@@ -250,6 +250,16 @@ function parseValeTexto(texto, catalogo = [], gestores = []) {
   return parseValeEntrada(texto, 1500, 'USD', catalogo);
 }
 
+
+if (typeof window !== 'undefined') {
+  window.parseValeEntrada = parseValeEntrada;
+  window.parseValeTexto = parseValeTexto;
+  window.normalizarTexto = normalizarTexto;
+  window.calcularLevenshteinDistancia = calcularLevenshteinDistancia;
+  window.calcularSimilitudLevenshtein = calcularSimilitudLevenshtein;
+  window.buscarMejorCoincidenciaCatalogo = buscarMejorCoincidenciaCatalogo;
+}
+
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
     parseValeEntrada,

@@ -637,14 +637,51 @@
 
       inicializarFormularioValeConItemsPorDefecto();
       renderizarTodo();
-      lucide.createIcons();
+      if (window.lucide && typeof lucide.createIcons === 'function') { lucide.createIcons(); }
 
-      // Registro de Service Worker para PWA Offline
+      // Registro de Service Worker para PWA Offline con Auto-Actualización online
       if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('./sw.js').then(reg => {
           console.log('Service Worker de Compras registrado correctamente:', reg.scope);
+          
+          // Al detectar internet o reconexión, verificar si hay nueva versión en GitHub Pages
+          const verificarNuevaVersion = () => {
+            if (navigator.onLine) {
+              reg.update().catch(() => {});
+            }
+          };
+
+          window.addEventListener('online', () => {
+            console.log('Conexión reestablecida: actualizando cache con la web real de GitHub...');
+            verificarNuevaVersion();
+          });
+
+          // Chequeo periódico cada 5 minutos si hay internet
+          setInterval(verificarNuevaVersion, 5 * 60 * 1000);
+
+          reg.onupdatefound = () => {
+            const installingWorker = reg.installing;
+            if (installingWorker) {
+              installingWorker.onstatechange = () => {
+                if (installingWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                  console.log('Nueva versión detectada en GitHub: recargando cache...');
+                  // Recargar suavemente para aplicar la última versión de GitHub
+                  window.location.reload();
+                }
+              };
+            }
+          };
         }).catch(err => {
           console.warn('Fallo registro Service Worker:', err);
+        });
+
+        // Asegurar que cuando el nuevo Service Worker tome control se refresque la página
+        let refreshing = false;
+        navigator.serviceWorker.addEventListener('controllerchange', () => {
+          if (!refreshing) {
+            refreshing = true;
+            window.location.reload();
+          }
         });
       }
     });
@@ -835,6 +872,7 @@ Transporte: 2500
         { id: 'it-1', nombre: '', fechaEntrada: hoy, cantidad: 1, moneda: appData.monedaGlobal || 'USD', precioCompra: 0, precioVenta: 0, comisionGestores: appData.comisionDefault, comisionMoneda: 'CUP', transporteUnitario: 0, margenGanancia: 0 }
       ];
       recalcularTotalesValeEnEdicion();
+      renderizarFilasValeEdicion();
     }
 
     async function procesarValesConBot() {
@@ -894,6 +932,7 @@ Transporte: 2500
 
       itemsValeEnEdicion = res.items.map(it => ({ ...it }));
       recalcularTotalesValeEnEdicion();
+      renderizarFilasValeEdicion();
       alert(`¡Bot analizó el vale! Se desglosaron ${itemsValeEnEdicion.length} productos independientes listos para revisar.`);
     }
 
@@ -913,12 +952,17 @@ Transporte: 2500
         margenGanancia: 0
       });
       recalcularTotalesValeEnEdicion();
+      renderizarFilasValeEdicion();
     }
 
     function eliminarFilaProducto(id) {
       itemsValeEnEdicion = itemsValeEnEdicion.filter(i => i.id !== id);
-      if (itemsValeEnEdicion.length === 0) agregarFilaProductoManual();
-      recalcularTotalesValeEnEdicion();
+      if (itemsValeEnEdicion.length === 0) {
+        agregarFilaProductoManual();
+      } else {
+        recalcularTotalesValeEnEdicion();
+        renderizarFilasValeEdicion();
+      }
     }
 
     function actualizarItemEnEdicion(id, campo, valor) {
@@ -1013,7 +1057,7 @@ Transporte: 2500
         `;
         tbody.appendChild(tr);
       });
-      lucide.createIcons();
+      if (window.lucide && typeof lucide.createIcons === 'function') { lucide.createIcons(); }
     }
 
     function registrarValeDirectoAlAlmacen(valeParsed) {
@@ -1172,7 +1216,7 @@ Transporte: 2500
         `;
         tbody.appendChild(tr);
       });
-      lucide.createIcons();
+      if (window.lucide && typeof lucide.createIcons === 'function') { lucide.createIcons(); }
     }
 
     function refrescarFilaLoteVisual(loteId) {
@@ -1350,7 +1394,7 @@ Transporte: 2500
       renderizarListasGastosInversionesBajas();
       renderizarHistorialVales();
       poblarSelectBajas();
-      lucide.createIcons();
+      if (window.lucide && typeof lucide.createIcons === 'function') { lucide.createIcons(); }
     }
 
     function renderizarSelectorSemanas() {
@@ -1521,7 +1565,7 @@ Transporte: 2500
         `;
         tbody.appendChild(tr);
       });
-      lucide.createIcons();
+      if (window.lucide && typeof lucide.createIcons === 'function') { lucide.createIcons(); }
     }
 
     // ================= EXPORTACIÓN EXCEL =================
@@ -1682,7 +1726,7 @@ Transporte: 2500
         `;
         tbody.appendChild(tr);
       });
-      lucide.createIcons();
+      if (window.lucide && typeof lucide.createIcons === 'function') { lucide.createIcons(); }
     }
 
     function generarReciboRango() {
