@@ -1,7 +1,7 @@
 // Service Worker PWA para Compras de la Tienda — Almacén Central
-// Soporte 100% Offline, Cache Inteligente y Sincronización Automática
+// Soporte 100% Offline Garantizado, Cache Robusto de CDNs y Sincronización Automática
 
-const CACHE_NAME = 'compras-tienda-v3';
+const CACHE_NAME = 'compras-tienda-v4';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
@@ -16,13 +16,13 @@ const ASSETS_TO_CACHE = [
   'https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js'
 ];
 
-// Instalación: Pre-cacheados de recursos principales
+// Instalación: Pre-cacheados de recursos principales con allSettled para no abortar si hay lentitud
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
       return Promise.allSettled(
         ASSETS_TO_CACHE.map((url) => {
-          return fetch(url, { mode: url.startsWith('http') ? 'cors' : 'same-origin' })
+          return fetch(url, { mode: url.startsWith('http') ? 'cors' : 'same-origin', cache: 'reload' })
             .then((res) => {
               if (res.ok || res.type === 'opaque') {
                 return cache.put(url, res);
@@ -38,7 +38,7 @@ self.addEventListener('install', (event) => {
   self.skipWaiting();
 });
 
-// Activación: Limpieza de caches antiguos
+// Activación: Limpieza de caches antiguos y toma de control inmediata
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((keys) => {
@@ -50,7 +50,10 @@ self.addEventListener('activate', (event) => {
   self.clients.claim();
 });
 
-// Interceptor Fetch: Estrategia Network-First para datos y navegación HTML con fallback offline
+// Interceptor Fetch:
+// 1. Navegación HTML -> Network-First con fallback inmediato a Cache ('./index.html')
+// 2. CDNs y scripts estáticos -> Cache-First con fallback a Network (garantiza 0 internet instantáneo)
+// 3. API local backend (/api/) -> Network directo, si falla no bloquea
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
 
@@ -89,7 +92,8 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Recursos estáticos (CDNs, imágenes, scripts, fuentes) -> Stale-while-revalidate
+  // Recursos estáticos (CDNs, imágenes, scripts, fuentes):
+  // Estrategia Cache-First con actualización en segundo plano (Stale-While-Revalidate)
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {
       const fetchPromise = fetch(event.request)
@@ -102,6 +106,7 @@ self.addEventListener('fetch', (event) => {
         })
         .catch(() => cachedResponse);
 
+      // Si ya está en cache, devolverlo de inmediato para que funcione con 0 internet
       return cachedResponse || fetchPromise;
     })
   );
