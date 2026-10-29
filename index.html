@@ -949,9 +949,19 @@ Transporte: 2500
         const subCompra = cant * (it.precioCompra || 0);
         const subTransp = cant * it.transporteUnitario;
         it.margenGanancia = subVenta - subCompra - subTransp;
-      });
 
-      renderizarFilasValeEdicion();
+        // Actualizar visualmente la fila en vivo sin destruir los inputs
+        const tr = document.querySelector(`tr[data-vale-item-id="${it.id}"]`);
+        if (tr) {
+          const tdTransp = tr.querySelector('.vale-cell-transporte');
+          const tdMargen = tr.querySelector('.vale-cell-margen');
+          if (tdTransp) tdTransp.textContent = `${it.transporteUnitario.toFixed(2)} ${it.moneda}`;
+          if (tdMargen) {
+            tdMargen.textContent = `${it.margenGanancia.toFixed(2)} ${it.moneda}`;
+            tdMargen.className = `p-2.5 font-mono font-bold vale-cell-margen ${it.margenGanancia >= 0 ? 'text-cyan-400' : 'text-rose-400'}`;
+          }
+        }
+      });
     }
 
     function renderizarFilasValeEdicion() {
@@ -961,6 +971,7 @@ Transporte: 2500
       itemsValeEnEdicion.forEach(it => {
         const tr = document.createElement('tr');
         tr.className = 'hover:bg-slate-900';
+        tr.setAttribute('data-vale-item-id', it.id);
         const fechaProd = it.fechaEntrada || document.getElementById('vale-fecha').value || new Date().toISOString().split('T')[0];
         tr.innerHTML = `
           <td class="p-2.5">
@@ -970,7 +981,7 @@ Transporte: 2500
             <input type="date" value="${fechaProd}" onchange="actualizarItemEnEdicion('${it.id}', 'fechaEntrada', this.value)" title="Fecha de entrada de este producto" class="w-full bg-black border border-amber-500/50 rounded px-1.5 py-1 text-amber-300 font-mono text-[11px]">
           </td>
           <td class="p-2.5">
-            <input type="number" min="1" value="${it.cantidad}" oninput="actualizarItemEnEdicion('${it.id}', 'cantidad', this.value)" class="w-full bg-black border border-slate-700 rounded px-2 py-1 text-center font-mono font-bold text-amber-300">
+            <input type="number" min="1" value="${it.cantidad}" onchange="actualizarItemEnEdicion('${it.id}', 'cantidad', this.value)" class="w-full bg-black border border-slate-700 rounded px-2 py-1 text-center font-mono font-bold text-amber-300">
           </td>
           <td class="p-2.5 text-center">
             <select onchange="actualizarItemEnEdicion('${it.id}', 'moneda', this.value)" class="bg-black border border-slate-700 rounded px-1.5 py-1 text-amber-300 font-bold text-xs">
@@ -979,21 +990,21 @@ Transporte: 2500
             </select>
           </td>
           <td class="p-2.5">
-            <input type="number" step="0.01" value="${it.precioCompra}" oninput="actualizarItemEnEdicion('${it.id}', 'precioCompra', this.value)" class="w-full bg-black border border-slate-700 rounded px-2 py-1 text-rose-300 font-mono">
+            <input type="number" step="0.01" value="${it.precioCompra}" onchange="actualizarItemEnEdicion('${it.id}', 'precioCompra', this.value)" class="w-full bg-black border border-slate-700 rounded px-2 py-1 text-rose-300 font-mono">
           </td>
           <td class="p-2.5">
-            <input type="number" step="0.01" value="${it.precioVenta}" oninput="actualizarItemEnEdicion('${it.id}', 'precioVenta', this.value)" class="w-full bg-black border border-slate-700 rounded px-2 py-1 text-emerald-300 font-mono">
+            <input type="number" step="0.01" value="${it.precioVenta}" onchange="actualizarItemEnEdicion('${it.id}', 'precioVenta', this.value)" class="w-full bg-black border border-slate-700 rounded px-2 py-1 text-emerald-300 font-mono">
           </td>
           <td class="p-2.5">
             <div class="flex items-center gap-1">
-              <input type="number" step="0.01" value="${it.comisionGestores}" oninput="actualizarItemEnEdicion('${it.id}', 'comisionGestores', this.value)" class="w-full bg-black border border-amber-500/50 rounded px-1.5 py-1 text-amber-400 font-mono font-bold">
+              <input type="number" step="0.01" value="${it.comisionGestores}" onchange="actualizarItemEnEdicion('${it.id}', 'comisionGestores', this.value)" class="w-full bg-black border border-amber-500/50 rounded px-1.5 py-1 text-amber-400 font-mono font-bold">
               <span class="text-[10px] text-amber-400 font-bold">${it.comisionMoneda || 'CUP'}</span>
             </div>
           </td>
-          <td class="p-2.5 font-mono text-slate-300">
+          <td class="p-2.5 font-mono text-slate-300 vale-cell-transporte">
             ${it.transporteUnitario.toFixed(2)} ${it.moneda}
           </td>
-          <td class="p-2.5 font-mono font-bold ${it.margenGanancia >= 0 ? 'text-cyan-400' : 'text-rose-400'}">
+          <td class="p-2.5 font-mono font-bold vale-cell-margen ${it.margenGanancia >= 0 ? 'text-cyan-400' : 'text-rose-400'}">
             ${it.margenGanancia.toFixed(2)} ${it.moneda}
           </td>
           <td class="p-2.5 text-center">
@@ -1116,6 +1127,7 @@ Transporte: 2500
 
         const tr = document.createElement('tr');
         tr.className = estaDadoDeBaja ? 'opacity-40 line-through bg-rose-950/10' : 'hover:bg-slate-900';
+        tr.setAttribute('data-lote-id', lote.id);
         tr.innerHTML = `
           <td class="p-3 font-mono text-amber-400 font-bold">#${lote.ordenLlegada || (idx + 1)}</td>
           <td class="p-3 font-bold text-white">${lote.producto} ${estaDadoDeBaja ? '<span class=\"text-[10px] text-rose-400 ml-1\">[BAJA]</span>' : ''}</td>
@@ -1132,7 +1144,7 @@ Transporte: 2500
           <td class="p-3 text-center">
             <input type="number" min="0" value="${errores}" onchange="actualizarLoteErrores('${lote.id}', this.value)" title="Errores de conteo / descuadres" class="w-16 bg-black border border-purple-500/60 rounded px-1 py-1 text-center font-mono text-purple-300 font-bold text-xs" ${estaDadoDeBaja ? 'disabled' : ''}>
           </td>
-          <td class="p-3 text-center font-mono font-bold text-amber-300 bg-amber-950/20">${calc}</td>
+          <td class="p-3 text-center font-mono font-bold text-amber-300 bg-amber-950/20 lote-cell-calc">${calc}</td>
           <td class="p-3 text-center">
             <input type="number" value="${real}" onchange="actualizarLoteFinalReal('${lote.id}', this.value)" class="w-20 bg-black border border-amber-500 rounded px-2 py-1 text-center font-bold text-amber-300 font-mono" ${estaDadoDeBaja ? 'disabled' : ''}>
           </td>
@@ -1163,13 +1175,28 @@ Transporte: 2500
       lucide.createIcons();
     }
 
+    function refrescarFilaLoteVisual(loteId) {
+      const sData = getSemanaData();
+      const lote = sData.lotesInventario.find(l => l.id === loteId);
+      if (!lote) return;
+      const merma = lote.merma || 0;
+      const errores = lote.errores || 0;
+      const calc = (lote.inicio || 0) + (lote.entradas || 0) - (lote.bajas || 0) - merma - errores;
+      const tr = document.querySelector(`tr[data-lote-id="${loteId}"]`);
+      if (tr) {
+        const tdCalc = tr.querySelector('.lote-cell-calc');
+        if (tdCalc) tdCalc.textContent = calc;
+      }
+      renderizarKPIsBimoneda();
+    }
+
     function actualizarLoteInicio(id, val) {
       const sData = getSemanaData();
       const lote = sData.lotesInventario.find(l => l.id === id);
       if (lote) {
         lote.inicio = parseInt(val, 10) || 0;
         persistirEstado();
-        renderizarTodo();
+        refrescarFilaLoteVisual(id);
       }
     }
 
@@ -1179,7 +1206,7 @@ Transporte: 2500
       if (lote) {
         lote.finalReal = parseInt(val, 10) || 0;
         persistirEstado();
-        renderizarTodo();
+        refrescarFilaLoteVisual(id);
       }
     }
 
@@ -1189,7 +1216,6 @@ Transporte: 2500
       if (lote) {
         lote.fechaEntrada = val;
         persistirEstado();
-        renderizarTodo();
       }
     }
 
@@ -1199,7 +1225,7 @@ Transporte: 2500
       if (lote) {
         lote.merma = Math.max(0, parseInt(val, 10) || 0);
         persistirEstado();
-        renderizarTodo();
+        refrescarFilaLoteVisual(id);
       }
     }
 
@@ -1209,7 +1235,7 @@ Transporte: 2500
       if (lote) {
         lote.errores = Math.max(0, parseInt(val, 10) || 0);
         persistirEstado();
-        renderizarTodo();
+        refrescarFilaLoteVisual(id);
       }
     }
 
@@ -1219,7 +1245,7 @@ Transporte: 2500
       if (lote) {
         lote.precioCompra = parseFloat(val) || 0;
         persistirEstado();
-        renderizarTodo();
+        renderizarKPIsBimoneda();
       }
     }
 
@@ -1229,7 +1255,7 @@ Transporte: 2500
       if (lote) {
         lote.precioVenta = parseFloat(val) || 0;
         persistirEstado();
-        renderizarTodo();
+        renderizarKPIsBimoneda();
       }
     }
 
@@ -1239,7 +1265,7 @@ Transporte: 2500
       if (lote) {
         lote.comisionGestores = parseFloat(val) || 0;
         persistirEstado();
-        renderizarTodo();
+        renderizarKPIsBimoneda();
       }
     }
 
