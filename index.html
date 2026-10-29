@@ -987,8 +987,6 @@ Transporte: 2500
       const totalUnidades = itemsValeEnEdicion.reduce((acc, it) => acc + (it.cantidad || 0), 0);
       const fletePorUnidad = totalUnidades > 0 ? (fleteTotal / totalUnidades) : 0;
 
-      const rateUsdToCup = appData.tasaUsdACup || 350;
-
       itemsValeEnEdicion.forEach(it => {
         if (!fleteManualModificado && fleteTotal > 0) {
           it.transporteUnitario = Math.round(fletePorUnidad * 100) / 100;
@@ -999,15 +997,11 @@ Transporte: 2500
         const cant = it.cantidad || 0;
         const subVenta = cant * (it.precioVenta || 0);
         const subCompra = cant * (it.precioCompra || 0);
-        
-        // Transporte y comisión son en CUP. Si el producto es en USD, convertir para la ganancia del ítem
-        const transpEnMonedaProd = it.moneda === 'USD' ? ((it.transporteUnitario || 0) / rateUsdToCup) : (it.transporteUnitario || 0);
-        const comisionEnMonedaProd = it.moneda === 'USD' ? ((it.comisionGestores || 0) / rateUsdToCup) : (it.comisionGestores || 0);
 
-        const subTransp = cant * transpEnMonedaProd;
-        const subComision = cant * comisionEnMonedaProd;
-
-        it.margenGanancia = subVenta - subCompra - subTransp - subComision;
+        // Sin mezclar tasas de cambio: 2 cuentas independientes
+        // En Dólar: Ganancia comercial pura del producto = Venta - Compra
+        // En CUP: Transporte y Comisión se llevan por separado
+        it.margenGanancia = subVenta - subCompra;
 
         // Actualizar visualmente la fila en vivo sin destruir los inputs
         const tr = document.querySelector(`tr[data-vale-item-id="${it.id}"]`);
@@ -1460,8 +1454,8 @@ Transporte: 2500
       let totalUnidades = 0;
       let costoUSD = 0, costoCUP = 0;
       let ventaUSD = 0, ventaCUP = 0;
-      let comisionCUP = 0, comisionUSD = 0;
-      let transpUSD = 0, transpCUP = 0;
+      let comisionCUP = 0;
+      let transpCUP = 0;
 
       sData.lotesInventario.forEach(l => {
         const cant = l.entradas || l.inicio || 0;
@@ -1474,63 +1468,54 @@ Transporte: 2500
           costoCUP += cant * (l.precioCompra || 0);
           ventaCUP += cant * (l.precioVenta || 0);
         }
-        // Transporte siempre en CUP
-        transpCUP += cant * (l.transporteUnitario || 0);
 
-        if (l.comisionMoneda === 'USD') {
-          comisionUSD += cant * (l.comisionGestores || 0);
-        } else {
-          comisionCUP += cant * (l.comisionGestores || 0);
-        }
+        // Transporte y Comisión de Gestores se llevan estrictamente en CUP
+        transpCUP += cant * (l.transporteUnitario || 0);
+        comisionCUP += cant * (l.comisionGestores || 0);
       });
 
       const gastosUSD = sData.gastos.filter(g => g.moneda === 'USD').reduce((acc, g) => acc + g.monto, 0);
       const gastosCUP = sData.gastos.filter(g => g.moneda === 'CUP').reduce((acc, g) => acc + g.monto, 0);
 
-      const margenUSD = ventaUSD - costoUSD - transpUSD - gastosUSD - comisionUSD;
-      const margenCUP = ventaCUP - costoCUP - transpCUP - gastosCUP - comisionCUP;
-
-      // Tasas de conversión configuradas
-      const rateUsdToCup = appData.tasaUsdACup || 350;
-      const rateCupToUsd = appData.tasaCupAUsd || 360;
-
-      // Consolidación en USD (convirtiendo CUP a USD usando tasaCupAUsd)
-      const costoConsolidadoUSD = costoUSD + (costoCUP > 0 ? (costoCUP / rateCupToUsd) : 0);
-      const ventaConsolidadaUSD = ventaUSD + (ventaCUP > 0 ? (ventaCUP / rateCupToUsd) : 0);
-      const transpConsolidadoUSD = transpUSD + (transpCUP > 0 ? (transpCUP / rateCupToUsd) : 0);
-      const margenConsolidadoUSD = margenUSD + (margenCUP !== 0 ? (margenCUP / rateCupToUsd) : 0);
-
-      // Consolidación de comisiones en CUP (convirtiendo USD a CUP usando tasaUsdACup)
-      const comisionConsolidadaCUP = comisionCUP + (comisionUSD > 0 ? (comisionUSD * rateUsdToCup) : 0);
+      // DOS CUENTAS INDEPENDIENTES (Sin conversión forzada de USD a CUP):
+      // Cuenta DÓLAR: Ganancia neta = Venta USD - Costo USD - Gastos USD
+      const gananciaUSD = ventaUSD - costoUSD - gastosUSD;
+      // Cuenta CUP: Ganancia / Balances en CUP si hubiese ventas en CUP menos gastos en CUP
+      const gananciaCUP = ventaCUP - costoCUP - gastosCUP;
 
       document.getElementById('kpi-unidades').textContent = totalUnidades;
       document.getElementById('kpi-vales-count').textContent = `${sData.valesEntrada.length} vales guardados`;
 
+      // Costo Compra
       document.getElementById('kpi-costo-usd').textContent = `$ ${costoUSD.toFixed(2)} USD`;
-      document.getElementById('kpi-costo-cup').textContent = `${costoCUP.toLocaleString('es-ES', { minimumFractionDigits: 2 })} CUP`;
-      document.getElementById('kpi-costo-consolidado').textContent = `Eq Total: $${costoConsolidadoUSD.toFixed(2)} USD`;
+      document.getElementById('kpi-costo-cup').textContent = costoCUP > 0 ? `${costoCUP.toLocaleString('es-ES', { minimumFractionDigits: 2 })} CUP` : '0.00 CUP';
+      document.getElementById('kpi-costo-consolidado').textContent = 'Cuenta en USD';
 
+      // Venta Proyectada
       document.getElementById('kpi-venta-usd').textContent = `$ ${ventaUSD.toFixed(2)} USD`;
-      document.getElementById('kpi-venta-cup').textContent = `${ventaCUP.toLocaleString('es-ES', { minimumFractionDigits: 2 })} CUP`;
-      document.getElementById('kpi-venta-consolidado').textContent = `Eq Total: $${ventaConsolidadaUSD.toFixed(2)} USD`;
+      document.getElementById('kpi-venta-cup').textContent = ventaCUP > 0 ? `${ventaCUP.toLocaleString('es-ES', { minimumFractionDigits: 2 })} CUP` : '0.00 CUP';
+      document.getElementById('kpi-venta-consolidado').textContent = 'Cuenta en USD';
 
+      // Comisión Gestores (Solo CUP)
       document.getElementById('kpi-comision-cup').textContent = `${comisionCUP.toLocaleString('es-ES', { minimumFractionDigits: 2 })} CUP`;
-      document.getElementById('kpi-comision-usd').textContent = `$ ${comisionUSD.toFixed(2)} USD`;
-      document.getElementById('kpi-comision-consolidado').textContent = `Eq Total: ${comisionConsolidadaCUP.toLocaleString('es-ES', { maximumFractionDigits: 0 })} CUP`;
+      document.getElementById('kpi-comision-usd').textContent = 'Cuenta en CUP';
+      document.getElementById('kpi-comision-consolidado').textContent = 'Total Gestores';
 
-      document.getElementById('kpi-transporte-usd').textContent = `$ ${transpUSD.toFixed(2)} USD`;
+      // Transporte Total (Solo CUP)
       document.getElementById('kpi-transporte-cup').textContent = `${transpCUP.toLocaleString('es-ES', { minimumFractionDigits: 2 })} CUP`;
-      document.getElementById('kpi-transporte-consolidado').textContent = `Eq Total: $${transpConsolidadoUSD.toFixed(2)} USD`;
+      document.getElementById('kpi-transporte-usd').textContent = 'Cuenta en CUP';
+      document.getElementById('kpi-transporte-consolidado').textContent = 'Total Transporte';
 
-      document.getElementById('kpi-margen-usd').textContent = `$ ${margenUSD.toFixed(2)} USD`;
-      document.getElementById('kpi-margen-cup').textContent = `${margenCUP.toLocaleString('es-ES', { minimumFractionDigits: 2 })} CUP`;
-      document.getElementById('kpi-margen-consolidado').textContent = `Total Eq: $${margenConsolidadoUSD.toFixed(2)} USD`;
+      // Ganancia Neta
+      document.getElementById('kpi-margen-usd').textContent = `$ ${gananciaUSD.toFixed(2)} USD`;
+      document.getElementById('kpi-margen-cup').textContent = gananciaCUP !== 0 ? `${gananciaCUP.toLocaleString('es-ES', { minimumFractionDigits: 2 })} CUP` : '0.00 CUP';
+      document.getElementById('kpi-margen-consolidado').textContent = 'Venta - Compra (USD)';
 
-      document.getElementById('resumen-gastos-box').textContent = `$${gastosUSD.toFixed(2)} USD / ${gastosCUP.toFixed(0)} CUP`;
+      document.getElementById('resumen-gastos-box').textContent = `${gastosUSD.toFixed(2)} USD / ${gastosCUP.toFixed(0)} CUP`;
 
       const invUSD = sData.inversiones.filter(i => i.moneda === 'USD').reduce((acc, i) => acc + i.monto, 0);
       const invCUP = sData.inversiones.filter(i => i.moneda === 'CUP').reduce((acc, i) => acc + i.monto, 0);
-      document.getElementById('resumen-inversiones-box').textContent = `$${invUSD.toFixed(2)} USD / ${invCUP.toFixed(0)} CUP`;
+      document.getElementById('resumen-inversiones-box').textContent = `${invUSD.toFixed(2)} USD / ${invCUP.toFixed(0)} CUP`;
 
       const totalBajas = sData.bajas.reduce((acc, b) => acc + (b.cantidad || 0), 0);
       document.getElementById('resumen-bajas-box').textContent = `${totalBajas} u.`;

@@ -225,7 +225,9 @@ function parseValeEntrada(rawTexto, comisionDefault = 1500, monedaDefault = 'USD
     const fleteUnitario = Math.round((transporteTotal / totalUnidades) * 100) / 100;
     items.forEach(it => {
       it.transporteUnitario = fleteUnitario;
-      it.margenGanancia = (it.cantidad * it.precioVenta) - (it.cantidad * it.precioCompra) - (it.cantidad * fleteUnitario);
+      // 2 cuentas separadas: ganancia del producto en su moneda (USD) = Venta - Compra
+      // Transporte y comisión van en CUP
+      it.margenGanancia = (it.cantidad * it.precioVenta) - (it.cantidad * it.precioCompra);
     });
   }
 
