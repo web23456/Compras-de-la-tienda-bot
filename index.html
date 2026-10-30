@@ -272,7 +272,7 @@
     </div>
 
     <!-- KPI DASHBOARD RESUMEN BIMONEDA (USD Y CUP) -->
-    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+    <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-4 gap-3">
       <!-- Unidades Entradas -->
       <div class="bg-slate-950 border border-amber-500/30 rounded-2xl p-3.5">
         <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Unidades Entradas</span>
@@ -310,6 +310,23 @@
         <div class="text-base font-black text-indigo-400 mt-1 font-mono" id="kpi-transporte-usd">$ 0.00 USD</div>
         <div class="text-xs font-bold text-indigo-300 font-mono" id="kpi-transporte-cup">0.00 CUP</div>
         <div class="text-[10px] text-slate-500 font-mono mt-1 border-t border-slate-900 pt-1" id="kpi-transporte-consolidado">Eq: $0.00 USD</div>
+      </div>
+
+
+      <!-- Inversión General (Compra + Comisión + Transporte) -->
+      <div class="bg-slate-950 border border-purple-500/30 rounded-2xl p-3.5">
+        <span class="text-[10px] font-bold text-purple-400 uppercase tracking-wider">Inversión General</span>
+        <div class="text-base font-black text-purple-300 mt-1 font-mono" id="kpi-inversion-usd">$ 0.00 USD</div>
+        <div class="text-xs font-bold text-purple-200 font-mono" id="kpi-inversion-cup">0.00 CUP</div>
+        <div class="text-[10px] text-slate-500 font-mono mt-1 border-t border-slate-900 pt-1" id="kpi-inversion-detalle">Compra + Comisión + Transporte</div>
+      </div>
+
+      <!-- Ganancia Bruta (Venta - Compra, sin gastos) -->
+      <div class="bg-slate-950 border border-cyan-500/30 rounded-2xl p-3.5">
+        <span class="text-[10px] font-bold text-cyan-400 uppercase tracking-wider">Ganancia Bruta</span>
+        <div class="text-base font-black text-cyan-300 mt-1 font-mono" id="kpi-ganancia-bruta-usd">$ 0.00 USD</div>
+        <div class="text-xs font-bold text-cyan-200 font-mono" id="kpi-ganancia-bruta-cup">0.00 CUP</div>
+        <div class="text-[10px] text-slate-500 font-mono mt-1 border-t border-slate-900 pt-1">Venta - Compra</div>
       </div>
 
       <!-- Ganancia Neta -->
@@ -586,6 +603,8 @@
       </div>
     </div>
 
+    <!-- Datalist para autocompletado de productos -->
+    <datalist id="datalist-productos"></datalist>
   </main>
 
   <!-- ================= SCRIPTS ================= -->
@@ -616,6 +635,50 @@
 
     let appData = DEFAULT_APP_STATE;
     let itemsValeEnEdicion = [];
+    let editandoValeId = null; // Track si estamos editando un vale existente
+
+    function editarValeHistorial(id) {
+      const sData = getSemanaData();
+      const vale = sData.valesEntrada.find(v => v.id === id);
+      if (!vale) return;
+
+      // Cargar datos del vale al formulario
+      document.getElementById('vale-folio').value = vale.folio;
+      document.getElementById('vale-fecha').value = vale.fecha;
+      document.getElementById('vale-proveedor').value = vale.proveedor;
+      document.getElementById('vale-moneda').value = vale.moneda;
+      document.getElementById('vale-transporte-total').value = vale.transporteTotal || 0;
+
+      // Cargar los items del vale al formulario de edición
+      itemsValeEnEdicion = vale.items.map(it => ({
+        id: 'it-' + Date.now() + Math.random().toString(36).substring(2, 5),
+        nombre: it.nombre,
+        fechaEntrada: it.fechaEntrada || vale.fecha,
+        cantidad: it.cantidad,
+        moneda: it.moneda,
+        precioCompra: it.precioCompra,
+        precioVenta: it.precioVenta,
+        comisionGestores: it.comisionGestores,
+        comisionMoneda: it.comisionMoneda || 'CUP',
+        transporteUnitario: it.transporteUnitario || 0,
+        margenGanancia: it.margenGanancia || 0
+      }));
+
+      // Eliminar el vale anterior y sus lotes del almacén
+      sData.lotesInventario = sData.lotesInventario.filter(l => l.folioVale !== vale.folio);
+      sData.valesEntrada = sData.valesEntrada.filter(v => v.id !== id);
+
+      editandoValeId = id;
+
+      recalcularTotalesValeEnEdicion();
+      renderizarFilasValeEdicion();
+      renderizarTodo();
+
+      // Scroll al formulario de edición
+      document.getElementById('vale-folio').scrollIntoView({ behavior: 'smooth', block: 'center' });
+      alert('Vale cargado para edición. Modifica lo que necesites y pulsa "Guardar Vale en Almacén".');
+    }
+
 
     window.addEventListener('DOMContentLoaded', async () => {
       // Inicializar memoria multicapa
@@ -638,6 +701,7 @@
 
       inicializarFormularioValeConItemsPorDefecto();
       renderizarTodo();
+      document.getElementById('vale-folio').value = generarSiguienteFolio();
       if (window.lucide && typeof lucide.createIcons === 'function') { lucide.createIcons(); }
 
       // Registro de Service Worker para PWA Offline con Auto-Actualización online
@@ -1037,7 +1101,7 @@ Transporte: 2500
         const fechaProd = it.fechaEntrada || document.getElementById('vale-fecha').value || new Date().toISOString().split('T')[0];
         tr.innerHTML = `
           <td class="p-2.5">
-            <input type="text" value="${it.nombre}" onchange="actualizarItemEnEdicion('${it.id}', 'nombre', this.value)" placeholder="Nombre del producto" class="w-full bg-black border border-slate-700 rounded px-2 py-1 text-white font-bold">
+            <input type="text" value="${it.nombre}" onchange="actualizarItemEnEdicion('${it.id}', 'nombre', this.value)" oninput="actualizarItemEnEdicion('${it.id}', 'nombre', this.value)" list="datalist-productos" placeholder="Nombre del producto" class="w-full bg-black border border-slate-700 rounded px-2 py-1 text-white font-bold" autocomplete="off">
           </td>
           <td class="p-2.5">
             <input type="date" value="${fechaProd}" onchange="actualizarItemEnEdicion('${it.id}', 'fechaEntrada', this.value)" title="Fecha de entrada de este producto" class="w-full bg-black border border-amber-500/50 rounded px-1.5 py-1 text-amber-300 font-mono text-[11px]">
@@ -1152,9 +1216,10 @@ Transporte: 2500
       persistirEstado();
       renderizarTodo();
 
-      document.getElementById('vale-folio').value = 'ENT-' + (getSemanaData().valesEntrada.length + 1001);
+      document.getElementById('vale-folio').value = generarSiguienteFolio();
       document.getElementById('input-texto-vale').value = '';
       inicializarFormularioValeConItemsPorDefecto();
+      editandoValeId = null;
       alert(`¡Vale ${folio} registrado con éxito en el almacén por orden de llegada!`);
     }
 
@@ -1171,6 +1236,17 @@ Transporte: 2500
       renderizarTodo();
     }
 
+
+    function generarSiguienteFolio() {
+      const sData = getSemanaData();
+      if (sData.valesEntrada.length === 0) return 'ENT-1';
+      const maxNum = sData.valesEntrada.reduce((max, v) => {
+        const match = v.folio.match(/ENT-(\d+)/i);
+        return match ? Math.max(max, parseInt(match[1], 10)) : max;
+      }, 0);
+      return 'ENT-' + (maxNum + 1);
+    }
+
     // ================= INVENTARIO & LOTES =================
     function renderizarTablaInventario() {
       const tbody = document.getElementById('inventario-tbody');
@@ -1178,7 +1254,7 @@ Transporte: 2500
       tbody.innerHTML = '';
 
       if (sData.lotesInventario.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="17" class="p-6 text-center text-slate-500">No hay productos ni lotes en inventario. Pega un vale arriba para registrar la mercancía.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="18" class="p-6 text-center text-slate-500">No hay productos ni lotes en inventario. Pega un vale arriba para registrar la mercancía.</td></tr>`;
         return;
       }
 
@@ -1233,6 +1309,10 @@ Transporte: 2500
           </td>
           <td class="p-3 text-center">
             <input type="date" value="${lote.fechaEntrada || ''}" onchange="actualizarLoteFechaEntrada('${lote.id}', this.value)" class="bg-black border border-slate-800 focus:border-amber-500 rounded px-1.5 py-0.5 text-center font-mono text-amber-300 text-[11px]" ${estaDadoDeBaja ? 'disabled' : ''}>
+          </td>
+          <td class="p-3 font-mono text-purple-300 font-bold text-xs">
+            ${((lote.precioCompra || 0) > 0 ? (lote.precioCompra || 0).toFixed(2) + ' ' + lote.moneda : '')}
+            ${((lote.comisionGestores || 0) + (lote.transporteUnitario || 0) > 0) ? '<br><span class="text-[10px] text-purple-400">+ ' + ((lote.comisionGestores || 0) + (lote.transporteUnitario || 0)).toFixed(0) + ' CUP</span>' : ''}
           </td>
           <td class="p-3 text-center">
             <div class="flex items-center gap-1 justify-center">
@@ -1426,6 +1506,16 @@ Transporte: 2500
       renderizarTodo();
     }
 
+
+    function actualizarDatalistProductos() {
+      const sData = getSemanaData();
+      const productosUnicos = Array.from(new Set(sData.lotesInventario.map(l => l.producto).filter(Boolean)));
+      const datalist = document.getElementById('datalist-productos');
+      if (datalist) {
+        datalist.innerHTML = productosUnicos.map(p => '<option value="' + p + '">').join('');
+      }
+    }
+
     // ================= RENDERIZADO GENERAL =================
     function renderizarTodo() {
       renderizarSelectorSemanas();
@@ -1434,6 +1524,7 @@ Transporte: 2500
       renderizarListasGastosInversionesBajas();
       renderizarHistorialVales();
       poblarSelectBajas();
+      actualizarDatalistProductos();
       if (window.lucide && typeof lucide.createIcons === 'function') { lucide.createIcons(); }
     }
 
@@ -1452,7 +1543,14 @@ Transporte: 2500
     function poblarSelectBajas() {
       const sel = document.getElementById('baja-lote-select');
       const sData = getSemanaData();
-      sel.innerHTML = sData.lotesInventario.map(l => `<option value="${l.id}">${l.producto} (${l.folioVale} • ${l.moneda})</option>`).join('');
+      // FIFO: ordenar por orden de llegada para consumir primero los más antiguos
+      const lotesOrdenados = [...sData.lotesInventario]
+        .filter(l => !l.dadoDeBaja)
+        .sort((a, b) => (a.ordenLlegada || 0) - (b.ordenLlegada || 0));
+      sel.innerHTML = lotesOrdenados.map(l => {
+        const disponible = (l.inicio || 0) + (l.entradas || 0) - (l.bajas || 0) - (l.merma || 0) - (l.errores || 0);
+        return `<option value="${l.id}">#${l.ordenLlegada || '?'} ${l.producto} (Disp: ${disponible}, ${l.folioVale} • ${l.moneda})</option>`;
+      }).join('');
     }
 
     function renderizarKPIsBimoneda() {
@@ -1487,8 +1585,8 @@ Transporte: 2500
       // DOS CUENTAS INDEPENDIENTES (Sin conversión forzada de USD a CUP):
       // Cuenta DÓLAR: Ganancia neta = Venta USD - Costo USD - Gastos USD
       const gananciaUSD = ventaUSD - costoUSD - gastosUSD;
-      // Cuenta CUP: Ganancia / Balances en CUP si hubiese ventas en CUP menos gastos en CUP
-      const gananciaCUP = ventaCUP - costoCUP - gastosCUP;
+      // Cuenta CUP: Ganancia Neta = Venta CUP - Costo CUP - Gastos CUP - Comisión - Transporte
+      const gananciaCUP = ventaCUP - costoCUP - gastosCUP - comisionCUP - transpCUP;
 
       document.getElementById('kpi-unidades').textContent = totalUnidades;
       document.getElementById('kpi-vales-count').textContent = `${sData.valesEntrada.length} vales guardados`;
@@ -1516,7 +1614,25 @@ Transporte: 2500
       // Ganancia Neta
       document.getElementById('kpi-margen-usd').textContent = `$ ${gananciaUSD.toFixed(2)} USD`;
       document.getElementById('kpi-margen-cup').textContent = gananciaCUP !== 0 ? `${gananciaCUP.toLocaleString('es-ES', { minimumFractionDigits: 2 })} CUP` : '0.00 CUP';
-      document.getElementById('kpi-margen-consolidado').textContent = 'Venta - Compra (USD)';
+      document.getElementById('kpi-margen-consolidado').textContent = 'USD: V-C-G | CUP: V-C-G-Com-Tr';
+
+
+      // === KPI: Inversión General (Compra + Comisión + Transporte) ===
+      // Inversión USD = Costo Compra USD (comisión y transporte van en CUP)
+      const inversionUSD = costoUSD;
+      // Inversión CUP = Costo Compra CUP + Comisión + Transporte
+      const inversionCUP = costoCUP + comisionCUP + transpCUP;
+
+      document.getElementById('kpi-inversion-usd').textContent = `$ ${inversionUSD.toFixed(2)} USD`;
+      document.getElementById('kpi-inversion-cup').textContent = `${inversionCUP.toLocaleString('es-ES', { minimumFractionDigits: 2 })} CUP`;
+      document.getElementById('kpi-inversion-detalle').textContent = `USD: Compra | CUP: Compra+Com+Transp`;
+
+      // === KPI: Ganancia Bruta (Venta - Compra, sin gastos ni comisiones) ===
+      const gananciaBrutaUSD = ventaUSD - costoUSD;
+      const gananciaBrutaCUP = ventaCUP - costoCUP;
+
+      document.getElementById('kpi-ganancia-bruta-usd').textContent = `$ ${gananciaBrutaUSD.toFixed(2)} USD`;
+      document.getElementById('kpi-ganancia-bruta-cup').textContent = `${gananciaBrutaCUP.toLocaleString('es-ES', { minimumFractionDigits: 2 })} CUP`;
 
       document.getElementById('resumen-gastos-box').textContent = `${gastosUSD.toFixed(2)} USD / ${gastosCUP.toFixed(0)} CUP`;
 
@@ -1591,7 +1707,8 @@ Transporte: 2500
           <td class="p-3 font-mono text-rose-300 font-bold">${totalCompraTxt}</td>
           <td class="p-3 font-mono text-cyan-300 font-bold">Lote Calculado</td>
           <td class="p-3 text-center">
-            <button onclick="eliminarValeHistorial('${v.id}')" class="p-1 text-rose-400 hover:text-rose-300"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+            <button onclick="editarValeHistorial('${v.id}')" class="p-1 text-amber-400 hover:text-amber-300" title="Editar vale"><i data-lucide="pencil" class="w-4 h-4"></i></button>
+              <button onclick="eliminarValeHistorial('${v.id}')" class="p-1 text-rose-400 hover:text-rose-300" title="Eliminar vale"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
           </td>
         `;
         tbody.appendChild(tr);
