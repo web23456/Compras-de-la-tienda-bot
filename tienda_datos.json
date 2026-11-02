@@ -448,7 +448,7 @@
           "transporteUnitario": 0
         },
         {
-          "id": "lote-1793307210810q8v",
+          "id": "lote-1793371355861m8j",
           "ordenLlegada": 25,
           "producto": "Ollas de Mircropresion",
           "folioVale": "ENT-3",
@@ -466,7 +466,7 @@
           "transporteUnitario": 0
         },
         {
-          "id": "lote-1793307210810ivr",
+          "id": "lote-17933713558619qq",
           "ordenLlegada": 26,
           "producto": "Juegos de Sartenes",
           "folioVale": "ENT-3",
@@ -486,7 +486,7 @@
       ],
       "valesEntrada": [
         {
-          "id": "vale-17933072108107oj",
+          "id": "vale-17933713558613af",
           "folio": "ENT-3",
           "fecha": "2026-10-20",
           "proveedor": "Proveedor General",
@@ -496,7 +496,7 @@
           "totalCompraCUP": 0,
           "items": [
             {
-              "id": "it-1",
+              "id": "it-1793371341510fh9",
               "nombre": "Ollas de Mircropresion",
               "fechaEntrada": "2026-10-29",
               "cantidad": 15,
@@ -509,7 +509,7 @@
               "margenGanancia": 195
             },
             {
-              "id": "it-1793306777195cxf",
+              "id": "it-17933713415102v2",
               "nombre": "Juegos de Sartenes",
               "fechaEntrada": "2026-10-29",
               "cantidad": 20,
