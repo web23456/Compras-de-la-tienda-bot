@@ -484,11 +484,11 @@
           "transporteUnitario": 0
         },
         {
-          "id": "lote-1793645962310dlc",
+          "id": "lote-1793646072782uzx",
           "ordenLlegada": 27,
           "producto": "Ollas de micropresion",
           "folioVale": "ENT-4",
-          "fechaEntrada": "2026-11-02",
+          "fechaEntrada": "2026-10-27",
           "moneda": "USD",
           "inicio": 0,
           "entradas": 15,
@@ -502,11 +502,11 @@
           "transporteUnitario": 7500
         },
         {
-          "id": "lote-179364596231016x",
+          "id": "lote-1793646072782jj9",
           "ordenLlegada": 28,
           "producto": "Juegos de sartenes",
           "folioVale": "ENT-4",
-          "fechaEntrada": "2026-11-02",
+          "fechaEntrada": "2026-11-27",
           "moneda": "USD",
           "inicio": 0,
           "entradas": 20,
@@ -520,11 +520,11 @@
           "transporteUnitario": 0
         },
         {
-          "id": "lote-17936459623104re",
+          "id": "lote-17936460727829fr",
           "ordenLlegada": 29,
           "producto": "Ventilador de Pared Dawan",
           "folioVale": "ENT-4",
-          "fechaEntrada": "2026-11-02",
+          "fechaEntrada": "2026-11-27",
           "moneda": "USD",
           "inicio": 0,
           "entradas": 56,
@@ -538,11 +538,11 @@
           "transporteUnitario": 10000
         },
         {
-          "id": "lote-179364596231086e",
+          "id": "lote-1793646072782dja",
           "ordenLlegada": 30,
           "producto": "Ventilador de Pedestar PX",
           "folioVale": "ENT-4",
-          "fechaEntrada": "2026-11-02",
+          "fechaEntrada": "2026-11-27",
           "moneda": "USD",
           "inicio": 0,
           "entradas": 24,
@@ -558,7 +558,7 @@
       ],
       "valesEntrada": [
         {
-          "id": "vale-179364596231006k",
+          "id": "vale-1793646072782rr8",
           "folio": "ENT-4",
           "fecha": "2026-11-02",
           "proveedor": "Proveedor General",
@@ -568,9 +568,9 @@
           "totalCompraCUP": 0,
           "items": [
             {
-              "id": "it-1",
+              "id": "it-1793646017054sfm",
               "nombre": "Ollas de micropresion",
-              "fechaEntrada": "2026-11-02",
+              "fechaEntrada": "2026-10-27",
               "cantidad": 15,
               "moneda": "USD",
               "precioCompra": 12,
@@ -581,9 +581,9 @@
               "margenGanancia": 195
             },
             {
-              "id": "it-1793645788454h6g",
+              "id": "it-1793646017054lst",
               "nombre": "Juegos de sartenes",
-              "fechaEntrada": "2026-11-02",
+              "fechaEntrada": "2026-11-27",
               "cantidad": 20,
               "moneda": "USD",
               "precioCompra": 17,
@@ -594,9 +594,9 @@
               "margenGanancia": 160
             },
             {
-              "id": "it-1793645835590m1z",
+              "id": "it-179364601705400y",
               "nombre": "Ventilador de Pared Dawan",
-              "fechaEntrada": "2026-11-02",
+              "fechaEntrada": "2026-11-27",
               "cantidad": 56,
               "moneda": "USD",
               "precioCompra": 24.5,
@@ -607,9 +607,9 @@
               "margenGanancia": 308
             },
             {
-              "id": "it-1793645906686ihj",
+              "id": "it-1793646017054fka",
               "nombre": "Ventilador de Pedestar PX",
-              "fechaEntrada": "2026-11-02",
+              "fechaEntrada": "2026-11-27",
               "cantidad": 24,
               "moneda": "USD",
               "precioCompra": 17,
