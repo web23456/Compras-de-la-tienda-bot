@@ -484,7 +484,7 @@
           "transporteUnitario": 0
         },
         {
-          "id": "lote-1793646072782uzx",
+          "id": "lote-1793646181257xew",
           "ordenLlegada": 27,
           "producto": "Ollas de micropresion",
           "folioVale": "ENT-4",
@@ -502,7 +502,7 @@
           "transporteUnitario": 7500
         },
         {
-          "id": "lote-1793646072782jj9",
+          "id": "lote-1793646181257ikm",
           "ordenLlegada": 28,
           "producto": "Juegos de sartenes",
           "folioVale": "ENT-4",
@@ -520,7 +520,7 @@
           "transporteUnitario": 0
         },
         {
-          "id": "lote-17936460727829fr",
+          "id": "lote-17936461812576p9",
           "ordenLlegada": 29,
           "producto": "Ventilador de Pared Dawan",
           "folioVale": "ENT-4",
@@ -538,7 +538,7 @@
           "transporteUnitario": 10000
         },
         {
-          "id": "lote-1793646072782dja",
+          "id": "lote-1793646181257os3",
           "ordenLlegada": 30,
           "producto": "Ventilador de Pedestar PX",
           "folioVale": "ENT-4",
@@ -558,9 +558,9 @@
       ],
       "valesEntrada": [
         {
-          "id": "vale-1793646072782rr8",
+          "id": "vale-1793646181257v4d",
           "folio": "ENT-4",
-          "fecha": "2026-11-02",
+          "fecha": "2026-11-27",
           "proveedor": "Proveedor General",
           "moneda": "USD",
           "transporteTotal": 0,
@@ -568,7 +568,7 @@
           "totalCompraCUP": 0,
           "items": [
             {
-              "id": "it-1793646017054sfm",
+              "id": "it-1793646145357tlw",
               "nombre": "Ollas de micropresion",
               "fechaEntrada": "2026-10-27",
               "cantidad": 15,
@@ -581,7 +581,7 @@
               "margenGanancia": 195
             },
             {
-              "id": "it-1793646017054lst",
+              "id": "it-17936461453576jb",
               "nombre": "Juegos de sartenes",
               "fechaEntrada": "2026-11-27",
               "cantidad": 20,
@@ -594,7 +594,7 @@
               "margenGanancia": 160
             },
             {
-              "id": "it-179364601705400y",
+              "id": "it-1793646145357f06",
               "nombre": "Ventilador de Pared Dawan",
               "fechaEntrada": "2026-11-27",
               "cantidad": 56,
@@ -607,7 +607,7 @@
               "margenGanancia": 308
             },
             {
-              "id": "it-1793646017054fka",
+              "id": "it-1793646145357mww",
               "nombre": "Ventilador de Pedestar PX",
               "fechaEntrada": "2026-11-27",
               "cantidad": 24,
