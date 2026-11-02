@@ -375,35 +375,38 @@
 
 
     <!-- ======================================================== -->
-    <!-- SECCIÓN: CONTROL Y TABLA DE VENTAS EN VIVO (WEB GESTORES) -->
-    <!-- Algoritmo inteligente de correlación con lotes de entrada -->
+    <!-- SECCIÓN: RESUMEN DE VENTAS TOTALES POR PRODUCTO Y LOTE   -->
+    <!-- Algoritmo FIFO inteligente que asigna exactamente cada   -->
+    <!-- unidad vendida según orden de llegada y costo de compra  -->
     <!-- ======================================================== -->
     <div class="bg-slate-950 border border-teal-500/40 rounded-2xl p-5 shadow-2xl space-y-4">
       <div class="flex flex-wrap items-center justify-between gap-3 border-b border-teal-500/20 pb-3">
         <div class="flex items-center gap-2.5">
           <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-teal-500 to-emerald-600 flex items-center justify-center font-bold text-black shadow-lg shadow-teal-500/20">
-            <i data-lucide="shopping-bag" class="w-5 h-5 text-black"></i>
+            <i data-lucide="calculator" class="w-5 h-5 text-black"></i>
           </div>
           <div>
             <h2 class="text-sm font-bold text-white flex items-center gap-2">
-              Tabla de Ventas en Vivo — Red de Gestores
+              Resumen Total de Ventas por Producto & Lotes FIFO
               <span class="text-[10px] font-bold text-teal-300 bg-teal-500/10 border border-teal-500/30 px-2 py-0.5 rounded-full flex items-center gap-1">
                 <span class="w-1.5 h-1.5 rounded-full bg-teal-400 animate-pulse"></span>
-                Sincronizado con Web Gestores
+                Web Gestores Sincronizada
               </span>
             </h2>
-            <p class="text-xs text-slate-400">Algoritmo inteligente de correlación: vincula cada venta con su lote de entrada, fecha de llegada, rotación y comisiones.</p>
+            <p class="text-xs text-slate-400">Algoritmo FIFO estricto: asigna cada venta al lote exacto según orden de llegada para calcular el costo real, facturación, ganancia neta y stock restante.</p>
           </div>
         </div>
 
         <div class="flex items-center gap-2 flex-wrap">
           <select id="filtro-ventas-estado" onchange="renderizarTablaVentasGestores()" class="bg-black text-teal-300 text-xs border border-teal-500/40 rounded-lg px-2.5 py-1 font-bold focus:outline-none">
-            <option value="TODOS">Todos los Estados</option>
-            <option value="PENDIENTE">Comisión Pendiente</option>
-            <option value="PAGADA">Comisión Pagada</option>
+            <option value="TODOS">Todos los Lotes</option>
+            <option value="CON_VENTAS">Solo con Ventas</option>
+            <option value="AGOTADOS">Lotes Agotados</option>
+            <option value="EN_PROCESO">Lotes en Proceso</option>
+            <option value="INTACTOS">Lotes Intactos (Sin Ventas)</option>
           </select>
           <div class="relative">
-            <input type="text" id="filtro-ventas-busqueda" oninput="renderizarTablaVentasGestores()" placeholder="Buscar producto, gestor o cliente..." class="bg-black text-xs text-white placeholder-slate-500 border border-slate-700 focus:border-teal-400 rounded-lg pl-7 pr-3 py-1 font-mono w-56 focus:outline-none">
+            <input type="text" id="filtro-ventas-busqueda" oninput="renderizarTablaVentasGestores()" placeholder="Buscar producto o vale..." class="bg-black text-xs text-white placeholder-slate-500 border border-slate-700 focus:border-teal-400 rounded-lg pl-7 pr-3 py-1 font-mono w-52 focus:outline-none">
             <i data-lucide="search" class="w-3.5 h-3.5 text-slate-400 absolute left-2 top-2"></i>
           </div>
           <button onclick="cargarDatosGestores()" title="Recargar ventas desde GitHub Gestores" class="px-2.5 py-1 bg-slate-900 hover:bg-slate-800 text-teal-300 border border-teal-500/40 rounded-lg text-xs font-bold flex items-center gap-1 transition">
@@ -415,48 +418,52 @@
       <!-- Resumen rápido de ventas arriba de la tabla -->
       <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 bg-black/60 border border-teal-500/20 rounded-xl p-3 text-xs">
         <div>
-          <span class="text-[10px] text-slate-400 uppercase font-bold">Total Vales Gestores</span>
-          <div class="text-base font-black text-teal-300 font-mono" id="resumen-ventas-total-vales">0</div>
-        </div>
-        <div>
-          <span class="text-[10px] text-slate-400 uppercase font-bold">Unidades Vendidas</span>
+          <span class="text-[10px] text-slate-400 uppercase font-bold">Total Productos Vendidos</span>
           <div class="text-base font-black text-white font-mono" id="resumen-ventas-unidades">0 uds</div>
+          <span class="text-[10px] text-teal-400/80 font-mono" id="resumen-ventas-total-vales">0 vales gestores</span>
         </div>
         <div>
-          <span class="text-[10px] text-slate-400 uppercase font-bold">Total Ventas Facturadas</span>
+          <span class="text-[10px] text-slate-400 uppercase font-bold">Venta Total Facturada</span>
           <div class="text-base font-black text-emerald-400 font-mono" id="resumen-ventas-monto-usd">$0.00 USD</div>
+          <span class="text-[10px] text-slate-500 font-mono">Ingreso Bruto Ventas</span>
         </div>
         <div>
-          <span class="text-[10px] text-slate-400 uppercase font-bold">Comisiones Totales</span>
-          <div class="text-base font-black text-amber-400 font-mono" id="resumen-ventas-comisiones-cup">0 CUP</div>
+          <span class="text-[10px] text-slate-400 uppercase font-bold">Costo Real de lo Vendido</span>
+          <div class="text-base font-black text-rose-400 font-mono" id="resumen-ventas-costo-usd">$0.00 USD</div>
+          <span class="text-[10px] text-slate-500 font-mono">Inversión Recuperada</span>
+        </div>
+        <div>
+          <span class="text-[10px] text-slate-400 uppercase font-bold">Ganancia Neta Obtenida</span>
+          <div class="text-base font-black text-amber-300 font-mono" id="resumen-ventas-ganancia-usd">$0.00 USD</div>
+          <span class="text-[10px] text-amber-400/80 font-mono" id="resumen-ventas-comisiones-cup">Comisiones: 0 CUP</span>
         </div>
       </div>
 
-      <!-- Contenedor de la Tabla de Ventas -->
-      <div class="overflow-x-auto border border-teal-500/30 rounded-xl max-h-[520px] overflow-y-auto">
+      <!-- Contenedor de la Tabla de Resumen por Lote FIFO -->
+      <div class="overflow-x-auto border border-teal-500/30 rounded-xl max-h-[560px] overflow-y-auto">
         <table class="w-full text-left text-xs">
           <thead class="bg-black text-teal-300 font-bold uppercase tracking-wider sticky top-0 z-10 border-b border-teal-500/30 shadow-md">
             <tr>
-              <th class="p-3">Folio Venta</th>
-              <th class="p-3">Fecha Venta</th>
-              <th class="p-3">Gestor</th>
-              <th class="p-3">Cliente / Destino</th>
-              <th class="p-3">Producto Vendido</th>
-              <th class="p-3 text-center">Cant.</th>
-              <th class="p-3 text-right">P. Venta</th>
-              <th class="p-3 text-right">Total</th>
-              <th class="p-3">Lote Almacén Correlacionado</th>
-              <th class="p-3 text-center">Fecha Entrada Almacén</th>
-              <th class="p-3 text-center">Días en Tienda</th>
-              <th class="p-3 text-right">Comisión</th>
-              <th class="p-3 text-center">Estado Comisión</th>
+              <th class="p-3 text-center"># Llegada</th>
+              <th class="p-3">Vale Entrada</th>
+              <th class="p-3">Fecha Entrada</th>
+              <th class="p-3">Producto</th>
+              <th class="p-3 text-center">Entrada Almacén</th>
+              <th class="p-3 text-right">P. Compra</th>
+              <th class="p-3 text-center bg-teal-950/30 text-teal-300">Total Vendidos</th>
+              <th class="p-3 text-center bg-emerald-950/30 text-emerald-300">Quedan en Stock</th>
+              <th class="p-3 text-right">Venta Facturada</th>
+              <th class="p-3 text-right">Costo Vendido</th>
+              <th class="p-3 text-right">Ganancia Neta</th>
+              <th class="p-3 text-right">Comisión Gestores</th>
+              <th class="p-3 text-center">Estado del Lote</th>
             </tr>
           </thead>
           <tbody id="ventas-gestores-tbody" class="divide-y divide-slate-800 bg-slate-950">
             <tr>
               <td colspan="13" class="p-8 text-center text-slate-400">
                 <i data-lucide="loader" class="w-5 h-5 animate-spin inline-block mr-2 text-teal-400"></i>
-                Cargando ventas de la base de datos de Gestores...
+                Calculando resumen de ventas por lotes FIFO...
               </td>
             </tr>
           </tbody>
@@ -1861,37 +1868,7 @@ Transporte: 2500
       if (window.lucide && typeof lucide.createIcons === "function") { lucide.createIcons(); }
     }
 
-    // ================= CORRELACIÓN TEMPORAL Y VENTAS EN VIVO =================
-    function parsearFechaFlexible(fechaStr) {
-      if (!fechaStr) return null;
-      const str = String(fechaStr).trim();
-      if (/^\d{4}-\d{2}-\d{2}$/.test(str)) {
-        const parts = str.split("-").map(Number);
-        return new Date(parts[0], parts[1] - 1, parts[2]);
-      }
-      const partes = str.split(/[./-]/).map(Number);
-      if (partes.length >= 2) {
-        let dia = partes[0];
-        let mes = partes[1];
-        let anio = partes[2] || 2026;
-        if (anio < 100) anio += 2000;
-        if (mes > 12 && dia <= 12) {
-          const tmp = dia; dia = mes; mes = tmp;
-        }
-        return new Date(anio, mes - 1, dia);
-      }
-      const parsed = new Date(str);
-      return isNaN(parsed.getTime()) ? null : parsed;
-    }
-
-    function formatearFechaBonita(d) {
-      if (!d || isNaN(d.getTime())) return "—";
-      const dia = String(d.getDate()).padStart(2, "0");
-      const mes = String(d.getMonth() + 1).padStart(2, "0");
-      const anio = d.getFullYear();
-      return dia + "/" + mes + "/" + anio;
-    }
-
+        // ================= ALGORITMO ROBUSTO DE RESUMEN DE VENTAS FIFO POR LOTE =================
     function renderizarTablaVentasGestores() {
       const tbody = document.getElementById("ventas-gestores-tbody");
       if (!tbody) return;
@@ -1904,37 +1881,39 @@ Transporte: 2500
       const sData = getSemanaData();
       const lotesInv = sData.lotesInventario || [];
 
-      const lotesSimulacion = lotesInv.map(l => {
+      if (lotesInv.length === 0) {
+        tbody.innerHTML = "<tr><td colspan=\"13\" class=\"p-8 text-center text-slate-500\">No hay lotes en el inventario para contrastar ventas.</td></tr>";
+        return;
+      }
+
+      // 1. Preparar estado de cada lote en estricto orden de llegada FIFO
+      const lotesState = lotesInv.map((l, idx) => {
         let fEnt = parsearFechaFlexible(l.fechaEntrada);
         if (!fEnt) {
           const valeEnt = sData.valesEntrada.find(v => v.folio === l.folioVale);
           if (valeEnt) fEnt = parsearFechaFlexible(valeEnt.fecha);
         }
+        const cantEntrada = l.entradas || l.inicio || 0;
         return {
           id: l.id,
-          ordenLlegada: l.ordenLlegada || 0,
+          ordenLlegada: l.ordenLlegada || (idx + 1),
           producto: l.producto,
-          folioVale: l.folioVale,
+          folioVale: l.folioVale || "ENT-?",
           fechaEntrada: fEnt,
+          fechaEntradaStr: l.fechaEntrada || "—",
+          entradas: cantEntrada,
           precioCompra: l.precioCompra || 0,
-          precioVenta: l.precioVenta || 0,
-          unidadesRestantes: (l.entradas || l.inicio || 0)
+          precioVentaEsperado: l.precioVenta || 0,
+          moneda: l.moneda || "USD",
+          vendidas: 0,
+          restantes: cantEntrada,
+          ventasFacturadasUSD: 0,
+          comisionesCUP: 0,
+          valesRelacionados: []
         };
-      }).sort((a, b) => {
-        const timeA = a.fechaEntrada ? a.fechaEntrada.getTime() : 0;
-        const timeB = b.fechaEntrada ? b.fechaEntrada.getTime() : 0;
-        if (timeA !== timeB) return timeA - timeB;
-        return a.ordenLlegada - b.ordenLlegada;
-      });
+      }).sort((a, b) => a.ordenLlegada - b.ordenLlegada);
 
-      const filtroEstado = document.getElementById("filtro-ventas-estado") ? document.getElementById("filtro-ventas-estado").value : "TODOS";
-      const filtroBusqueda = (document.getElementById("filtro-ventas-busqueda") ? document.getElementById("filtro-ventas-busqueda").value : "").toLowerCase().trim();
-
-      const filasVentas = [];
-      let totalVentasUSD = 0;
-      let totalComisionesCUP = 0;
-      let totalUnidadesVendidas = 0;
-
+      // 2. Ordenar vales de gestores cronológicamente (FIFO temporal)
       const valesOrdenados = [...datosGestores.vales].sort((a, b) => {
         const fa = parsearFechaFlexible(a.fecha);
         const fb = parsearFechaFlexible(b.fecha);
@@ -1943,130 +1922,115 @@ Transporte: 2500
         return ta - tb;
       });
 
+      // 3. Procesar ventas asignando producto a producto según FIFO en los lotes
+      let totalUnidadesVendidas = 0;
+      let totalVentasUSD = 0;
+      let totalCostoVendidoUSD = 0;
+      let totalComisionesCUP = 0;
+
       valesOrdenados.forEach(vale => {
-        const fechaVentaDate = parsearFechaFlexible(vale.fecha) || (vale.createdAt ? new Date(vale.createdAt) : null);
-        const estadoComision = (vale.estadoComision || "PENDIENTE").toUpperCase();
-
         (vale.items || []).forEach(item => {
-          const cantVendida = item.cantidad || 0;
-          totalUnidadesVendidas += cantVendida;
-          totalVentasUSD += cantVendida * (item.precioVenta || 0);
-          totalComisionesCUP += item.comisionTotalCUP || 0;
+          let cantPorAsignar = item.cantidad || 0;
+          totalUnidadesVendidas += cantPorAsignar;
+          totalVentasUSD += cantPorAsignar * (item.precioVenta || 0);
+          const comisionUnit = (item.comisionTotalCUP && item.cantidad) ? (item.comisionTotalCUP / item.cantidad) : (item.comisionUnitCUP || 1500);
+          totalComisionesCUP += (item.comisionTotalCUP || (comisionUnit * cantPorAsignar));
 
-          let loteCorrelacionado = null;
-          let fechaEntradaLote = null;
-          let diasRotacion = null;
-
-          for (const lote of lotesSimulacion) {
-            if (productoCoincide(lote.producto, item.producto) && lote.unidadesRestantes > 0) {
-              loteCorrelacionado = lote;
-              fechaEntradaLote = lote.fechaEntrada;
-              lote.unidadesRestantes = Math.max(0, lote.unidadesRestantes - cantVendida);
-              break;
+          // Buscar en lotes ordenados por ordenLlegada que coincidan y tengan unidades disponibles
+          for (const lote of lotesState) {
+            if (cantPorAsignar <= 0) break;
+            if (productoCoincide(lote.producto, item.producto) && lote.restantes > 0) {
+              const tomar = Math.min(lote.restantes, cantPorAsignar);
+              lote.vendidas += tomar;
+              lote.restantes -= tomar;
+              lote.ventasFacturadasUSD += tomar * (item.precioVenta || lote.precioVentaEsperado);
+              lote.comisionesCUP += comisionUnit * tomar;
+              if (!lote.valesRelacionados.includes(vale.folio)) {
+                lote.valesRelacionados.push(vale.folio);
+              }
+              totalCostoVendidoUSD += tomar * lote.precioCompra;
+              cantPorAsignar -= tomar;
             }
           }
-
-          if (!loteCorrelacionado) {
-            const lotesCandidatos = lotesInv.filter(l => productoCoincide(l.producto, item.producto));
-            if (lotesCandidatos.length > 0) {
-              loteCorrelacionado = lotesCandidatos[0];
-              fechaEntradaLote = parsearFechaFlexible(loteCorrelacionado.fechaEntrada);
-            }
-          }
-
-          if (fechaVentaDate && fechaEntradaLote) {
-            const diffMs = fechaVentaDate.getTime() - fechaEntradaLote.getTime();
-            diasRotacion = Math.round(diffMs / (1000 * 60 * 60 * 24));
-          }
-
-          filasVentas.push({
-            folioVale: vale.folio || "S/F",
-            fechaVentaDate,
-            gestorNombre: vale.gestorNombre || "Sin gestor",
-            clienteNombre: vale.clienteNombre || "Consumidor",
-            direccion: vale.direccion || "",
-            producto: item.producto,
-            cantidad: cantVendida,
-            precioVenta: item.precioVenta || 0,
-            subtotalVenta: cantVendida * (item.precioVenta || 0),
-            loteCorrelacionado,
-            fechaEntradaLote,
-            diasRotacion,
-            comisionTotalCUP: item.comisionTotalCUP || 0,
-            estadoComision
-          });
         });
       });
 
+      const gananciaTotalUSD = totalVentasUSD - totalCostoVendidoUSD;
+
+      // 4. Actualizar las tarjetas de resumen rápido superior
       const totalValesEl = document.getElementById("resumen-ventas-total-vales");
       const unidadesEl = document.getElementById("resumen-ventas-unidades");
       const montoEl = document.getElementById("resumen-ventas-monto-usd");
+      const costoEl = document.getElementById("resumen-ventas-costo-usd");
+      const gananciaEl = document.getElementById("resumen-ventas-ganancia-usd");
       const comisionesEl = document.getElementById("resumen-ventas-comisiones-cup");
 
-      if (totalValesEl) totalValesEl.textContent = datosGestores.vales.length;
-      if (unidadesEl) unidadesEl.textContent = totalUnidadesVendidas + " uds";
+      if (totalValesEl) totalValesEl.textContent = datosGestores.vales.length + " vales de gestores";
+      if (unidadesEl) unidadesEl.textContent = totalUnidadesVendidas + " uds vendidas";
       if (montoEl) montoEl.textContent = "$" + totalVentasUSD.toFixed(2) + " USD";
-      if (comisionesEl) comisionesEl.textContent = totalComisionesCUP.toLocaleString("es-ES") + " CUP";
+      if (costoEl) costoEl.textContent = "$" + totalCostoVendidoUSD.toFixed(2) + " USD";
+      if (gananciaEl) gananciaEl.textContent = "$" + gananciaTotalUSD.toFixed(2) + " USD";
+      if (comisionesEl) comisionesEl.textContent = "Comisiones: " + totalComisionesCUP.toLocaleString("es-ES") + " CUP";
 
-      const filasFiltradas = filasVentas.filter(f => {
-        if (filtroEstado !== "TODOS" && f.estadoComision !== filtroEstado) return false;
+      // 5. Filtrar lotes para renderizar la tabla
+      const filtroEstado = document.getElementById("filtro-ventas-estado") ? document.getElementById("filtro-ventas-estado").value : "TODOS";
+      const filtroBusqueda = (document.getElementById("filtro-ventas-busqueda") ? document.getElementById("filtro-ventas-busqueda").value : "").toLowerCase().trim();
+
+      const lotesFiltrados = lotesState.filter(l => {
+        if (filtroEstado === "CON_VENTAS" && l.vendidas === 0) return false;
+        if (filtroEstado === "AGOTADOS" && (l.restantes > 0 || l.entradas === 0)) return false;
+        if (filtroEstado === "EN_PROCESO" && (l.vendidas === 0 || l.restantes === 0)) return false;
+        if (filtroEstado === "INTACTOS" && l.vendidas > 0) return false;
         if (filtroBusqueda) {
-          const matchBusqueda = (
-            f.producto.toLowerCase().includes(filtroBusqueda) ||
-            f.gestorNombre.toLowerCase().includes(filtroBusqueda) ||
-            f.clienteNombre.toLowerCase().includes(filtroBusqueda) ||
-            f.folioVale.toLowerCase().includes(filtroBusqueda) ||
-            f.direccion.toLowerCase().includes(filtroBusqueda)
+          const match = (
+            l.producto.toLowerCase().includes(filtroBusqueda) ||
+            l.folioVale.toLowerCase().includes(filtroBusqueda)
           );
-          if (!matchBusqueda) return false;
+          if (!match) return false;
         }
         return true;
       });
 
-      filasFiltradas.reverse();
-
-      if (filasFiltradas.length === 0) {
-        tbody.innerHTML = "<tr><td colspan=\"13\" class=\"p-8 text-center text-slate-500\">No hay ventas que coincidan con los filtros seleccionados.</td></tr>";
+      if (lotesFiltrados.length === 0) {
+        tbody.innerHTML = "<tr><td colspan=\"13\" class=\"p-8 text-center text-slate-500\">No hay lotes que coincidan con el filtro seleccionado.</td></tr>";
         return;
       }
 
-      tbody.innerHTML = filasFiltradas.map(f => {
-        let rotacionBadge = "<span class=\"text-slate-500 text-[11px]\">—</span>";
-        if (f.diasRotacion !== null && !isNaN(f.diasRotacion)) {
-          if (f.diasRotacion === 0) {
-            rotacionBadge = "<span class=\"bg-emerald-500/10 text-emerald-300 border border-emerald-500/30 px-2 py-0.5 rounded font-mono font-bold text-[10px]\">Mismo día ⚡</span>";
-          } else if (f.diasRotacion > 0) {
-            const colorClass = f.diasRotacion <= 3 ? "text-emerald-400 bg-emerald-950/20" : f.diasRotacion <= 7 ? "text-amber-300 bg-amber-950/20" : "text-rose-400 bg-rose-950/20";
-            rotacionBadge = "<span class=\"" + colorClass + " border border-slate-700 px-2 py-0.5 rounded font-mono font-bold text-[10px]\">" + f.diasRotacion + " días</span>";
-          } else {
-            rotacionBadge = "<span class=\"text-indigo-400 text-[10px] font-mono\" title=\"Venta registrada antes del registro formal en inventario\">Previo</span>";
-          }
+      // 6. Generar filas de la tabla de resumen
+      tbody.innerHTML = lotesFiltrados.map(l => {
+        const costoLoteVendido = l.vendidas * l.precioCompra;
+        const gananciaLote = l.ventasFacturadasUSD - costoLoteVendido;
+        const pctVendido = l.entradas > 0 ? Math.round((l.vendidas / l.entradas) * 100) : 0;
+
+        let estadoBadge = "";
+        if (l.entradas > 0 && l.restantes === 0) {
+          estadoBadge = "<span class=\"bg-rose-500/10 text-rose-400 border border-rose-500/30 px-2 py-0.5 rounded font-bold text-[10px]\">AGOTADO (100%)</span>";
+        } else if (l.vendidas > 0) {
+          estadoBadge = "<span class=\"bg-amber-500/10 text-amber-300 border border-amber-500/30 px-2 py-0.5 rounded font-bold text-[10px]\">EN PROCESO (" + pctVendido + "%)</span>";
+        } else {
+          estadoBadge = "<span class=\"bg-slate-800 text-slate-400 border border-slate-700 px-2 py-0.5 rounded font-bold text-[10px]\">INTACTO (0%)</span>";
         }
 
-        let loteBadge = "<span class=\"text-rose-400/80 text-[11px] italic\">Sin lote directo</span>";
-        if (f.loteCorrelacionado) {
-          loteBadge = "<span class=\"bg-black border border-amber-500/30 px-2 py-0.5 rounded font-mono font-bold text-amber-300 text-[11px]\">" +
-            (f.loteCorrelacionado.folioVale || "Lote") + " (#" + (f.loteCorrelacionado.ordenLlegada || "?") + ")</span>";
-        }
-
-        const badgeComision = f.estadoComision === "PAGADA" || f.estadoComision === "PAGADO"
-          ? "<span class=\"bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded font-bold text-[10px]\">PAGADA ✓</span>"
-          : "<span class=\"bg-amber-500/10 text-amber-300 border border-amber-500/30 px-2 py-0.5 rounded font-bold text-[10px]\">PENDIENTE ⏳</span>";
+        const valesCount = l.valesRelacionados.length;
+        const tooltipVales = valesCount > 0 ? "Presente en: " + l.valesRelacionados.slice(0, 5).join(", ") + (valesCount > 5 ? "..." : "") : "Sin ventas";
 
         return "<tr class=\"hover:bg-slate-900 transition-colors\">" +
-          "<td class=\"p-3 font-mono font-bold text-teal-300\">" + f.folioVale + "</td>" +
-          "<td class=\"p-3 font-mono text-slate-300\">" + formatearFechaBonita(f.fechaVentaDate) + "</td>" +
-          "<td class=\"p-3 font-bold text-white\"><i data-lucide=\"user\" class=\"w-3.5 h-3.5 inline mr-1 text-teal-400\"></i>" + f.gestorNombre + "</td>" +
-          "<td class=\"p-3 text-slate-300 max-w-[160px] truncate\" title=\"" + (f.clienteNombre + " — " + f.direccion) + "\">" + f.clienteNombre + "</td>" +
-          "<td class=\"p-3 font-bold text-teal-200\">" + f.producto + "</td>" +
-          "<td class=\"p-3 text-center font-mono font-bold text-amber-300 bg-black/40\">" + f.cantidad + "</td>" +
-          "<td class=\"p-3 text-right font-mono text-emerald-400\">$" + f.precioVenta.toFixed(2) + "</td>" +
-          "<td class=\"p-3 text-right font-mono font-bold text-emerald-300\">$" + f.subtotalVenta.toFixed(2) + "</td>" +
-          "<td class=\"p-3\">" + loteBadge + "</td>" +
-          "<td class=\"p-3 text-center font-mono text-slate-400\">" + (f.fechaEntradaLote ? formatearFechaBonita(f.fechaEntradaLote) : "—") + "</td>" +
-          "<td class=\"p-3 text-center\">" + rotacionBadge + "</td>" +
-          "<td class=\"p-3 text-right font-mono font-bold text-amber-400\">" + f.comisionTotalCUP.toLocaleString("es-ES") + " CUP</td>" +
-          "<td class=\"p-3 text-center\">" + badgeComision + "</td>" +
+          "<td class=\"p-3 text-center font-mono font-bold text-amber-400\">#" + l.ordenLlegada + "</td>" +
+          "<td class=\"p-3 font-mono font-bold text-slate-300\">" + l.folioVale + "</td>" +
+          "<td class=\"p-3 font-mono text-slate-400 text-xs\">" + (l.fechaEntrada ? formatearFechaBonita(l.fechaEntrada) : l.fechaEntradaStr) + "</td>" +
+          "<td class=\"p-3 font-bold text-white\">" + l.producto + "</td>" +
+          "<td class=\"p-3 text-center font-mono font-bold text-slate-200 bg-black/30\">" + l.entradas + "</td>" +
+          "<td class=\"p-3 text-right font-mono text-rose-300 font-bold\">$" + l.precioCompra.toFixed(2) + "</td>" +
+          "<td class=\"p-3 text-center font-mono font-black text-teal-300 bg-teal-950/20\">" +
+            l.vendidas +
+            (valesCount > 0 ? " <span class=\"text-[9px] text-teal-400/80 block\" title=\"" + tooltipVales + "\">(" + valesCount + " vales)</span>" : "") +
+          "</td>" +
+          "<td class=\"p-3 text-center font-mono font-black " + (l.restantes > 0 ? "text-emerald-400" : "text-slate-500") + " bg-emerald-950/20\">" + l.restantes + "</td>" +
+          "<td class=\"p-3 text-right font-mono font-bold text-emerald-300\">$" + l.ventasFacturadasUSD.toFixed(2) + "</td>" +
+          "<td class=\"p-3 text-right font-mono font-bold text-rose-400\">$" + costoLoteVendido.toFixed(2) + "</td>" +
+          "<td class=\"p-3 text-right font-mono font-bold " + (gananciaLote >= 0 ? "text-amber-300" : "text-rose-400") + "\">$" + gananciaLote.toFixed(2) + "</td>" +
+          "<td class=\"p-3 text-right font-mono text-amber-400 font-bold\">" + l.comisionesCUP.toLocaleString("es-ES") + " CUP</td>" +
+          "<td class=\"p-3 text-center\">" + estadoBadge + "</td>" +
         "</tr>";
       }).join("");
 
