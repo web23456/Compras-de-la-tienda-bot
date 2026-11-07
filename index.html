@@ -792,21 +792,52 @@
     let itemsValeEnEdicion = [];
     let editandoValeId = null; // Track si estamos editando un vale existente
 
-    // ================= INTEGRACIÓN CON WEB DE GESTORES =================
+    // ================= INTEGRACIÓN CON WEB DE GESTORES (OFFLINE + ONLINE AUTO-SYNC) =================
     const GESTORES_DB_URL = 'https://web23456.github.io/Gestores/database.json';
-    let datosGestores = null; // Cache de la base de datos de gestores
+    // Base de datos de gestores precargada localmente para visualización instantánea 100% offline
+    let datosGestores = null;
 
     async function cargarDatosGestores() {
+      // 1. Intentar descargar desde la web remota de GitHub Pages de Gestores
       try {
         const res = await fetch(GESTORES_DB_URL, { cache: 'no-cache' });
         if (res.ok) {
-          datosGestores = await res.json();
-          console.log('✅ Datos de Gestores cargados:', datosGestores.vales?.length || 0, 'vales');
-          renderizarTodo();
+          const fresh = await res.json();
+          if (fresh && fresh.vales && fresh.vales.length > 0) {
+            datosGestores = fresh;
+            try { localStorage.setItem('gestores_cache_backup', JSON.stringify(fresh)); } catch(e){}
+            console.log('✅ Datos de Gestores actualizados desde GitHub:', datosGestores.vales.length, 'vales');
+            renderizarTodo();
+            return;
+          }
         }
       } catch (e) {
-        console.warn('⚠️ No se pudieron cargar datos de Gestores:', e.message);
+        console.warn('Fallo fetch remoto de Gestores, intentando copia local:', e.message);
       }
+
+      // 2. Si falla el remoto (ej offline o CORS), intentar cargar el archivo local gestores_datos.json
+      try {
+        const resLocal = await fetch('./gestores_datos.json', { cache: 'no-cache' });
+        if (resLocal.ok) {
+          const localData = await resLocal.json();
+          if (localData && localData.vales && localData.vales.length > 0) {
+            datosGestores = localData;
+            console.log('✅ Datos de Gestores cargados desde archivo local gestores_datos.json:', datosGestores.vales.length, 'vales');
+            renderizarTodo();
+            return;
+          }
+        }
+      } catch(e) {}
+
+      // 3. Fallback a localStorage si existía respaldo previo
+      try {
+        const stored = localStorage.getItem('gestores_cache_backup');
+        if (stored) {
+          datosGestores = JSON.parse(stored);
+          console.log('✅ Datos de Gestores restaurados desde localStorage');
+          renderizarTodo();
+        }
+      } catch(e) {}
     }
 
     // Normalizar nombre de producto para matching difuso
@@ -998,13 +1029,14 @@
       document.getElementById('vale-fecha').value = new Date().toISOString().split('T')[0];
 
       inicializarFormularioValeConItemsPorDefecto();
+
+      // Cargar datos de la Web de Gestores ANTES del primer render para tener datos FIFO
+      await cargarDatosGestores();
+      setInterval(cargarDatosGestores, 3 * 60 * 1000);
+
       renderizarTodo();
       document.getElementById('vale-folio').value = generarSiguienteFolio();
       if (window.lucide && typeof lucide.createIcons === 'function') { lucide.createIcons(); }
-
-      // Cargar datos de la Web de Gestores para cruce de información
-      cargarDatosGestores();
-      setInterval(cargarDatosGestores, 3 * 60 * 1000);
 
       // Registro de Service Worker para PWA Offline con Auto-Actualización online
       if ('serviceWorker' in navigator) {
@@ -1868,7 +1900,39 @@ Transporte: 2500
       if (window.lucide && typeof lucide.createIcons === "function") { lucide.createIcons(); }
     }
 
-        // ================= ALGORITMO ROBUSTO DE RESUMEN DE VENTAS FIFO POR LOTE =================
+    
+    // ================= FUNCIONES AUXILIARES DE FECHAS (PARSER Y FORMATO) =================
+    function parsearFechaFlexible(fechaStr) {
+      if (!fechaStr) return null;
+      const str = String(fechaStr).trim();
+      if (/^\d{4}-\d{2}-\d{2}$/.test(str)) {
+        const parts = str.split('-').map(Number);
+        return new Date(parts[0], parts[1] - 1, parts[2]);
+      }
+      const partes = str.split(/[./-]/).map(Number);
+      if (partes.length >= 2) {
+        let dia = partes[0];
+        let mes = partes[1];
+        let anio = partes[2] || 2026;
+        if (anio < 100) anio += 2000;
+        if (mes > 12 && dia <= 12) {
+          const tmp = dia; dia = mes; mes = tmp;
+        }
+        return new Date(anio, mes - 1, dia);
+      }
+      const parsed = new Date(str);
+      return isNaN(parsed.getTime()) ? null : parsed;
+    }
+
+    function formatearFechaBonita(d) {
+      if (!d || isNaN(d.getTime())) return '—';
+      const dia = String(d.getDate()).padStart(2, '0');
+      const mes = String(d.getMonth() + 1).padStart(2, '0');
+      const anio = d.getFullYear();
+      return dia + '/' + mes + '/' + anio;
+    }
+
+    // ================= ALGORITMO ROBUSTO DE RESUMEN DE VENTAS FIFO POR LOTE =================
     function renderizarTablaVentasGestores() {
       const tbody = document.getElementById("ventas-gestores-tbody");
       if (!tbody) return;

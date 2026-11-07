@@ -1,7 +1,7 @@
 // Service Worker PWA para Compras de la Tienda — Almacén Central
 // Soporte 100% Offline Garantizado, Cache Robusto de CDNs y Sincronización Automática
 
-const CACHE_NAME = 'compras-tienda-v14';
+const CACHE_NAME = 'compras-tienda-v15';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
@@ -11,6 +11,7 @@ const ASSETS_TO_CACHE = [
   './icon-512.png',
   './bot-parser.js',
   './tienda_datos.json',
+  './gestores_datos.json',
   './memoryEngine.js',
   'https://cdn.tailwindcss.com',
   'https://unpkg.com/lucide@latest',
