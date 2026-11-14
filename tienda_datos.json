@@ -556,7 +556,7 @@
           "transporteUnitario": 5000
         },
         {
-          "id": "lote-1794695195649ub5",
+          "id": "lote-1794695862006u39",
           "ordenLlegada": 31,
           "producto": "cocinas de petroleo",
           "folioVale": "ENT-5",
@@ -574,7 +574,7 @@
           "transporteUnitario": 3500
         },
         {
-          "id": "lote-179469519564988y",
+          "id": "lote-1794695862006z0y",
           "ordenLlegada": 32,
           "producto": "Ollas Reynas",
           "folioVale": "ENT-5",
@@ -592,7 +592,7 @@
           "transporteUnitario": 7000
         },
         {
-          "id": "lote-1794695195649vz0",
+          "id": "lote-1794695862006128",
           "ordenLlegada": 33,
           "producto": "Power bank 20milAm",
           "folioVale": "ENT-5",
@@ -607,10 +607,10 @@
           "precioVenta": 23,
           "comisionGestores": 1500,
           "comisionMoneda": "CUP",
-          "transporteUnitario": 0
+          "transporteUnitario": 10000
         },
         {
-          "id": "lote-1794695195649505",
+          "id": "lote-1794695862006pwz",
           "ordenLlegada": 34,
           "producto": "Power Bank 50miAm",
           "folioVale": "ENT-5",
@@ -628,7 +628,7 @@
           "transporteUnitario": 0
         },
         {
-          "id": "lote-1794695195649g7m",
+          "id": "lote-17946958620060vh",
           "ordenLlegada": 35,
           "producto": "Batidora Hamilton Bich",
           "folioVale": "ENT-5",
@@ -646,7 +646,7 @@
           "transporteUnitario": 0
         },
         {
-          "id": "lote-1794695195649iz9",
+          "id": "lote-1794695862006i70",
           "ordenLlegada": 36,
           "producto": "Batidora Hamilton otro modelo",
           "folioVale": "ENT-5",
@@ -664,7 +664,7 @@
           "transporteUnitario": 0
         },
         {
-          "id": "lote-1794695195649kej",
+          "id": "lote-1794695862006pi6",
           "ordenLlegada": 37,
           "producto": "Olla Arrocera Hamilton",
           "folioVale": "ENT-5",
@@ -682,7 +682,7 @@
           "transporteUnitario": 0
         },
         {
-          "id": "lote-1794695195649mv8",
+          "id": "lote-1794695862006opa",
           "ordenLlegada": 38,
           "producto": "Batidora de mano",
           "folioVale": "ENT-5",
@@ -700,7 +700,7 @@
           "transporteUnitario": 0
         },
         {
-          "id": "lote-1794695195649gn0",
+          "id": "lote-17946958620061t0",
           "ordenLlegada": 39,
           "producto": "Olla Arroceras Marwa",
           "folioVale": "ENT-5",
@@ -718,7 +718,7 @@
           "transporteUnitario": 6000
         },
         {
-          "id": "lote-1794695195649ft6",
+          "id": "lote-1794695862006fr8",
           "ordenLlegada": 40,
           "producto": "Cafeteras",
           "folioVale": "ENT-5",
@@ -736,7 +736,7 @@
           "transporteUnitario": 0
         },
         {
-          "id": "lote-1794695195649n01",
+          "id": "lote-1794695862006g15",
           "ordenLlegada": 41,
           "producto": "Planchas",
           "folioVale": "ENT-5",
@@ -754,7 +754,7 @@
           "transporteUnitario": 0
         },
         {
-          "id": "lote-179469519564995a",
+          "id": "lote-1794695862006oul",
           "ordenLlegada": 42,
           "producto": "Ventilador de 20 pulgadas",
           "folioVale": "ENT-5",
@@ -772,7 +772,7 @@
           "transporteUnitario": 0
         },
         {
-          "id": "lote-1794695195649av9",
+          "id": "lote-1794695862006dsa",
           "ordenLlegada": 43,
           "producto": "Ventilador de 3 posiciones",
           "folioVale": "ENT-5",
@@ -790,7 +790,7 @@
           "transporteUnitario": 0
         },
         {
-          "id": "lote-17946951956497jm",
+          "id": "lote-17946958620063kv",
           "ordenLlegada": 44,
           "producto": "Olla arrocera Estelectric",
           "folioVale": "ENT-5",
@@ -808,7 +808,7 @@
           "transporteUnitario": 6000
         },
         {
-          "id": "lote-17946951956496n2",
+          "id": "lote-1794695862006k7o",
           "ordenLlegada": 45,
           "producto": "Freidora de Aire",
           "folioVale": "ENT-5",
@@ -826,7 +826,7 @@
           "transporteUnitario": 0
         },
         {
-          "id": "lote-17946951956499sy",
+          "id": "lote-1794695862006s1k",
           "ordenLlegada": 46,
           "producto": "cajitas descodificadora",
           "folioVale": "ENT-5",
@@ -846,7 +846,7 @@
       ],
       "valesEntrada": [
         {
-          "id": "vale-1794695195649t6l",
+          "id": "vale-1794695862006vd9",
           "folio": "ENT-5",
           "fecha": "2026-10-30",
           "proveedor": "Proveedor General",
@@ -856,7 +856,7 @@
           "totalCompraCUP": 0,
           "items": [
             {
-              "id": "it-1",
+              "id": "it-1794695748942y5s",
               "nombre": "cocinas de petroleo",
               "fechaEntrada": "2026-10-30",
               "cantidad": 30,
@@ -869,7 +869,7 @@
               "margenGanancia": 120
             },
             {
-              "id": "it-1794692331348qlr",
+              "id": "it-1794695748942695",
               "nombre": "Ollas Reynas",
               "fechaEntrada": "2026-10-30",
               "cantidad": 16,
@@ -882,7 +882,7 @@
               "margenGanancia": 144
             },
             {
-              "id": "it-1794692399155tc7",
+              "id": "it-1794695748942zfw",
               "nombre": "Power bank 20milAm",
               "fechaEntrada": "2026-10-30",
               "cantidad": 15,
@@ -891,11 +891,11 @@
               "precioVenta": 23,
               "comisionGestores": 1500,
               "comisionMoneda": "CUP",
-              "transporteUnitario": 0,
+              "transporteUnitario": 10000,
               "margenGanancia": 135
             },
             {
-              "id": "it-1794692510032y5e",
+              "id": "it-1794695748942di0",
               "nombre": "Power Bank 50miAm",
               "fechaEntrada": "2026-10-30",
               "cantidad": 3,
@@ -908,7 +908,7 @@
               "margenGanancia": 30
             },
             {
-              "id": "it-17946925679049gt",
+              "id": "it-1794695748942y0g",
               "nombre": "Batidora Hamilton Bich",
               "fechaEntrada": "2026-10-30",
               "cantidad": 5,
@@ -921,7 +921,7 @@
               "margenGanancia": 25
             },
             {
-              "id": "it-1794692641653f19",
+              "id": "it-17946957489425dc",
               "nombre": "Batidora Hamilton otro modelo",
               "fechaEntrada": "2026-10-30",
               "cantidad": 1,
@@ -934,7 +934,7 @@
               "margenGanancia": 7
             },
             {
-              "id": "it-1794692716269bkt",
+              "id": "it-17946957489425nj",
               "nombre": "Olla Arrocera Hamilton",
               "fechaEntrada": "2026-10-30",
               "cantidad": 13,
@@ -947,7 +947,7 @@
               "margenGanancia": 78
             },
             {
-              "id": "it-17946927507253u7",
+              "id": "it-1794695748942vph",
               "nombre": "Batidora de mano",
               "fechaEntrada": "2026-10-30",
               "cantidad": 4,
@@ -960,7 +960,7 @@
               "margenGanancia": 28
             },
             {
-              "id": "it-1794693017333jkb",
+              "id": "it-1794695748942aoi",
               "nombre": "Olla Arroceras Marwa",
               "fechaEntrada": "2026-10-30",
               "cantidad": 6,
@@ -973,7 +973,7 @@
               "margenGanancia": 36
             },
             {
-              "id": "it-1794694800828g3r",
+              "id": "it-17946957489429bo",
               "nombre": "Cafeteras",
               "fechaEntrada": "2026-10-30",
               "cantidad": 15,
@@ -986,7 +986,7 @@
               "margenGanancia": 75
             },
             {
-              "id": "it-1794694845565ljs",
+              "id": "it-1794695748942xrg",
               "nombre": "Planchas",
               "fechaEntrada": "2026-10-30",
               "cantidad": 10,
@@ -999,7 +999,7 @@
               "margenGanancia": 50
             },
             {
-              "id": "it-1794694926452os7",
+              "id": "it-1794695748942qow",
               "nombre": "Ventilador de 20 pulgadas",
               "fechaEntrada": "2026-10-30",
               "cantidad": 3,
@@ -1012,7 +1012,7 @@
               "margenGanancia": 24
             },
             {
-              "id": "it-1794694954091plb",
+              "id": "it-1794695748942351",
               "nombre": "Ventilador de 3 posiciones",
               "fechaEntrada": "2026-10-30",
               "cantidad": 2,
@@ -1025,7 +1025,7 @@
               "margenGanancia": 16
             },
             {
-              "id": "it-1794694988794jr7",
+              "id": "it-1794695748942lku",
               "nombre": "Olla arrocera Estelectric",
               "fechaEntrada": "2026-10-30",
               "cantidad": 12,
@@ -1038,7 +1038,7 @@
               "margenGanancia": 72
             },
             {
-              "id": "it-1794695102294ifq",
+              "id": "it-1794695748942uen",
               "nombre": "Freidora de Aire",
               "fechaEntrada": "2026-10-30",
               "cantidad": 12,
@@ -1051,7 +1051,7 @@
               "margenGanancia": 96
             },
             {
-              "id": "it-1794695150356e1t",
+              "id": "it-1794695748942ey3",
               "nombre": "cajitas descodificadora",
               "fechaEntrada": "2026-10-30",
               "cantidad": 12,
