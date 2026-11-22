@@ -8,11 +8,22 @@ const githubService = require('./githubService');
 const app = express();
 const PORT = process.env.PORT || 3060;
 const DB_FILE = path.join(__dirname, 'tienda_datos.json');
+const GESTORES_DB_FILE = path.join(__dirname, 'gestores_datos.json');
 const SALVAS_DIR = path.join(__dirname, 'salvas_semanales_local');
 
 if (!fs.existsSync(SALVAS_DIR)) {
   fs.mkdirSync(SALVAS_DIR, { recursive: true });
 }
+
+// Variables de estado para sincronización inteligente de Gestores
+let gestoresSyncStatus = {
+  lastCheck: null,
+  lastUpdate: null,
+  lastSha: null,
+  inProgress: false,
+  error: null,
+  totalVales: 0
+};
 
 app.use(cors());
 app.use(express.json({ limit: '50mb' }));
@@ -32,6 +43,94 @@ function cargarDatos() {
 
 function guardarDatos(data) {
   fs.writeFileSync(DB_FILE, JSON.stringify(data, null, 2), 'utf8');
+}
+
+// Cargar o leer datos locales de Gestores (independiente de tienda_datos.json)
+function cargarDatosGestores() {
+  if (fs.existsSync(GESTORES_DB_FILE)) {
+    try {
+      return JSON.parse(fs.readFileSync(GESTORES_DB_FILE, 'utf8'));
+    } catch (e) {
+      console.error('Error al leer gestores_datos.json local:', e);
+    }
+  }
+  return null;
+}
+
+function guardarDatosGestores(data) {
+  fs.writeFileSync(GESTORES_DB_FILE, typeof data === 'string' ? data : JSON.stringify(data, null, 2), 'utf8');
+}
+
+/**
+ * Función central de sincronización inteligente de Gestores:
+ * 1. Consulta primero los metadatos de Gestores (SHA) para no descargar pesado si no hay cambios.
+ * 2. Si hay cambios o forceSync=true:
+ *    - Descarga la base de datos de Gestores.
+ *    - La guarda localmente en gestores_datos.json (completamente separada de tienda_datos.json).
+ *    - La sube/sincroniza a GitHub en Compras-de-la-tienda-bot/gestores_datos.json para la web de compras.
+ */
+async function sincronizarBaseDatosGestores(forceSync = false) {
+  if (gestoresSyncStatus.inProgress) {
+    console.log('⏳ Sincronización de Gestores ya en curso...');
+    return { ok: false, message: 'Sincronización en curso' };
+  }
+
+  gestoresSyncStatus.inProgress = true;
+  gestoresSyncStatus.lastCheck = new Date().toISOString();
+
+  try {
+    console.log('🔍 [Sync Gestores] Verificando cambios en Gestores...');
+    const meta = await githubService.getGestoresDbMetadata();
+    if (!meta) {
+      throw new Error('No se encontró database.json en el repositorio de Gestores.');
+    }
+
+    // Verificar si el SHA cambió respecto al que conocemos
+    if (!forceSync && gestoresSyncStatus.lastSha && gestoresSyncStatus.lastSha === meta.sha) {
+      console.log(`✅ [Sync Gestores] Sin cambios en Gestores (SHA coincide: ${meta.sha.substring(0, 7)}). No se requiere descarga.`);
+      gestoresSyncStatus.inProgress = false;
+      return { ok: true, changed: false, message: 'Sin cambios en Gestores' };
+    }
+
+    console.log(`📥 [Sync Gestores] Descargando actualización de Gestores (SHA: ${meta.sha.substring(0, 7)})...`);
+    const remoteData = await githubService.fetchGestoresDatabase();
+    if (!remoteData || !remoteData.content) {
+      throw new Error('Contenido vacío al descargar database.json de Gestores');
+    }
+
+    // Guardar localmente en gestores_datos.json
+    guardarDatosGestores(remoteData.content);
+    gestoresSyncStatus.lastSha = remoteData.sha;
+    gestoresSyncStatus.lastUpdate = new Date().toISOString();
+    gestoresSyncStatus.error = null;
+
+    try {
+      const parsed = JSON.parse(remoteData.content);
+      gestoresSyncStatus.totalVales = Array.isArray(parsed.vales) ? parsed.vales.length : 0;
+    } catch(e) {}
+
+    console.log(`💾 [Sync Gestores] Guardado local exitoso (${gestoresSyncStatus.totalVales} vales). Sincronizando con GitHub Compras...`);
+
+    // Sincronizar en GitHub (Compras-de-la-tienda-bot/gestores_datos.json) para que la web pública lo tenga
+    const currentComprasFile = await githubService.fetchFile('gestores_datos.json').catch(() => null);
+    const comprasSha = currentComprasFile ? currentComprasFile.sha : null;
+
+    await githubService.commitFile(
+      'gestores_datos.json',
+      remoteData.content,
+      comprasSha,
+      `sync: actualización periódica de ventas de gestores [${new Date().toLocaleDateString('es-ES')} ${new Date().toLocaleTimeString('es-ES')}]`
+    );
+
+    console.log(`🚀 [Sync Gestores] ¡Sincronizado y publicado con éxito en la web de Compras!`);
+    gestoresSyncStatus.inProgress = false;
+    return { ok: true, changed: true, totalVales: gestoresSyncStatus.totalVales };
+  } catch (err) {
+    console.error('❌ [Sync Gestores] Error al sincronizar base de datos de Gestores:', err.message);
+    gestoresSyncStatus.error = err.message;
+    gestoresSyncStatus.inProgress = false;
+    return { ok: false, error: err.message };
+  }
 }
 
 // 1. Endpoint: Analizar texto de vale con el bot robusto
@@ -146,7 +245,7 @@ app.get('/api/historial-salvas', async (req, res) => {
   }
 });
 
-// 7. Endpoint: Estado del Bot y conexión
+// 7. Endpoint: Estado del Bot, conexión y sincronización de Gestores
 app.get('/api/estado', (req, res) => {
   res.json({
     ok: true,
@@ -154,14 +253,52 @@ app.get('/api/estado', (req, res) => {
     puerto: PORT,
     owner: githubService.owner,
     repo: githubService.repo,
+    gestoresOwner: githubService.gestoresOwner,
+    gestoresRepo: githubService.gestoresRepo,
+    gestoresSync: gestoresSyncStatus,
     tiempo: new Date().toISOString()
   });
 });
+
+// 8. Endpoint: Forzar sincronización inmediata de la base de datos de Gestores
+app.post('/api/gestores/sync', async (req, res) => {
+  try {
+    const force = req.body && req.body.force === true;
+    const resultado = await sincronizarBaseDatosGestores(force);
+    res.json(resultado);
+  } catch (err) {
+    res.status(500).json({ ok: false, error: err.message });
+  }
+});
+
+// 9. Endpoint: Obtener datos actuales de Gestores desde local (gestores_datos.json)
+app.get('/api/gestores/datos', (req, res) => {
+  const data = cargarDatosGestores();
+  res.json({ ok: true, data: data, status: gestoresSyncStatus });
+});
+
+// Planificador periódico inteligente:
+// Dado que la base de datos de Gestores se actualiza muy poco y no debe ser brusco ni cada 5 minutos,
+// se verifica cada 1 HORA (3,600,000 ms). Primero comprueba SHA ligero y solo si hay cambio descarga y publica.
+const INTERVALO_SYNC_GESTORES_MS = 60 * 60 * 1000; // 1 Hora
+
+setInterval(() => {
+  console.log(`⏰ [Intervalo Programado] Verificación periódica de novedades en Gestores (${new Date().toLocaleTimeString()})...`);
+  sincronizarBaseDatosGestores(false).catch(err => console.error('Error en intervalo sync:', err.message));
+}, INTERVALO_SYNC_GESTORES_MS);
+
+// Ejecutar una verificación inicial suave a los 10 segundos de encender el bot
+setTimeout(() => {
+  console.log('🚀 [Inicio Bot] Verificación inicial de base de datos de Gestores...');
+  sincronizarBaseDatosGestores(false).catch(err => console.warn('Sync inicial Gestores pospuesto:', err.message));
+}, 10000);
 
 app.listen(PORT, () => {
   console.log(`=======================================================`);
   console.log(`🛒 COMPRAS DE LA TIENDA - BOT CONECTADO A GITHUB`);
   console.log(`👤 Propietario: ${githubService.owner} | Repositorio: ${githubService.repo}`);
+  console.log(`📊 Gestores Sincronizados: ${githubService.gestoresOwner}/${githubService.gestoresRepo}`);
+  console.log(`⏱️ Verificación de novedades en Gestores: cada 1 hora (no intrusivo)`);
   console.log(`🌐 Servidor Web disponible en: http://localhost:${PORT}`);
   console.log(`=======================================================`);
 });
