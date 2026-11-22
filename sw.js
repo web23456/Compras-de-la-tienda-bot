@@ -1,7 +1,7 @@
 // Service Worker PWA para Compras de la Tienda — Almacén Central
 // Soporte 100% Offline Garantizado, Cache Robusto de CDNs y Sincronización Automática
 
-const CACHE_NAME = 'compras-tienda-v18-limpio-reparado';
+const CACHE_NAME = 'compras-tienda-v19-botones-gestores-github';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
