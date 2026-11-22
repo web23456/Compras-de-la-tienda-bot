@@ -1,7 +1,7 @@
 // Service Worker PWA para Compras de la Tienda — Almacén Central
 // Soporte 100% Offline Garantizado, Cache Robusto de CDNs y Sincronización Automática
 
-const CACHE_NAME = 'compras-tienda-v16-robusto';
+const CACHE_NAME = 'compras-tienda-v17-catalogo-productos';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
