@@ -416,7 +416,7 @@
     <!-- SECCIÓN: CATÁLOGO DE PRODUCTOS (TARJETAS ESTILO GESTORES) -->
     <!-- Análisis exhaustivo de ventas, ingresos, vales y stock    -->
     <!-- ======================================================== -->
-    <div id="seccion-vista-productos" class="space-y-4">
+    <div id="seccion-vista-productos" class="space-y-4 hidden">
       <div class="bg-slate-950 border border-teal-500/40 rounded-2xl p-4 shadow-xl flex flex-wrap items-center justify-between gap-3">
         <div class="flex items-center gap-3">
           <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-teal-500 to-emerald-600 flex items-center justify-center font-bold text-black shadow-lg shadow-teal-500/20">
@@ -477,6 +477,20 @@
         <div class="p-8 text-center text-slate-400 bg-slate-950 border border-teal-500/20 rounded-2xl">
           <i data-lucide="loader" class="w-6 h-6 animate-spin inline-block text-teal-400 mb-2"></i>
           <div>Cargando y analizando catálogo de productos...</div>
+        </div>
+      </div>
+
+      <!-- Barra de Paginación de Productos para Máxima Fluidez -->
+      <div id="paginacion-productos" class="flex flex-wrap items-center justify-between gap-3 bg-slate-950 border border-teal-500/30 rounded-2xl p-3 text-xs">
+        <span class="text-slate-400 font-mono" id="paginacion-info-texto">Mostrando 0 de 0</span>
+        <div class="flex items-center gap-2">
+          <button onclick="cambiarPaginaProductos(-1)" id="btn-pag-prev" class="px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-teal-300 border border-teal-500/30 rounded-xl font-bold transition disabled:opacity-30 disabled:cursor-not-allowed">
+            <i data-lucide="chevron-left" class="w-4 h-4 inline"></i> Anterior
+          </button>
+          <span class="text-teal-300 font-bold font-mono px-2" id="paginacion-numero">Página 1</span>
+          <button onclick="cambiarPaginaProductos(1)" id="btn-pag-next" class="px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-teal-300 border border-teal-500/30 rounded-xl font-bold transition disabled:opacity-30 disabled:cursor-not-allowed">
+            Siguiente <i data-lucide="chevron-right" class="w-4 h-4 inline"></i>
+          </button>
         </div>
       </div>
     </div>
@@ -926,7 +940,17 @@
     let datosGestores = null;
 
     async function cargarDatosGestores() {
-      // 1. Cargar desde la copia local servida en este mismo repositorio (gestores_datos.json)
+      // 1. Cargar primero desde memoria local instantáneamente para fluidez a 0ms
+      try {
+        const stored = localStorage.getItem('gestores_cache_backup');
+        if (stored) {
+          datosGestores = JSON.parse(stored);
+          console.log('⚡ Datos de Gestores cargados instantáneamente desde memoria local:', (datosGestores.vales || []).length, 'vales');
+          renderizarTodo();
+        }
+      } catch(e) {}
+
+      // 2. Cargar/actualizar en segundo plano desde gestores_datos.json del repositorio
       try {
         const resLocal = await fetch(GESTORES_DB_URL, { cache: 'no-cache' });
         if (resLocal.ok) {
@@ -934,24 +958,14 @@
           if (fresh && fresh.vales && fresh.vales.length > 0) {
             datosGestores = fresh;
             try { localStorage.setItem('gestores_cache_backup', JSON.stringify(fresh)); } catch(e){}
-            console.log('✅ Datos de Gestores cargados exclusivamente desde ./gestores_datos.json:', datosGestores.vales.length, 'vales');
+            console.log('✅ Datos de Gestores actualizados desde ./gestores_datos.json:', datosGestores.vales.length, 'vales');
             renderizarTodo();
             return;
           }
         }
       } catch (e) {
-        console.warn('Aviso: cargando gestores_datos.json localmente:', e.message);
+        console.warn('Aviso: modo offline para gestores_datos.json');
       }
-
-      // 2. Respaldo offline local desde localStorage
-      try {
-        const stored = localStorage.getItem('gestores_cache_backup');
-        if (stored) {
-          datosGestores = JSON.parse(stored);
-          console.log('✅ Datos de Gestores recuperados desde respaldo local (localStorage)');
-          renderizarTodo();
-        }
-      } catch(e) {}
     }
 
     // ================= ACCIONES MODULARES CON EL BOT =================
@@ -1259,11 +1273,29 @@
 
         inicializarFormularioValeConItemsPorDefecto();
 
-        // Cargar datos de la Web de Gestores
-        await cargarDatosGestores();
+        // 1. Garantizar que si la memoria local no tiene vales, cargue de inmediato tienda_datos.json del repo
+        const sActual = getSemanaData();
+        const tieneValesGuardados = sActual && ((sActual.valesEntrada && sActual.valesEntrada.length > 0) || (sActual.lotesInventario && sActual.lotesInventario.length > 0));
+        if (!tieneValesGuardados) {
+          try {
+            console.log('🔄 Recuperando vales e inventario guardados desde tienda_datos.json...');
+            const resJson = await fetch('./tienda_datos.json', { cache: 'no-cache' });
+            if (resJson.ok) {
+              const remote = await resJson.json();
+              if (remote && (remote.semanas || remote.datosSemanales)) {
+                appData = remote;
+                await window.memoryEngine.persist(appData);
+                console.log('✅ Vales e inventario restaurados con éxito desde tienda_datos.json');
+              }
+            }
+          } catch(e) {}
+        }
 
-        // Renderizado general protegido contra fallos
+        // 2. Renderizado general inmediato del almacén
         renderizarTodo();
+
+        // 3. Cargar datos de Gestores
+        await cargarDatosGestores();
         const elValeFolio = document.getElementById('vale-folio');
         if (elValeFolio) elValeFolio.value = generarSiguienteFolio();
         if (window.lucide && typeof lucide.createIcons === 'function') { lucide.createIcons(); }
@@ -2408,7 +2440,7 @@ function cambiarPestanaPrincipal(pestana) {
   if (pestana === 'dashboard') {
     if (secRecibos) secRecibos.classList.remove('hidden');
     if (secKpis) secKpis.classList.remove('hidden');
-    if (secProd) secProd.classList.remove('hidden');
+    if (secProd) secProd.classList.add('hidden');
     if (secFifo) secFifo.classList.remove('hidden');
     if (secExtractor) secExtractor.classList.remove('hidden');
     if (secInv) secInv.classList.remove('hidden');
@@ -2615,12 +2647,24 @@ function renderizarCatalogoProductos() {
   filtrarCatalogoProductos();
 }
 
+let paginaActualProductos = 1;
+const PRODUCTOS_POR_PAGINA = 20;
+
+function cambiarPaginaProductos(delta) {
+  paginaActualProductos += delta;
+  filtrarCatalogoProductos();
+  const contenedor = document.getElementById('seccion-vista-productos');
+  if (contenedor) contenedor.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
 function filtrarCatalogoProductos() {
   const contenedor = document.getElementById('contenedor-tarjetas-productos');
   if (!contenedor) return;
 
   if (!catalogoProductosAgrupados || catalogoProductosAgrupados.length === 0) {
-    contenedor.innerHTML = '<div class="p-8 text-center text-slate-500 bg-slate-950 border border-slate-800 rounded-2xl">No hay datos de productos disponibles. Inicia el bot o sincroniza con Gestores.</div>';
+    contenedor.innerHTML = '<div class="p-8 text-center text-slate-500 bg-slate-950 border border-slate-800 rounded-2xl">No hay datos de productos disponibles. Inicia el bot o presiona "Copiar base de datos de gestores".</div>';
+    const pag = document.getElementById('paginacion-productos');
+    if (pag) pag.classList.add('hidden');
     return;
   }
 
@@ -2651,10 +2695,34 @@ function filtrarCatalogoProductos() {
 
   if (lista.length === 0) {
     contenedor.innerHTML = '<div class="p-8 text-center text-slate-500 bg-slate-950 border border-slate-800 rounded-2xl">No se encontraron productos que coincidan con la búsqueda.</div>';
+    const pag = document.getElementById('paginacion-productos');
+    if (pag) pag.classList.add('hidden');
     return;
   }
 
-  contenedor.innerHTML = lista.map(p => {
+  // Paginación fluida
+  const totalItems = lista.length;
+  const totalPaginas = Math.ceil(totalItems / PRODUCTOS_POR_PAGINA);
+  if (paginaActualProductos < 1) paginaActualProductos = 1;
+  if (paginaActualProductos > totalPaginas) paginaActualProductos = totalPaginas;
+
+  const inicio = (paginaActualProductos - 1) * PRODUCTOS_POR_PAGINA;
+  const fin = Math.min(inicio + PRODUCTOS_POR_PAGINA, totalItems);
+  const itemsPagina = lista.slice(inicio, fin);
+
+  const pagCont = document.getElementById('paginacion-productos');
+  const pagInfo = document.getElementById('paginacion-info-texto');
+  const pagNum = document.getElementById('paginacion-numero');
+  const btnPrev = document.getElementById('btn-pag-prev');
+  const btnNext = document.getElementById('btn-pag-next');
+
+  if (pagCont) pagCont.classList.remove('hidden');
+  if (pagInfo) pagInfo.textContent = 'Mostrando ' + (inicio + 1) + '-' + fin + ' de ' + totalItems + ' productos';
+  if (pagNum) pagNum.textContent = 'Página ' + paginaActualProductos + ' de ' + totalPaginas;
+  if (btnPrev) btnPrev.disabled = (paginaActualProductos <= 1);
+  if (btnNext) btnNext.disabled = (paginaActualProductos >= totalPaginas);
+
+  contenedor.innerHTML = itemsPagina.map(p => {
     const esAbierto = !!productosSubmenusAbiertos[p.id];
     const preciosStr = p.preciosUnitarios.length > 0
       ? p.preciosUnitarios.map(pr => '$' + pr.toFixed(2)).join(' / ') + ' USD'
