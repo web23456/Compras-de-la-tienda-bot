@@ -69,6 +69,90 @@ function guardarDatosGestores(data) {
  *    - La guarda localmente en gestores_datos.json (completamente separada de tienda_datos.json).
  *    - La sube/sincroniza a GitHub en Compras-de-la-tienda-bot/gestores_datos.json para la web de compras.
  */
+
+/**
+ * 1. COPIAR BASE DE DATOS DE GESTORES:
+ * Descarga database.json de la web/repositorio de gestores y la almacena localmente
+ * en el archivo gestores_datos.json sin mezclarla con tienda_datos.json.
+ */
+async function copiarBaseDatosGestores() {
+  if (gestoresSyncStatus.inProgress) {
+    return { ok: false, message: 'Operación ya en curso' };
+  }
+  gestoresSyncStatus.inProgress = true;
+  gestoresSyncStatus.lastCheck = new Date().toISOString();
+
+  try {
+    console.log('📥 [Copiar Gestores] Descargando base de datos de la web de Gestores...');
+    const remoteData = await githubService.fetchGestoresDatabase();
+    if (!remoteData || !remoteData.content) {
+      throw new Error('Contenido vacío al descargar database.json de Gestores');
+    }
+
+    // Guardar exclusivamente en gestores_datos.json (local en el bot)
+    guardarDatosGestores(remoteData.content);
+    gestoresSyncStatus.lastSha = remoteData.sha;
+    gestoresSyncStatus.lastUpdate = new Date().toISOString();
+    gestoresSyncStatus.error = null;
+
+    let totalVales = 0;
+    try {
+      const parsed = JSON.parse(remoteData.content);
+      totalVales = Array.isArray(parsed.vales) ? parsed.vales.length : 0;
+      gestoresSyncStatus.totalVales = totalVales;
+    } catch(e) {}
+
+    console.log(`✅ [Copiar Gestores] Base de datos de Gestores descargada y guardada localmente (${totalVales} vales).`);
+    gestoresSyncStatus.inProgress = false;
+    return { ok: true, totalVales: totalVales, message: `Base de datos descargada con éxito (${totalVales} vales)` };
+  } catch (err) {
+    console.error('❌ [Copiar Gestores] Error al descargar de Gestores:', err.message);
+    gestoresSyncStatus.error = err.message;
+    gestoresSyncStatus.inProgress = false;
+    return { ok: false, error: err.message };
+  }
+}
+
+/**
+ * 2. SUBIR BASE DE DATOS A GITHUB:
+ * Toma la base de datos descargada en el bot (gestores_datos.json) y la sube
+ * a GitHub en el repositorio Compras-de-la-tienda-bot para que la web la lea.
+ */
+async function subirBaseDatosAGithub() {
+  if (!fs.existsSync(GESTORES_DB_FILE)) {
+    return { ok: false, error: 'No se ha copiado la base de datos de gestores todavía. Primero presione "Copiar base de datos de gestores".' };
+  }
+
+  try {
+    console.log('📤 [Subir GitHub] Leyendo gestores_datos.json local para subir a GitHub...');
+    const localContent = fs.readFileSync(GESTORES_DB_FILE, 'utf8');
+
+    let totalVales = 0;
+    try {
+      const parsed = JSON.parse(localContent);
+      totalVales = Array.isArray(parsed.vales) ? parsed.vales.length : 0;
+    } catch(e) {}
+
+    // Consultar el SHA actual del archivo en Compras-de-la-tienda-bot
+    const currentComprasFile = await githubService.fetchFile('gestores_datos.json').catch(() => null);
+    const comprasSha = currentComprasFile ? currentComprasFile.sha : null;
+
+    console.log(`🚀 [Subir GitHub] Subiendo gestores_datos.json (${totalVales} vales) a GitHub Compras-de-la-tienda-bot...`);
+    await githubService.commitFile(
+      'gestores_datos.json',
+      localContent,
+      comprasSha,
+      `sync: subida de base de datos de gestores [${new Date().toLocaleDateString('es-ES')} ${new Date().toLocaleTimeString('es-ES')}]`
+    );
+
+    console.log('✅ [Subir GitHub] ¡Base de datos subida a GitHub con éxito!');
+    return { ok: true, totalVales: totalVales, message: `Base de datos subida a GitHub con éxito (${totalVales} vales)` };
+  } catch (err) {
+    console.error('❌ [Subir GitHub] Error al subir a GitHub:', err.message);
+    return { ok: false, error: err.message };
+  }
+}
+
 async function sincronizarBaseDatosGestores(forceSync = false) {
   if (gestoresSyncStatus.inProgress) {
     console.log('⏳ Sincronización de Gestores ya en curso...');
@@ -261,6 +345,27 @@ app.get('/api/estado', (req, res) => {
 });
 
 // 8. Endpoint: Forzar sincronización inmediata de la base de datos de Gestores
+
+// Endpoint: Copiar base de datos de gestores (Descarga desde Gestores al Bot)
+app.post('/api/gestores/copiar', async (req, res) => {
+  try {
+    const resultado = await copiarBaseDatosGestores();
+    res.json(resultado);
+  } catch (err) {
+    res.status(500).json({ ok: false, error: err.message });
+  }
+});
+
+// Endpoint: Subir base de datos a GitHub (Sube gestores_datos.json desde el Bot a la web de Compras)
+app.post('/api/gestores/subir-github', async (req, res) => {
+  try {
+    const resultado = await subirBaseDatosAGithub();
+    res.json(resultado);
+  } catch (err) {
+    res.status(500).json({ ok: false, error: err.message });
+  }
+});
+
 app.post('/api/gestores/sync', async (req, res) => {
   try {
     const force = req.body && req.body.force === true;
