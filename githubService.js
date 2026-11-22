@@ -12,7 +12,9 @@ function getEnvConfig() {
     PORT: process.env.PORT || 3060,
     GITHUB_TOKEN: process.env.GITHUB_TOKEN || '',
     GITHUB_OWNER: process.env.GITHUB_OWNER || 'web23456',
-    GITHUB_REPO: process.env.GITHUB_REPO || 'Compras-de-la-tienda-bot'
+    GITHUB_REPO: process.env.GITHUB_REPO || 'Compras-de-la-tienda-bot',
+    GESTORES_OWNER: process.env.GESTORES_OWNER || 'web23456',
+    GESTORES_REPO: process.env.GESTORES_REPO || 'Gestores'
   };
 
   if (fs.existsSync(envPath)) {
@@ -31,6 +33,8 @@ const env = getEnvConfig();
 const token = process.env.GITHUB_TOKEN || env.GITHUB_TOKEN;
 const owner = process.env.GITHUB_OWNER || env.GITHUB_OWNER;
 const repo = process.env.GITHUB_REPO || env.GITHUB_REPO;
+const gestoresOwner = process.env.GESTORES_OWNER || env.GESTORES_OWNER || 'web23456';
+const gestoresRepo = process.env.GESTORES_REPO || env.GESTORES_REPO || 'Gestores';
 
 async function fetchFile(filePath) {
   const url = `https://api.github.com/repos/${owner}/${repo}/contents/${filePath}`;
@@ -118,11 +122,73 @@ async function listWeeklyBackups() {
   }));
 }
 
+// Obtener solo metadatos (sha, size) de la base de datos de Gestores sin descargar el contenido completo
+async function getGestoresDbMetadata() {
+  const url = `https://api.github.com/repos/${gestoresOwner}/${gestoresRepo}/contents/database.json`;
+  const res = await fetch(url, {
+    headers: {
+      'Authorization': `token ${token}`,
+      'User-Agent': 'Compras-Tienda-Bot',
+      'Accept': 'application/vnd.github.v3+json'
+    }
+  });
+
+  if (!res.ok) {
+    if (res.status === 404) return null;
+    throw new Error(`Error ${res.status} al consultar metadatos de Gestores: ${res.statusText}`);
+  }
+
+  const data = await res.json();
+  return {
+    sha: data.sha,
+    size: data.size,
+    download_url: data.download_url
+  };
+}
+
+// Descargar la base de datos completa de Gestores
+async function fetchGestoresDatabase() {
+  const url = `https://api.github.com/repos/${gestoresOwner}/${gestoresRepo}/contents/database.json`;
+  const res = await fetch(url, {
+    headers: {
+      'Authorization': `token ${token}`,
+      'User-Agent': 'Compras-Tienda-Bot',
+      'Accept': 'application/vnd.github.v3+json'
+    }
+  });
+
+  if (!res.ok) {
+    if (res.status === 404) return null;
+    throw new Error(`Error ${res.status} al descargar base de datos de Gestores: ${res.statusText}`);
+  }
+
+  const data = await res.json();
+  let contentStr = '';
+  if (data.content) {
+    contentStr = Buffer.from(data.content, 'base64').toString('utf8');
+  } else if (data.download_url) {
+    // Si el archivo es grande (>1MB), GitHub provee download_url directo
+    const dlRes = await fetch(data.download_url);
+    if (!dlRes.ok) throw new Error(`Error ${dlRes.status} descargando blob de Gestores`);
+    contentStr = await dlRes.text();
+  }
+
+  return {
+    content: contentStr,
+    sha: data.sha,
+    size: data.size
+  };
+}
+
 module.exports = {
   fetchFile,
   commitFile,
   crearSalvaSemanalEnGitHub,
   listWeeklyBackups,
+  getGestoresDbMetadata,
+  fetchGestoresDatabase,
   owner,
-  repo
+  repo,
+  gestoresOwner,
+  gestoresRepo
 };
