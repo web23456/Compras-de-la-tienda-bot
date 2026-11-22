@@ -149,22 +149,12 @@
         </div>
       </div>
 
-      <!-- Selector de Semana y Exportador Excel -->
+      <!-- Exportador Excel (Filtro por Rango de Fechas activo) -->
       <div class="flex items-center gap-3">
-        <div class="flex items-center gap-1.5 bg-slate-950 border border-amber-500/40 rounded-xl px-2.5 py-1.5 text-xs">
-          <i data-lucide="calendar" class="w-4 h-4 text-amber-400"></i>
-          <span class="font-bold text-slate-300">Semana:</span>
-          <select id="selector-semana" onchange="cambiarSemana(this.value)" class="bg-black text-amber-300 font-bold border border-slate-800 rounded px-2 py-0.5 focus:outline-none">
-            <!-- Dinámico -->
-          </select>
-        </div>
+        <!-- selector-semana oculto para preservar retrocompatibilidad interna sin estorbar la UI -->
+        <select id="selector-semana" onchange="cambiarSemana(this.value)" class="hidden"></select>
 
-        <button onclick="cerrarSemanaEIniciarNueva()" class="gold-btn px-3 py-1.5 rounded-xl text-xs flex items-center gap-1">
-          <i data-lucide="plus-circle" class="w-4 h-4"></i>
-          <span>Nueva Semana</span>
-        </button>
-
-        <button onclick="exportarExcel()" class="px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-amber-300 border border-amber-500/40 rounded-xl text-xs font-bold flex items-center gap-1.5 transition">
+        <button onclick="exportarExcel()" class="px-3.5 py-1.5 bg-slate-900 hover:bg-slate-800 text-amber-300 border border-amber-500/40 rounded-xl text-xs font-bold flex items-center gap-1.5 transition shadow-sm">
           <i data-lucide="file-spreadsheet" class="w-4 h-4 text-emerald-400"></i>
           <span>Excel (.xlsx)</span>
         </button>
@@ -440,9 +430,9 @@
             <option value="TODAS">Todas las Categorías</option>
           </select>
           <select id="orden-catalogo-productos" onchange="filtrarCatalogoProductos()" class="bg-black text-amber-300 text-xs border border-amber-500/40 rounded-xl px-3 py-1.5 font-bold focus:outline-none">
+            <option value="NOMBRE_ASC" selected>Nombre (A - Z)</option>
             <option value="VENTAS_DESC">Más Vendidos (Cantidad)</option>
             <option value="MONTO_DESC">Mayor Facturación ($ USD)</option>
-            <option value="NOMBRE_ASC">Nombre (A - Z)</option>
             <option value="VALES_DESC">Más Vales Emitidos</option>
           </select>
         </div>
@@ -474,10 +464,7 @@
 
       <!-- Grid de Tarjetas de Productos (Estilo Tarjetas de Gestores) -->
       <div id="contenedor-tarjetas-productos" class="space-y-3.5">
-        <div class="p-8 text-center text-slate-400 bg-slate-950 border border-teal-500/20 rounded-2xl">
-          <i data-lucide="loader" class="w-6 h-6 animate-spin inline-block text-teal-400 mb-2"></i>
-          <div>Cargando y analizando catálogo de productos...</div>
-        </div>
+        
       </div>
 
       <!-- Barra de Paginación de Productos para Máxima Fluidez -->
@@ -2455,6 +2442,12 @@ function cambiarPestanaPrincipal(pestana) {
     if (secInv) secInv.classList.add('hidden');
     if (secGastos) secGastos.classList.add('hidden');
     if (secVales) secVales.classList.add('hidden');
+    // Pre-cargar y pintar inmediatamente sin demora
+    if (!catalogoProductosAgrupados || catalogoProductosAgrupados.length === 0) {
+      renderizarCatalogoProductos();
+    } else {
+      filtrarCatalogoProductos();
+    }
   } else if (pestana === 'fifo') {
     if (secRecibos) secRecibos.classList.add('hidden');
     if (secKpis) secKpis.classList.remove('hidden');
@@ -2506,6 +2499,12 @@ function toggleSubmenuProducto(prodId) {
   if (window.lucide && typeof lucide.createIcons === 'function') { lucide.createIcons(); }
 }
 
+function formatearNombreProductoElegante(nombre) {
+  if (!nombre) return 'Producto sin nombre';
+  const s = String(nombre).trim();
+  return s.charAt(0).toUpperCase() + s.slice(1);
+}
+
 function analizarYAgruparProductos() {
   if (!datosGestores || !datosGestores.vales) return [];
 
@@ -2518,14 +2517,15 @@ function analizarYAgruparProductos() {
       const rawNombre = (item.producto || '').trim();
       if (!rawNombre) return;
 
-      const norm = normalizarNombreProducto(rawNombre);
-      const cat = categorizarProducto(rawNombre);
-      const clave = norm;
+      // Agrupar preservando cada producto individual sin colapsar agresivamente (case-insensitive limpio)
+      const clave = rawNombre.toLowerCase().replace(/\s+/g, ' ');
+      const cat = categorizarProducto(rawNombre) || 'PRODUCTOS GENERALES';
+      const nombreVisual = formatearNombreProductoElegante(rawNombre);
 
       if (!mapa.has(clave)) {
         mapa.set(clave, {
           id: 'prod_' + Math.abs(clave.split('').reduce((a,b)=>{a=((a<<5)-a)+b.charCodeAt(0);return a&a},0)),
-          nombreNorm: norm,
+          nombreNorm: nombreVisual,
           nombresOriginales: new Set([rawNombre]),
           categoria: cat,
           totalCantidad: 0,
@@ -2548,6 +2548,7 @@ function analizarYAgruparProductos() {
       entry.comisionesCUP += comisionTot;
       if (pUnit > 0) entry.preciosUnitarios.add(pUnit);
 
+      // Cada vale que tenga este producto se añade (permitiendo que vales multi-producto aparezcan en cada producto correspondiente)
       entry.vales.push({
         valeId: vale.id,
         folio: vale.folio || 'V-?',
@@ -2670,7 +2671,7 @@ function filtrarCatalogoProductos() {
 
   const busq = (document.getElementById('busqueda-catalogo-productos') ? document.getElementById('busqueda-catalogo-productos').value : '').toLowerCase().trim();
   const cat = (document.getElementById('filtro-categoria-productos') ? document.getElementById('filtro-categoria-productos').value : 'TODAS');
-  const orden = (document.getElementById('orden-catalogo-productos') ? document.getElementById('orden-catalogo-productos').value : 'VENTAS_DESC');
+  const orden = (document.getElementById('orden-catalogo-productos') ? document.getElementById('orden-catalogo-productos').value : 'NOMBRE_ASC');
 
   let lista = catalogoProductosAgrupados.filter(p => {
     if (cat !== 'TODAS' && p.categoria !== cat) return false;
@@ -2841,6 +2842,7 @@ function filtrarCatalogoProductos() {
 
     function renderizarSelectorSemanas() {
       const sel = document.getElementById('selector-semana');
+      if (!sel) return;
       sel.innerHTML = '';
       appData.semanas.forEach(s => {
         const opt = document.createElement('option');
