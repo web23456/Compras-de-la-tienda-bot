@@ -429,6 +429,15 @@
           <select id="filtro-categoria-productos" onchange="filtrarCatalogoProductos()" class="bg-black text-teal-300 text-xs border border-teal-500/40 rounded-xl px-3 py-1.5 font-bold focus:outline-none">
             <option value="TODAS">Todas las Categorías</option>
           </select>
+          <div class="flex items-center gap-1.5 bg-black border border-cyan-500/30 rounded-xl px-2 py-1">
+            <i data-lucide="calendar-range" class="w-3.5 h-3.5 text-cyan-400 shrink-0"></i>
+            <input type="date" id="filtro-prod-fecha-desde" onchange="recalcularCatalogoProductos()" class="bg-transparent text-[11px] text-white font-mono border-none focus:outline-none w-[105px]" title="Desde">
+            <span class="text-slate-500 text-[10px]">—</span>
+            <input type="date" id="filtro-prod-fecha-hasta" onchange="recalcularCatalogoProductos()" class="bg-transparent text-[11px] text-white font-mono border-none focus:outline-none w-[105px]" title="Hasta">
+            <button onclick="limpiarFiltroProdFechas()" class="text-slate-500 hover:text-rose-400 transition" title="Limpiar fechas">
+              <i data-lucide="x" class="w-3 h-3"></i>
+            </button>
+          </div>
           <select id="orden-catalogo-productos" onchange="filtrarCatalogoProductos()" class="bg-black text-amber-300 text-xs border border-amber-500/40 rounded-xl px-3 py-1.5 font-bold focus:outline-none">
             <option value="NOMBRE_ASC" selected>Nombre (A - Z)</option>
             <option value="VENTAS_DESC">Más Vendidos (Cantidad)</option>
@@ -1132,10 +1141,20 @@
       let totalVentasGestoresUSD = 0;
       let totalComisionesPagadasCUP = 0;
       let totalComisionesPendientesCUP = 0;
-      let totalValesGestores = datosGestores.vales.length;
+      // totalValesGestores se calcula arriba filtrando fechas inválidas
       let totalUnidadesVendidas = 0;
       
-      datosGestores.vales.forEach(vale => {
+      // Filtrar vales con fechas válidas (excluir mes > 12)
+      const valesValidos = datosGestores.vales.filter(v => {
+        const fStr = (v.fecha || '').trim();
+        if (!fStr) return true;
+        const partes = fStr.split('-');
+        if (partes.length === 3 && Number(partes[1]) > 12) return false;
+        return true;
+      });
+      let totalValesGestores = valesValidos.length;
+
+      valesValidos.forEach(vale => {
         const comisionVale = vale.granComisionCUP || 0;
         if (vale.estadoComision === 'PAGADA' || vale.estadoComision === 'PAGADO') {
           totalComisionesPagadasCUP += comisionVale;
@@ -2229,8 +2248,14 @@ Transporte: 2500
         };
       }).sort((a, b) => a.ordenLlegada - b.ordenLlegada);
 
-      // 2. Ordenar vales de gestores cronológicamente (FIFO temporal)
-      const valesOrdenados = [...datosGestores.vales].sort((a, b) => {
+      // 2. Ordenar vales de gestores cronológicamente (FIFO temporal), excluyendo fechas inválidas
+      const valesOrdenados = [...datosGestores.vales].filter(v => {
+        const fStr = (v.fecha || '').trim();
+        if (!fStr) return true;
+        const partes = fStr.split('-');
+        if (partes.length === 3 && Number(partes[1]) > 12) return false;
+        return true;
+      }).sort((a, b) => {
         const fa = parsearFechaFlexible(a.fecha);
         const fb = parsearFechaFlexible(b.fecha);
         const ta = fa ? fa.getTime() : (a.createdAt || 0);
@@ -2290,7 +2315,7 @@ Transporte: 2500
       const lotesAgotados = lotesState.filter(l => l.entradas > 0 && l.restantes === 0).length;
       const pctRotacion = totalStockInventario > 0 ? Math.round(((totalStockInventario - totalStockRestante) / totalStockInventario) * 100) : 0;
 
-      if (totalValesEl) totalValesEl.textContent = datosGestores.vales.length + " vales gestores";
+      if (totalValesEl) totalValesEl.textContent = valesOrdenados.length + " vales gestores";
       if (unidadesEl) unidadesEl.textContent = totalUnidadesVendidas + " uds vendidas";
       if (stockTiendaEl) stockTiendaEl.textContent = totalStockRestante + " / " + totalStockInventario + " uds";
       if (lotesCountEl) lotesCountEl.textContent = lotesState.length + " lotes (" + lotesAgotados + " agotados)";
@@ -2505,14 +2530,38 @@ function formatearNombreProductoElegante(nombre) {
   return s.charAt(0).toUpperCase() + s.slice(1);
 }
 
-function analizarYAgruparProductos() {
+function analizarYAgruparProductos(fechaDesde, fechaHasta) {
   if (!datosGestores || !datosGestores.vales) return [];
 
   const mapa = new Map();
   const sData = getSemanaData();
   const lotesInv = sData.lotesInventario || [];
 
-  datosGestores.vales.forEach(vale => {
+  // Filtrar vales por rango de fecha si se especifica
+  let valesFiltrados = datosGestores.vales;
+  if (fechaDesde || fechaHasta) {
+    valesFiltrados = datosGestores.vales.filter(vale => {
+      const fStr = (vale.fecha || '').trim();
+      if (!fStr) return false;
+      // Validar que la fecha sea razonable (mes <= 12)
+      const partes = fStr.split('-');
+      if (partes.length === 3 && Number(partes[1]) > 12) return false;
+      if (fechaDesde && fStr < fechaDesde) return false;
+      if (fechaHasta && fStr > fechaHasta) return false;
+      return true;
+    });
+  } else {
+    // Sin filtro de fecha: excluir vales con fechas claramente inválidas (mes > 12)
+    valesFiltrados = datosGestores.vales.filter(vale => {
+      const fStr = (vale.fecha || '').trim();
+      if (!fStr) return true;
+      const partes = fStr.split('-');
+      if (partes.length === 3 && Number(partes[1]) > 12) return false;
+      return true;
+    });
+  }
+
+  valesFiltrados.forEach(vale => {
     (vale.items || []).forEach(item => {
       const rawNombre = (item.producto || '').trim();
       if (!rawNombre) return;
@@ -2596,8 +2645,22 @@ function analizarYAgruparProductos() {
   return agrupados;
 }
 
+function recalcularCatalogoProductos() {
+  renderizarCatalogoProductos();
+}
+
+function limpiarFiltroProdFechas() {
+  const desdeEl = document.getElementById('filtro-prod-fecha-desde');
+  const hastaEl = document.getElementById('filtro-prod-fecha-hasta');
+  if (desdeEl) desdeEl.value = '';
+  if (hastaEl) hastaEl.value = '';
+  renderizarCatalogoProductos();
+}
+
 function renderizarCatalogoProductos() {
-  catalogoProductosAgrupados = analizarYAgruparProductos();
+  const fechaDesde = (document.getElementById('filtro-prod-fecha-desde') ? document.getElementById('filtro-prod-fecha-desde').value : '') || null;
+  const fechaHasta = (document.getElementById('filtro-prod-fecha-hasta') ? document.getElementById('filtro-prod-fecha-hasta').value : '') || null;
+  catalogoProductosAgrupados = analizarYAgruparProductos(fechaDesde, fechaHasta);
 
   const badgeNav = document.getElementById('badge-total-productos-nav');
   if (badgeNav) badgeNav.textContent = catalogoProductosAgrupados.length;
