@@ -203,10 +203,14 @@
         </button>
       </div>
 
-      <div class="flex items-center gap-2">
-        <button onclick="solicitarSincronizacionGestores()" id="btn-sync-top" title="Sincronizar base de datos de Gestores con el Bot" class="px-3 py-1.5 bg-teal-950/70 hover:bg-teal-900 text-teal-300 border border-teal-500/40 rounded-xl text-xs font-bold flex items-center gap-1.5 transition">
-          <i data-lucide="refresh-cw" class="w-3.5 h-3.5" id="icono-sync-top"></i>
-          <span>Sincronizar Bot</span>
+      <div class="flex items-center gap-2 flex-wrap">
+        <button onclick="copiarBaseDatosGestores()" id="btn-copiar-gestores-top" title="Descargar base de datos de Gestores desde GitHub al Bot local" class="px-3 py-1.5 bg-sky-950/70 hover:bg-sky-900 text-sky-300 border border-sky-500/40 rounded-xl text-xs font-bold flex items-center gap-1.5 transition shadow-sm cursor-pointer">
+          <i data-lucide="download" class="w-3.5 h-3.5" id="icono-copiar-gestores-top"></i>
+          <span>Copiar base de datos de gestores</span>
+        </button>
+        <button onclick="subirBaseDatosAGithub()" id="btn-subir-github-top" title="Subir la base de datos descargada en el Bot a la web de Compras en GitHub" class="px-3 py-1.5 bg-teal-950/70 hover:bg-teal-900 text-teal-300 border border-teal-500/40 rounded-xl text-xs font-bold flex items-center gap-1.5 transition shadow-sm cursor-pointer">
+          <i data-lucide="upload-cloud" class="w-3.5 h-3.5" id="icono-subir-github-top"></i>
+          <span>Subir base de dato a githut</span>
         </button>
       </div>
     </div>
@@ -513,8 +517,11 @@
             <input type="text" id="filtro-ventas-busqueda" oninput="renderizarTablaVentasGestores()" placeholder="Buscar producto o vale..." class="bg-black text-xs text-white placeholder-slate-500 border border-slate-700 focus:border-teal-400 rounded-lg pl-7 pr-3 py-1 font-mono w-52 focus:outline-none">
             <i data-lucide="search" class="w-3.5 h-3.5 text-slate-400 absolute left-2 top-2"></i>
           </div>
-          <button onclick="solicitarSincronizacionGestores()" id="btn-sync-gestores" title="Sincronizar base de datos de Gestores con el Bot" class="px-2.5 py-1 bg-teal-950/60 hover:bg-teal-900/80 text-teal-300 border border-teal-500/50 rounded-lg text-xs font-bold flex items-center gap-1.5 transition shadow-sm">
-            <i data-lucide="refresh-cw" class="w-3.5 h-3.5" id="icono-sync-gestores"></i> Sincronizar
+          <button onclick="copiarBaseDatosGestores()" id="btn-copiar-gestores-fifo" title="Descargar base de datos de Gestores al Bot" class="px-2.5 py-1 bg-sky-950/70 hover:bg-sky-900 text-sky-300 border border-sky-500/50 rounded-lg text-xs font-bold flex items-center gap-1.5 transition shadow-sm cursor-pointer">
+            <i data-lucide="download" class="w-3.5 h-3.5" id="icono-copiar-gestores-fifo"></i> Copiar BD Gestores
+          </button>
+          <button onclick="subirBaseDatosAGithub()" id="btn-subir-github-fifo" title="Subir base de datos a GitHub Compras" class="px-2.5 py-1 bg-teal-950/70 hover:bg-teal-900 text-teal-300 border border-teal-500/50 rounded-lg text-xs font-bold flex items-center gap-1.5 transition shadow-sm cursor-pointer">
+            <i data-lucide="upload-cloud" class="w-3.5 h-3.5" id="icono-subir-github-fifo"></i> Subir a GitHub
           </button>
           <button onclick="toggleSeccionFIFO()" id="btn-toggle-fifo" class="px-3 py-1 bg-teal-500/10 hover:bg-teal-500/20 text-teal-300 border border-teal-500/40 rounded-lg text-xs font-bold flex items-center gap-1.5 transition">
             <i data-lucide="eye-off" class="w-3.5 h-3.5" id="icon-toggle-fifo"></i>
@@ -947,41 +954,79 @@
       } catch(e) {}
     }
 
-    // Acción para solicitar al Bot local sincronización inmediata si está ejecutándose
-    async function solicitarSincronizacionGestores() {
-      const btn = document.getElementById('btn-sync-gestores');
-      const icono = document.getElementById('icono-sync-gestores');
-      if (icono) icono.classList.add('animate-spin');
-      if (btn) btn.disabled = true;
+    // ================= ACCIONES MODULARES CON EL BOT =================
+    // 1. BOTÓN: COPIAR BASE DE DATOS DE GESTORES
+    // Ordena al bot descargar database.json de la web de gestores y guardarla localmente
+    async function copiarBaseDatosGestores() {
+      const iconos = [document.getElementById('icono-copiar-gestores-top'), document.getElementById('icono-copiar-gestores-fifo')];
+      const btns = [document.getElementById('btn-copiar-gestores-top'), document.getElementById('btn-copiar-gestores-fifo')];
+
+      iconos.forEach(ic => { if (ic) ic.classList.add('animate-spin'); });
+      btns.forEach(b => { if (b) b.disabled = true; });
 
       try {
-        // Intentar invocar al Bot local en puerto 3060
-        const res = await fetch('http://localhost:3060/api/gestores/sync', {
+        const res = await fetch('http://localhost:3060/api/gestores/copiar', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ force: true })
+          headers: { 'Content-Type': 'application/json' }
         });
         if (res.ok) {
           const data = await res.json();
           if (data.ok) {
-            mostrarToast('✅ Base de datos de Gestores sincronizada con éxito (' + (data.totalVales || 'OK') + ' vales)');
+            mostrarToast('✅ ' + (data.message || 'Base de datos de gestores copiada en el bot'));
+            // Recargar datos en la web
+            await cargarDatosGestores();
           } else {
-            mostrarToast('ℹ️ ' + (data.message || 'Sincronización procesada'));
+            mostrarToast('❌ Error al copiar: ' + (data.error || data.message || 'Error desconocido'));
           }
         } else {
-          // Si el bot local no responde, recargar directamente los datos remotos en la web
-          await cargarDatosGestores();
-          mostrarToast('✅ Datos de Gestores recargados en la web');
+          mostrarToast('⚠️ El Bot no está ejecutándose en http://localhost:3060. Inicia el bot primero.');
         }
-      } catch (e) {
-        // Si no está corriendo el bot local, recargar los datos disponibles en la web
-        await cargarDatosGestores();
-        mostrarToast('✅ Datos de Gestores actualizados desde la web');
+      } catch (err) {
+        mostrarToast('⚠️ No se pudo conectar al bot local en http://localhost:3060. Ejecuta iniciar_bot.bat');
       } finally {
-        if (icono) icono.classList.remove('animate-spin');
-        if (btn) btn.disabled = false;
-        await cargarDatosGestores();
+        iconos.forEach(ic => { if (ic) ic.classList.remove('animate-spin'); });
+        btns.forEach(b => { if (b) b.disabled = false; });
       }
+    }
+
+    // 2. BOTÓN: SUBIR BASE DE DATO A GITHUB
+    // Ordena al bot subir la base de datos descargada localmente hacia GitHub Compras-de-la-tienda-bot
+    async function subirBaseDatosAGithub() {
+      const iconos = [document.getElementById('icono-subir-github-top'), document.getElementById('icono-subir-github-fifo')];
+      const btns = [document.getElementById('btn-subir-github-top'), document.getElementById('btn-subir-github-fifo')];
+
+      iconos.forEach(ic => { if (ic) ic.classList.add('animate-spin'); });
+      btns.forEach(b => { if (b) b.disabled = true; });
+
+      try {
+        const res = await fetch('http://localhost:3060/api/gestores/subir-github', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          if (data.ok) {
+            mostrarToast('🚀 ' + (data.message || 'Base de datos subida a GitHub con éxito'));
+            // Recargar en la web para refrescar con la versión recién publicada
+            await cargarDatosGestores();
+          } else {
+            mostrarToast('❌ ' + (data.error || 'Fallo al subir a GitHub'));
+          }
+        } else {
+          mostrarToast('⚠️ El Bot no está ejecutándose en http://localhost:3060. Inicia el bot primero.');
+        }
+      } catch (err) {
+        mostrarToast('⚠️ No se pudo conectar al bot local en http://localhost:3060. Ejecuta iniciar_bot.bat');
+      } finally {
+        iconos.forEach(ic => { if (ic) ic.classList.remove('animate-spin'); });
+        btns.forEach(b => { if (b) b.disabled = false; });
+      }
+    }
+
+    // Compatibilidad para llamadas existentes
+    async function solicitarSincronizacionGestores() {
+      await copiarBaseDatosGestores();
+      await subirBaseDatosAGithub();
     }
 
     // ================= DICCIONARIO INTELIGENTE & NORMALIZADOR DE PRODUCTOS =================
