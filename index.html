@@ -177,6 +177,40 @@
   <!-- ======================================================== -->
   <main class="max-w-7xl mx-auto w-full px-4 py-5 space-y-6 flex-1">
 
+    <!-- BARRA DE NAVEGACIÓN Y MENÚ PRINCIPAL -->
+    <div class="bg-slate-950 border border-amber-500/30 rounded-2xl p-2.5 shadow-xl flex items-center justify-between flex-wrap gap-2 sticky top-2 z-30 backdrop-blur-md bg-opacity-90">
+      <div class="flex items-center gap-1.5 flex-wrap">
+        <button onclick="cambiarPestanaPrincipal('dashboard')" id="nav-btn-dashboard" class="pestana-nav-btn px-4 py-2 rounded-xl text-xs font-black flex items-center gap-2 bg-gradient-to-r from-amber-500 to-yellow-600 text-black shadow-lg shadow-amber-500/20 transition-all">
+          <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
+          <span>Dashboard & KPIs</span>
+        </button>
+        <button onclick="cambiarPestanaPrincipal('productos')" id="nav-btn-productos" class="pestana-nav-btn px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-teal-300 border border-teal-500/30 transition-all">
+          <i data-lucide="package" class="w-4 h-4 text-teal-400"></i>
+          <span>Productos</span>
+          <span id="badge-total-productos-nav" class="bg-teal-500/20 text-teal-300 px-1.5 py-0.2 rounded-full text-[10px] font-mono">0</span>
+        </button>
+        <button onclick="cambiarPestanaPrincipal('fifo')" id="nav-btn-fifo" class="pestana-nav-btn px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 transition-all">
+          <i data-lucide="calculator" class="w-4 h-4 text-emerald-400"></i>
+          <span>Lotes FIFO</span>
+        </button>
+        <button onclick="cambiarPestanaPrincipal('inventario')" id="nav-btn-inventario" class="pestana-nav-btn px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 transition-all">
+          <i data-lucide="boxes" class="w-4 h-4 text-amber-400"></i>
+          <span>Inventario</span>
+        </button>
+        <button onclick="cambiarPestanaPrincipal('vales')" id="nav-btn-vales" class="pestana-nav-btn px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 transition-all">
+          <i data-lucide="receipt" class="w-4 h-4 text-cyan-400"></i>
+          <span>Historial Vales</span>
+        </button>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <button onclick="solicitarSincronizacionGestores()" id="btn-sync-top" title="Sincronizar base de datos de Gestores con el Bot" class="px-3 py-1.5 bg-teal-950/70 hover:bg-teal-900 text-teal-300 border border-teal-500/40 rounded-xl text-xs font-bold flex items-center gap-1.5 transition">
+          <i data-lucide="refresh-cw" class="w-3.5 h-3.5" id="icono-sync-top"></i>
+          <span>Sincronizar Bot</span>
+        </button>
+      </div>
+    </div>
+
     <!-- CARTEL DESTACADO: INSTALAR COMO APLICACIÓN -->
     <div id="cartel-instalar-app" class="hidden relative overflow-hidden rounded-2xl bg-gradient-to-r from-amber-950/60 via-yellow-950/40 to-black border-2 border-yellow-500/50 p-4 sm:p-5 shadow-2xl backdrop-blur-md transition-all">
       <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
@@ -207,7 +241,7 @@
     </div>
 
     <!-- FILTRO POR RANGO DE FECHAS Y RECIBOS -->
-    <div class="bg-slate-950 border border-amber-500/30 rounded-2xl p-4 space-y-3">
+    <div id="seccion-vista-recibos-filtro" class="bg-slate-950 border border-amber-500/30 rounded-2xl p-4 space-y-3">
       <div class="flex items-center justify-between border-b border-slate-800 pb-2">
         <h3 class="text-xs font-bold text-cyan-400 uppercase tracking-wider flex items-center gap-1.5">
           <i data-lucide="calendar-range" class="w-4 h-4"></i> Consultar Recibos por Rango de Fechas
@@ -272,7 +306,7 @@
     </div>
 
     <!-- KPI DASHBOARD RESUMEN BIMONEDA (USD Y CUP) -->
-    <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-4 gap-3">
+    <div id="seccion-vista-kpis" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-4 gap-3">
       <!-- Unidades Entradas -->
       <div class="bg-slate-950 border border-amber-500/30 rounded-2xl p-3.5">
         <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Unidades Entradas</span>
@@ -375,19 +409,89 @@
 
 
     <!-- ======================================================== -->
+    <!-- SECCIÓN: CATÁLOGO DE PRODUCTOS (TARJETAS ESTILO GESTORES) -->
+    <!-- Análisis exhaustivo de ventas, ingresos, vales y stock    -->
+    <!-- ======================================================== -->
+    <div id="seccion-vista-productos" class="space-y-4">
+      <div class="bg-slate-950 border border-teal-500/40 rounded-2xl p-4 shadow-xl flex flex-wrap items-center justify-between gap-3">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-teal-500 to-emerald-600 flex items-center justify-center font-bold text-black shadow-lg shadow-teal-500/20">
+            <i data-lucide="package-search" class="w-5 h-5 text-black"></i>
+          </div>
+          <div>
+            <h2 class="text-base font-bold text-white flex items-center gap-2">
+              Productos y Rendimiento de Ventas
+              <span class="text-[10px] font-bold text-teal-300 bg-teal-500/10 border border-teal-500/30 px-2 py-0.5 rounded-full" id="contador-productos-total">0 productos</span>
+            </h2>
+            <p class="text-xs text-slate-400">Agrupación inteligente desde la base de datos de Gestores con vales, fechas, facturación y stock disponible.</p>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-2 flex-wrap">
+          <div class="relative">
+            <input type="text" id="busqueda-catalogo-productos" oninput="filtrarCatalogoProductos()" placeholder="Buscar producto o categoría..." class="bg-black text-xs text-white placeholder-slate-500 border border-teal-500/40 focus:border-teal-400 rounded-xl pl-8 pr-3 py-1.5 font-mono w-60 focus:outline-none">
+            <i data-lucide="search" class="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-2.5"></i>
+          </div>
+          <select id="filtro-categoria-productos" onchange="filtrarCatalogoProductos()" class="bg-black text-teal-300 text-xs border border-teal-500/40 rounded-xl px-3 py-1.5 font-bold focus:outline-none">
+            <option value="TODAS">Todas las Categorías</option>
+          </select>
+          <select id="orden-catalogo-productos" onchange="filtrarCatalogoProductos()" class="bg-black text-amber-300 text-xs border border-amber-500/40 rounded-xl px-3 py-1.5 font-bold focus:outline-none">
+            <option value="VENTAS_DESC">Más Vendidos (Cantidad)</option>
+            <option value="MONTO_DESC">Mayor Facturación ($ USD)</option>
+            <option value="NOMBRE_ASC">Nombre (A - Z)</option>
+            <option value="VALES_DESC">Más Vales Emitidos</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Resumen Global de Productos -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <div class="bg-slate-950 border border-teal-500/30 rounded-2xl p-3.5">
+          <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Productos Distintos</span>
+          <div class="text-xl font-black text-teal-300 mt-1 font-mono" id="kpi-prod-total-distintos">0</div>
+          <span class="text-[10px] text-teal-400/70" id="kpi-prod-categorias-count">0 categorías</span>
+        </div>
+        <div class="bg-slate-950 border border-amber-500/30 rounded-2xl p-3.5">
+          <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Unidades Vendidas</span>
+          <div class="text-xl font-black text-amber-300 mt-1 font-mono" id="kpi-prod-total-vendidas">0 uds</div>
+          <span class="text-[10px] text-slate-500" id="kpi-prod-vales-count">En 0 vales de gestores</span>
+        </div>
+        <div class="bg-slate-950 border border-emerald-500/30 rounded-2xl p-3.5">
+          <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Total Facturado</span>
+          <div class="text-xl font-black text-emerald-400 mt-1 font-mono" id="kpi-prod-total-usd">$0.00 USD</div>
+          <span class="text-[10px] text-emerald-400/70">Ingreso bruto registrado</span>
+        </div>
+        <div class="bg-slate-950 border border-indigo-500/30 rounded-2xl p-3.5">
+          <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Stock en Almacén</span>
+          <div class="text-xl font-black text-indigo-300 mt-1 font-mono" id="kpi-prod-stock-disponible">0 uds</div>
+          <span class="text-[10px] text-slate-500">Unidades en inventario</span>
+        </div>
+      </div>
+
+      <!-- Grid de Tarjetas de Productos (Estilo Tarjetas de Gestores) -->
+      <div id="contenedor-tarjetas-productos" class="space-y-3.5">
+        <div class="p-8 text-center text-slate-400 bg-slate-950 border border-teal-500/20 rounded-2xl">
+          <i data-lucide="loader" class="w-6 h-6 animate-spin inline-block text-teal-400 mb-2"></i>
+          <div>Cargando y analizando catálogo de productos...</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ======================================================== -->
     <!-- SECCIÓN: RESUMEN DE VENTAS TOTALES POR PRODUCTO Y LOTE   -->
     <!-- Algoritmo FIFO inteligente que asigna exactamente cada   -->
     <!-- unidad vendida según orden de llegada y costo de compra  -->
     <!-- ======================================================== -->
-    <div class="bg-slate-950 border border-teal-500/40 rounded-2xl p-5 shadow-2xl space-y-4">
+    <div id="seccion-vista-fifo" class="bg-slate-950 border border-teal-500/40 rounded-2xl p-5 shadow-2xl space-y-4">
       <div class="flex flex-wrap items-center justify-between gap-3 border-b border-teal-500/20 pb-3">
         <div class="flex items-center gap-2.5">
           <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-teal-500 to-emerald-600 flex items-center justify-center font-bold text-black shadow-lg shadow-teal-500/20">
             <i data-lucide="calculator" class="w-5 h-5 text-black"></i>
           </div>
           <div>
-            <h2 class="text-sm font-bold text-white flex items-center gap-2">
-              Resumen Total de Ventas por Producto & Lotes FIFO
+            <div class="cursor-pointer select-none flex items-center gap-2" onclick="toggleSeccionFIFO()">
+              <h2 class="text-sm font-bold text-white flex items-center gap-2">
+                Resumen Total de Ventas por Producto & Lotes FIFO
               <span class="text-[10px] font-bold text-teal-300 bg-teal-500/10 border border-teal-500/30 px-2 py-0.5 rounded-full flex items-center gap-1">
                 <span class="w-1.5 h-1.5 rounded-full bg-teal-400 animate-pulse"></span>
                 Web Gestores Sincronizada
@@ -410,10 +514,15 @@
             <i data-lucide="search" class="w-3.5 h-3.5 text-slate-400 absolute left-2 top-2"></i>
           </div>
           <button onclick="solicitarSincronizacionGestores()" id="btn-sync-gestores" title="Sincronizar base de datos de Gestores con el Bot" class="px-2.5 py-1 bg-teal-950/60 hover:bg-teal-900/80 text-teal-300 border border-teal-500/50 rounded-lg text-xs font-bold flex items-center gap-1.5 transition shadow-sm">
-            <i data-lucide="refresh-cw" class="w-3.5 h-3.5" id="icono-sync-gestores"></i> Sincronizar Gestores
+            <i data-lucide="refresh-cw" class="w-3.5 h-3.5" id="icono-sync-gestores"></i> Sincronizar
+          </button>
+          <button onclick="toggleSeccionFIFO()" id="btn-toggle-fifo" class="px-3 py-1 bg-teal-500/10 hover:bg-teal-500/20 text-teal-300 border border-teal-500/40 rounded-lg text-xs font-bold flex items-center gap-1.5 transition">
+            <i data-lucide="eye-off" class="w-3.5 h-3.5" id="icon-toggle-fifo"></i>
+            <span id="label-toggle-fifo">Ocultar Tabla</span>
           </button>
         </div>
       </div>
+      <div id="contenedor-fifo-detalle" class="space-y-4">
 
       <!-- Resumen rápido de ventas arriba de la tabla con métricas globales y de inventario -->
       <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-2.5 bg-black/60 border border-teal-500/20 rounded-xl p-3 text-xs">
@@ -479,10 +588,11 @@
           </tbody>
         </table>
       </div>
+      </div> <!-- /contenedor-fifo-detalle -->
     </div>
 
     <!-- SECCIÓN 1: BOT EXTRACTOR Y REGISTRADOR DE MÚLTIPLES VALES -->
-    <div class="bg-slate-950 border border-amber-500/40 rounded-2xl p-5 shadow-xl space-y-4">
+    <div id="seccion-vista-extractor" class="bg-slate-950 border border-amber-500/40 rounded-2xl p-5 shadow-xl space-y-4">
       <div class="flex flex-wrap items-center justify-between gap-3 border-b border-amber-500/20 pb-3">
         <div class="flex items-center gap-2.5">
           <div class="w-8 h-8 rounded-lg gold-gradient flex items-center justify-center font-bold text-black">
@@ -589,7 +699,7 @@
     </div>
 
     <!-- SECCIÓN 2: CONTROL DE INVENTARIO CON LOTES Y ORDEN DE LLEGADA -->
-    <div class="bg-slate-950 border border-amber-500/40 rounded-2xl p-5 shadow-xl space-y-4">
+    <div id="seccion-vista-inventario" class="bg-slate-950 border border-amber-500/40 rounded-2xl p-5 shadow-xl space-y-4">
       <div class="flex flex-wrap items-center justify-between gap-3 border-b border-amber-500/20 pb-3">
         <div class="flex items-center gap-2.5 cursor-pointer select-none" onclick="toggleSeccionInventario()">
           <div class="w-8 h-8 rounded-lg gold-gradient flex items-center justify-center font-bold text-black">
@@ -802,16 +912,14 @@
     let itemsValeEnEdicion = [];
     let editandoValeId = null; // Track si estamos editando un vale existente
 
-    // ================= INTEGRACIÓN CON WEB DE GESTORES (OFFLINE + ONLINE AUTO-SYNC) =================
-    // La base de datos de ventas de gestores proviene de gestores_datos.json en este mismo sitio web
-    // sincronizada de forma independiente por el bot de compras desde el repositorio de gestores.
+    // ================= INTEGRACIÓN EXCLUSIVA CON gestores_datos.json =================
+    // La base de datos de gestores es copiada y sincronizada EXCLUSIVAMENTE por el Bot local de compras (puerto 3060).
+    // La web NO realiza llamadas de red directas a la web de gestores para garantizar carga instantánea.
     const GESTORES_DB_URL = './gestores_datos.json';
-    const GESTORES_FALLBACK_REMOTE_URL = 'https://web23456.github.io/Gestores/database.json';
-    // Base de datos de gestores precargada para visualización instantánea 100% offline
     let datosGestores = null;
 
     async function cargarDatosGestores() {
-      // 1. Intentar cargar desde la propia web de Compras (gestores_datos.json generado por el bot)
+      // 1. Cargar desde la copia local servida en este mismo repositorio (gestores_datos.json)
       try {
         const resLocal = await fetch(GESTORES_DB_URL, { cache: 'no-cache' });
         if (resLocal.ok) {
@@ -819,36 +927,21 @@
           if (fresh && fresh.vales && fresh.vales.length > 0) {
             datosGestores = fresh;
             try { localStorage.setItem('gestores_cache_backup', JSON.stringify(fresh)); } catch(e){}
-            console.log('✅ Datos de Gestores cargados desde la web de compras (gestores_datos.json):', datosGestores.vales.length, 'vales');
+            console.log('✅ Datos de Gestores cargados exclusivamente desde ./gestores_datos.json:', datosGestores.vales.length, 'vales');
             renderizarTodo();
             return;
           }
         }
       } catch (e) {
-        console.warn('Fallo fetch de gestores_datos.json en la web de compras:', e.message);
+        console.warn('Aviso: cargando gestores_datos.json localmente:', e.message);
       }
 
-      // 2. Si falló la web local, intentar directo del origen de Gestores en GitHub Pages
-      try {
-        const resRemoto = await fetch(GESTORES_FALLBACK_REMOTE_URL, { cache: 'no-cache' });
-        if (resRemoto.ok) {
-          const localData = await resRemoto.json();
-          if (localData && localData.vales && localData.vales.length > 0) {
-            datosGestores = localData;
-            try { localStorage.setItem('gestores_cache_backup', JSON.stringify(localData)); } catch(e){}
-            console.log('✅ Datos de Gestores cargados desde fallback remoto:', datosGestores.vales.length, 'vales');
-            renderizarTodo();
-            return;
-          }
-        }
-      } catch(e) {}
-
-      // 3. Fallback a localStorage si existía respaldo previo
+      // 2. Respaldo offline local desde localStorage
       try {
         const stored = localStorage.getItem('gestores_cache_backup');
         if (stored) {
           datosGestores = JSON.parse(stored);
-          console.log('✅ Datos de Gestores restaurados desde localStorage');
+          console.log('✅ Datos de Gestores recuperados desde respaldo local (localStorage)');
           renderizarTodo();
         }
       } catch(e) {}
@@ -2208,12 +2301,3027 @@ Transporte: 2500
 
       if (window.lucide && typeof lucide.createIcons === "function") { lucide.createIcons(); }
     }
+
+    // ================= CONTROL DE PESTAÑAS PRINCIPALES =================
+    let pestanaActiva = 'dashboard';
+    let fifoTablaVisible = true;
+
+    function toggleSeccionFIFO() {
+      fifoTablaVisible = !fifoTablaVisible;
+      const cont = document.getElementById("contenedor-fifo-detalle");
+      const icon = document.getElementById("icon-toggle-fifo");
+      const label = document.getElementById("label-toggle-fifo");
+      const btn = document.getElementById("btn-toggle-fifo");
+      if (fifoTablaVisible) {
+        if (cont) cont.classList.remove("hidden");
+        if (label) label.textContent = "Ocultar Tabla";
+        if (icon) icon.setAttribute("data-lucide", "eye-off");
+        if (btn) { btn.classList.add("bg-teal-500/20"); btn.classList.remove("bg-teal-500/10"); }
+      } else {
+        if (cont) cont.classList.add("hidden");
+        if (label) label.textContent = "Mostrar Tabla";
+        if (icon) icon.setAttribute("data-lucide", "eye");
+        if (btn) { btn.classList.remove("bg-teal-500/20"); btn.classList.add("bg-teal-500/10"); }
+      }
+      if (window.lucide && typeof lucide.createIcons === "function") { lucide.createIcons(); }
+    }
+
+    function cambiarPestanaPrincipal(pestana) {
+      pestanaActiva = pestana;
+      
+      const secRecibos = document.getElementById('seccion-vista-recibos-filtro');
+      const secKpis = document.getElementById('seccion-vista-kpis');
+      const secProd = document.getElementById('seccion-vista-productos');
+      const secFifo = document.getElementById('seccion-vista-fifo');
+      const secExtractor = document.getElementById('seccion-vista-extractor');
+      const secInv = document.getElementById('seccion-vista-inventario');
+      const secGastos = document.getElementById('seccion-vista-gastos');
+      const secVales = document.getElementById('seccion-vista-historial-vales');
+
+      // Botones de navegación
+      const btns = {
+        dashboard: document.getElementById('nav-btn-dashboard'),
+        productos: document.getElementById('nav-btn-productos'),
+        fifo: document.getElementById('nav-btn-fifo'),
+        inventario: document.getElementById('nav-btn-inventario'),
+        vales: document.getElementById('nav-btn-vales')
+      };
+
+      // Resetear estilos de todos los botones
+      Object.keys(btns).forEach(key => {
+        const b = btns[key];
+        if (b) {
+          b.className = 'pestana-nav-btn px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 transition-all';
+        }
+      });
+
+      // Estilo activo
+      if (btns[pestana]) {
+        if (pestana === 'productos') {
+          btns[pestana].className = 'pestana-nav-btn px-4 py-2 rounded-xl text-xs font-black flex items-center gap-2 bg-gradient-to-r from-teal-500 to-emerald-600 text-black shadow-lg shadow-teal-500/20 transition-all';
+        } else {
+          btns[pestana].className = 'pestana-nav-btn px-4 py-2 rounded-xl text-xs font-black flex items-center gap-2 bg-gradient-to-r from-amber-500 to-yellow-600 text-black shadow-lg shadow-amber-500/20 transition-all';
+        }
+      }
+
+      if (pestana === 'dashboard') {
+        if (secRecibos) secRecibos.classList.remove('hidden');
+        if (secKpis) secKpis.classList.remove('hidden');
+        if (secProd) secProd.classList.remove('hidden');
+        if (secFifo) secFifo.classList.remove('hidden');
+        if (secExtractor) secExtractor.classList.remove('hidden');
+        if (secInv) secInv.classList.remove('hidden');
+        if (secGastos) secGastos.classList.remove('hidden');
+        if (secVales) secVales.classList.remove('hidden');
+      } else if (pestana === 'productos') {
+        if (secRecibos) secRecibos.classList.add('hidden');
+        if (secKpis) secKpis.classList.add('hidden');
+        if (secProd) secProd.classList.remove('hidden');
+        if (secFifo) secFifo.classList.add('hidden');
+        if (secExtractor) secExtractor.classList.add('hidden');
+        if (secInv) secInv.classList.add('hidden');
+        if (secGastos) secGastos.classList.add('hidden');
+        if (secVales) secVales.classList.add('hidden');
+      } else if (pestana === 'fifo') {
+        if (secRecibos) secRecibos.classList.add('hidden');
+        if (secKpis) secKpis.classList.remove('hidden');
+        if (secProd) secProd.classList.add('hidden');
+        if (secFifo) secFifo.classList.remove('hidden');
+        if (secExtractor) secExtractor.classList.add('hidden');
+        if (secInv) secInv.classList.add('hidden');
+        if (secGastos) secGastos.classList.add('hidden');
+        if (secVales) secVales.classList.add('hidden');
+      } else if (pestana === 'inventario') {
+        if (secRecibos) secRecibos.classList.add('hidden');
+        if (secKpis) secKpis.classList.remove('hidden');
+        if (secProd) secProd.classList.add('hidden');
+        if (secFifo) secFifo.classList.add('hidden');
+        if (secExtractor) secExtractor.classList.remove('hidden');
+        if (secInv) secInv.classList.remove('hidden');
+        if (secGastos) secGastos.classList.remove('hidden');
+        if (secVales) secVales.classList.add('hidden');
+      } else if (pestana === 'vales') {
+        if (secRecibos) secRecibos.classList.add('hidden');
+        if (secKpis) secKpis.classList.add('hidden');
+        if (secProd) secProd.classList.add('hidden');
+        if (secFifo) secFifo.classList.add('hidden');
+        if (secExtractor) secExtractor.classList.add('hidden');
+        if (secInv) secInv.classList.add('hidden');
+        if (secGastos) secGastos.classList.add('hidden');
+        if (secVales) secVales.classList.remove('hidden');
+      }
+
+      if (window.lucide && typeof lucide.createIcons === 'function') { lucide.createIcons(); }
+    }
+
+    // ================= ALGORITMO ROBUSTO DE ANÁLISIS Y CATÁLOGO DE PRODUCTOS =================
+    let catalogoProductosAgrupados = [];
+    let productosSubmenusAbiertos = {};
+
+    function toggleSubmenuProducto(prodId) {
+      productosSubmenusAbiertos[prodId] = !productosSubmenusAbiertos[prodId];
+      const sub = document.getElementById('prod-submenu-' + prodId);
+      const chevron = document.getElementById('prod-chevron-' + prodId);
+      if (sub) {
+        if (productosSubmenusAbiertos[prodId]) {
+          sub.classList.remove('hidden');
+          if (chevron) chevron.classList.add('rotate-180');
+        } else {
+          sub.classList.add('hidden');
+          if (chevron) chevron.classList.remove('rotate-180');
+        }
+      }
+      if (window.lucide && typeof lucide.createIcons === 'function') { lucide.createIcons(); }
+    }
+
+    function analizarYAgruparProductos() {
+      if (!datosGestores || !datosGestores.vales) return [];
+
+      const mapa = new Map();
+      const sData = getSemanaData();
+      const lotesInv = sData.lotesInventario || [];
+
+      datosGestores.vales.forEach(vale => {
+        (vale.items || []).forEach(item => {
+          const rawNombre = (item.producto || '').trim();
+          if (!rawNombre) return;
+
+          const norm = normalizarNombreProducto(rawNombre);
+          const cat = categorizarProducto(rawNombre);
+          const clave = norm;
+
+          if (!mapa.has(clave)) {
+            mapa.set(clave, {
+              id: 'prod_' + Math.abs(clave.split('').reduce((a,b)=>{a=((a<<5)-a)+b.charCodeAt(0);return a&a},0)),
+              nombreNorm: norm,
+              nombresOriginales: new Set([rawNombre]),
+              categoria: cat,
+              totalCantidad: 0,
+              totalUSD: 0,
+              comisionesCUP: 0,
+              preciosUnitarios: new Set(),
+              vales: []
+            });
+          }
+
+          const entry = mapa.get(clave);
+          entry.nombresOriginales.add(rawNombre);
+          const cant = Number(item.cantidad || 1);
+          const pUnit = Number(item.precioVenta || 0);
+          const subtotalUSD = cant * pUnit;
+          const comisionTot = Number(item.comisionTotalCUP || ((item.comisionUnitCUP || 1500) * cant));
+
+          entry.totalCantidad += cant;
+          entry.totalUSD += subtotalUSD;
+          entry.comisionesCUP += comisionTot;
+          if (pUnit > 0) entry.preciosUnitarios.add(pUnit);
+
+          entry.vales.push({
+            valeId: vale.id,
+            folio: vale.folio || 'V-?',
+            fecha: vale.fecha || '—',
+            gestorNombre: vale.gestorNombre || 'Sin gestor',
+            gestorTelefono: vale.gestorTelefono || '',
+            clienteNombre: vale.clienteNombre || 'Cliente',
+            cantidad: cant,
+            precioVenta: pUnit,
+            subtotalUSD: subtotalUSD,
+            tipoEquipo: item.tipoEquipo || 'Equipo',
+            createdAt: vale.createdAt || 0
+          });
+        });
+      });
+
+      // Calcular stock restante cruzando con el inventario de la tienda
+      const agrupados = Array.from(mapa.values()).map(p => {
+        // Encontrar lotes de inventario coincidentes
+        let stockEntradas = 0;
+        let stockRestanteEstimado = 0;
+        lotesInv.forEach(l => {
+          if (productoCoincide(l.producto, p.nombreNorm)) {
+            stockEntradas += (l.entradas || l.inicio || 0);
+          }
+        });
+
+        // El stock restante es las entradas menos las vendidas
+        stockRestanteEstimado = Math.max(0, stockEntradas - p.totalCantidad);
+
+        // Ordenar vales cronológicamente
+        p.vales.sort((a, b) => {
+          const fa = parsearFechaFlexible(a.fecha);
+          const fb = parsearFechaFlexible(b.fecha);
+          const ta = fa ? fa.getTime() : (a.createdAt || 0);
+          const tb = fb ? fb.getTime() : (b.createdAt || 0);
+          return tb - ta; // Más recientes primero
+        });
+
+        return {
+          ...p,
+          nombresOriginales: Array.from(p.nombresOriginales),
+          preciosUnitarios: Array.from(p.preciosUnitarios).sort((a,b)=>a-b),
+          stockEntradas: stockEntradas,
+          stockRestante: stockRestanteEstimado
+        };
+      });
+
+      return agrupados;
+    }
+
+    function renderizarCatalogoProductos() {
+      catalogoProductosAgrupados = analizarYAgruparProductos();
+
+      // Actualizar badge de la barra de navegación
+      const badgeNav = document.getElementById('badge-total-productos-nav');
+      if (badgeNav) badgeNav.textContent = catalogoProductosAgrupados.length;
+
+      // Actualizar contador del título
+      const contadorTotal = document.getElementById('contador-productos-total');
+      if (contadorTotal) contadorTotal.textContent = catalogoProductosAgrupados.length + ' productos';
+
+      // Poblador de categorías
+      const selCat = document.getElementById('filtro-categoria-productos');
+      if (selCat) {
+        const valActual = selCat.value;
+        const categoriasUnicas = Array.from(new Set(catalogoProductosAgrupados.map(p => p.categoria))).filter(c => c !== 'OTRO').sort();
+        selCat.innerHTML = '<option value="TODAS">Todas las Categorías (' + catalogoProductosAgrupados.length + ')</option>' +
+          categoriasUnicas.map(c => '<option value="' + c + '">' + c.replace(/_/g, ' ') + '</option>').join('') +
+          '<option value="OTRO">OTRAS CATEGORÍAS</option>';
+        if (valActual && Array.from(selCat.options).some(o => o.value === valActual)) {
+          selCat.value = valActual;
+        }
+      }
+
+      // KPIs globales de catálogo de productos
+      let totalVendidas = 0;
+      let totalUSD = 0;
+      let totalStock = 0;
+      let setVales = new Set();
+      let categoriasSet = new Set();
+
+      catalogoProductosAgrupados.forEach(p => {
+        totalVendidas += p.totalCantidad;
+        totalUSD += p.totalUSD;
+        totalStock += p.stockRestante;
+        categoriasSet.add(p.categoria);
+        p.vales.forEach(v => setVales.add(v.folio));
+      });
+
+      const kpiTotalDist = document.getElementById('kpi-prod-total-distintos');
+      const kpiCatCount = document.getElementById('kpi-prod-categorias-count');
+      const kpiTotalVend = document.getElementById('kpi-prod-total-vendidas');
+      const kpiValesCount = document.getElementById('kpi-prod-vales-count');
+      const kpiTotalUsd = document.getElementById('kpi-prod-total-usd');
+      const kpiStock = document.getElementById('kpi-prod-stock-disponible');
+
+      if (kpiTotalDist) kpiTotalDist.textContent = catalogoProductosAgrupados.length;
+      if (kpiCatCount) kpiCatCount.textContent = categoriasSet.size + ' categorías clasificadas';
+      if (kpiTotalVend) kpiTotalVend.textContent = totalVendidas.toLocaleString('es-ES') + ' uds';
+      if (kpiValesCount) kpiValesCount.textContent = 'En ' + setVales.size + ' vales de gestores';
+      if (kpiTotalUsd) kpiTotalUsd.textContent = '
+      renderizarSelectorSemanas();
+      renderizarKPIsBimoneda();
+      renderizarTablaInventario();
+      renderizarTablaVentasGestores();
+      const badgeInv = document.getElementById('badge-inventario-count');
+      if (badgeInv) badgeInv.textContent = (getSemanaData().lotesInventario.length) + ' lotes';
+      renderizarListasGastosInversionesBajas();
+      renderizarHistorialVales();
+      poblarSelectBajas();
+      actualizarDatalistProductos();
+      if (window.lucide && typeof lucide.createIcons === 'function') { lucide.createIcons(); }
+    }
+
+    function renderizarSelectorSemanas() {
+      const sel = document.getElementById('selector-semana');
+      sel.innerHTML = '';
+      appData.semanas.forEach(s => {
+        const opt = document.createElement('option');
+        opt.value = s.id;
+        opt.textContent = `${s.nombre} ${s.cerrada ? '🔒' : '🟢'}`;
+        if (s.id === appData.semanaActivaId) opt.selected = true;
+        sel.appendChild(opt);
+      });
+    }
+
+    function poblarSelectBajas() {
+      const sel = document.getElementById('baja-lote-select');
+      const sData = getSemanaData();
+      // FIFO: ordenar por orden de llegada para consumir primero los más antiguos
+      const lotesOrdenados = [...sData.lotesInventario]
+        .filter(l => !l.dadoDeBaja)
+        .sort((a, b) => (a.ordenLlegada || 0) - (b.ordenLlegada || 0));
+      sel.innerHTML = lotesOrdenados.map(l => {
+        const disponible = (l.inicio || 0) + (l.entradas || 0) - (l.bajas || 0) - (l.merma || 0) - (l.errores || 0);
+        return `<option value="${l.id}">#${l.ordenLlegada || '?'} ${l.producto} (Disp: ${disponible}, ${l.folioVale} • ${l.moneda})</option>`;
+      }).join('');
+    }
+
+    function renderizarKPIsBimoneda() {
+      const sData = getSemanaData();
+
+      let totalUnidades = 0;
+      let costoUSD = 0, costoCUP = 0;
+      let ventaUSD = 0, ventaCUP = 0;
+      let comisionCUP = 0;
+      let transpCUP = 0;
+
+      sData.lotesInventario.forEach(l => {
+        const cant = l.entradas || l.inicio || 0;
+        totalUnidades += cant;
+
+        if (l.moneda === 'USD') {
+          costoUSD += cant * (l.precioCompra || 0);
+          ventaUSD += cant * (l.precioVenta || 0);
+        } else {
+          costoCUP += cant * (l.precioCompra || 0);
+          ventaCUP += cant * (l.precioVenta || 0);
+        }
+
+        // Transporte y Comisión de Gestores se llevan estrictamente en CUP
+        transpCUP += cant * (l.transporteUnitario || 0);
+        comisionCUP += cant * (l.comisionGestores || 0);
+      });
+
+      const gastosUSD = sData.gastos.filter(g => g.moneda === 'USD').reduce((acc, g) => acc + g.monto, 0);
+      const gastosCUP = sData.gastos.filter(g => g.moneda === 'CUP').reduce((acc, g) => acc + g.monto, 0);
+
+      // DOS CUENTAS INDEPENDIENTES (Sin conversión forzada de USD a CUP):
+      // Cuenta DÓLAR: Ganancia neta = Venta USD - Costo USD - Gastos USD
+      const gananciaUSD = ventaUSD - costoUSD - gastosUSD;
+      // Cuenta CUP: Ganancia Neta = Venta CUP - Costo CUP - Gastos CUP - Comisión - Transporte
+      const gananciaCUP = ventaCUP - costoCUP - gastosCUP - comisionCUP - transpCUP;
+
+      document.getElementById('kpi-unidades').textContent = totalUnidades;
+      document.getElementById('kpi-vales-count').textContent = `${sData.valesEntrada.length} vales guardados`;
+
+      // Costo Compra
+      document.getElementById('kpi-costo-usd').textContent = `$ ${costoUSD.toFixed(2)} USD`;
+      document.getElementById('kpi-costo-cup').textContent = costoCUP > 0 ? `${costoCUP.toLocaleString('es-ES', { minimumFractionDigits: 2 })} CUP` : '0.00 CUP';
+      document.getElementById('kpi-costo-consolidado').textContent = 'Cuenta en USD';
+
+      // Venta Proyectada
+      document.getElementById('kpi-venta-usd').textContent = `$ ${ventaUSD.toFixed(2)} USD`;
+      document.getElementById('kpi-venta-cup').textContent = ventaCUP > 0 ? `${ventaCUP.toLocaleString('es-ES', { minimumFractionDigits: 2 })} CUP` : '0.00 CUP';
+      document.getElementById('kpi-venta-consolidado').textContent = 'Cuenta en USD';
+
+      // Comisión Gestores (Solo CUP)
+      document.getElementById('kpi-comision-cup').textContent = `${comisionCUP.toLocaleString('es-ES', { minimumFractionDigits: 2 })} CUP`;
+      document.getElementById('kpi-comision-usd').textContent = 'Cuenta en CUP';
+      document.getElementById('kpi-comision-consolidado').textContent = 'Total Gestores';
+
+      // Transporte Total (Solo CUP)
+      document.getElementById('kpi-transporte-cup').textContent = `${transpCUP.toLocaleString('es-ES', { minimumFractionDigits: 2 })} CUP`;
+      document.getElementById('kpi-transporte-usd').textContent = 'Cuenta en CUP';
+      document.getElementById('kpi-transporte-consolidado').textContent = 'Total Transporte';
+
+      // Ganancia Neta
+      document.getElementById('kpi-margen-usd').textContent = `$ ${gananciaUSD.toFixed(2)} USD`;
+      document.getElementById('kpi-margen-cup').textContent = gananciaCUP !== 0 ? `${gananciaCUP.toLocaleString('es-ES', { minimumFractionDigits: 2 })} CUP` : '0.00 CUP';
+      document.getElementById('kpi-margen-consolidado').textContent = 'USD: V-C-G | CUP: V-C-G-Com-Tr';
+
+
+      // === KPI: Inversión General (Compra + Comisión + Transporte) ===
+      // Inversión USD = Costo Compra USD (comisión y transporte van en CUP)
+      const inversionUSD = costoUSD;
+      // Inversión CUP = Costo Compra CUP + Comisión + Transporte
+      const inversionCUP = costoCUP + comisionCUP + transpCUP;
+
+      document.getElementById('kpi-inversion-usd').textContent = `$ ${inversionUSD.toFixed(2)} USD`;
+      document.getElementById('kpi-inversion-cup').textContent = `${inversionCUP.toLocaleString('es-ES', { minimumFractionDigits: 2 })} CUP`;
+      document.getElementById('kpi-inversion-detalle').textContent = `USD: Compra | CUP: Compra+Com+Transp`;
+
+      // === KPI: Ganancia Bruta (Venta - Compra, sin gastos ni comisiones) ===
+      const gananciaBrutaUSD = ventaUSD - costoUSD;
+      const gananciaBrutaCUP = ventaCUP - costoCUP;
+
+      document.getElementById('kpi-ganancia-bruta-usd').textContent = `$ ${gananciaBrutaUSD.toFixed(2)} USD`;
+      document.getElementById('kpi-ganancia-bruta-cup').textContent = `${gananciaBrutaCUP.toLocaleString('es-ES', { minimumFractionDigits: 2 })} CUP`;
+
+      document.getElementById('resumen-gastos-box').textContent = `${gastosUSD.toFixed(2)} USD / ${gastosCUP.toFixed(0)} CUP`;
+
+      const invUSD = sData.inversiones.filter(i => i.moneda === 'USD').reduce((acc, i) => acc + i.monto, 0);
+      const invCUP = sData.inversiones.filter(i => i.moneda === 'CUP').reduce((acc, i) => acc + i.monto, 0);
+      document.getElementById('resumen-inversiones-box').textContent = `${invUSD.toFixed(2)} USD / ${invCUP.toFixed(0)} CUP`;
+
+      const totalBajas = sData.bajas.reduce((acc, b) => acc + (b.cantidad || 0), 0);
+      document.getElementById('resumen-bajas-box').textContent = `${totalBajas} u.`;
+
+      // === DATOS CRUZADOS CON WEB DE GESTORES ===
+      const resG = obtenerResumenGestores();
+      if (resG) {
+        document.getElementById('kpi-gestores-vendidas').textContent = resG.totalUnidadesVendidas + ' uds vendidas';
+        document.getElementById('kpi-gestores-vales-count').textContent = resG.totalVales + ' vales gestores | ' + resG.gestoresActivos + ' gestores';
+        document.getElementById('kpi-gestores-venta-real').textContent = '$ ' + resG.totalVentasUSD.toFixed(2) + ' USD';
+        document.getElementById('kpi-gestores-com-pagadas').textContent = 'Pagadas: ' + resG.comisionesPagadasCUP.toLocaleString('es-ES') + ' CUP';
+        document.getElementById('kpi-gestores-com-pendientes').textContent = 'Pendientes: ' + resG.comisionesPendientesCUP.toLocaleString('es-ES') + ' CUP';
+        document.getElementById('kpi-gestores-activos').textContent = resG.gestoresActivos + ' gestores activos';
+
+        let costoVendidoUSD = 0;
+        const productosYaContados = {};
+        sData.lotesInventario.forEach(l => {
+          const key = normalizarNombreProducto(l.producto);
+          if (productosYaContados[key]) return;
+          const vendidas = unidadesVendidasGestores(l.producto);
+          if (vendidas > 0) {
+            const totalEnInv = sData.lotesInventario.filter(lo => normalizarNombreProducto(lo.producto) === key).reduce((s, lo) => s + (lo.entradas || lo.inicio || 0), 0);
+            costoVendidoUSD += vendidas * (l.precioCompra || 0);
+            productosYaContados[key] = true;
+          }
+        });
+        document.getElementById('kpi-gestores-costo-vendido').textContent = '$ ' + costoVendidoUSD.toFixed(2) + ' USD';
+        document.getElementById('kpi-gestores-inv-recuperada').textContent = '$ ' + resG.totalVentasUSD.toFixed(2) + ' USD cobrados';
+        const gananciaRealUSD = resG.totalVentasUSD - costoVendidoUSD;
+        document.getElementById('kpi-gestores-ganancia-real').textContent = '$ ' + gananciaRealUSD.toFixed(2) + ' USD';
+        document.getElementById('kpi-gestores-cobrado-real').textContent = '$ ' + resG.totalVentasUSD.toFixed(2) + ' USD';
+        const pctVendido = totalUnidades > 0 ? ((resG.totalUnidadesVendidas / totalUnidades) * 100).toFixed(1) : 0;
+        document.getElementById('kpi-gestores-porciento-vendido').textContent = pctVendido + '% del inventario vendido';
+      }
+    }
+
+    function renderizarListasGastosInversionesBajas() {
+      const sData = getSemanaData();
+
+      const cG = document.getElementById('lista-gastos');
+      cG.innerHTML = sData.gastos.map(g => `
+        <div class="flex items-center justify-between p-2 rounded bg-black border border-slate-800 text-xs">
+          <span class="text-slate-300">${g.concepto}</span>
+          <div class="flex items-center gap-2">
+            <span class="font-mono text-rose-400 font-bold">${g.monto.toFixed(2)} ${g.moneda}</span>
+            <button onclick="eliminarGasto('${g.id}')" class="text-rose-400"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
+          </div>
+        </div>
+      `).join('') || `<div class="text-slate-600 text-[11px] text-center py-2">Sin gastos registrados</div>`;
+
+      const cI = document.getElementById('lista-inversiones');
+      cI.innerHTML = sData.inversiones.map(i => `
+        <div class="flex items-center justify-between p-2 rounded bg-black border border-slate-800 text-xs">
+          <span class="text-slate-300">${i.motivo}</span>
+          <div class="flex items-center gap-2">
+            <span class="font-mono text-emerald-400 font-bold">${i.monto.toFixed(2)} ${i.moneda}</span>
+            <button onclick="eliminarInversion('${i.id}')" class="text-rose-400"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
+          </div>
+        </div>
+      `).join('') || `<div class="text-slate-600 text-[11px] text-center py-2">Sin inversiones extras</div>`;
+
+      const cB = document.getElementById('lista-bajas');
+      cB.innerHTML = sData.bajas.map(b => `
+        <div class="flex items-center justify-between p-2 rounded bg-black border border-slate-800 text-xs">
+          <span class="text-slate-300">${b.cantidad}x ${b.producto} (${b.motivo})</span>
+          <button onclick="eliminarBaja('${b.id}')" class="text-rose-400"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
+        </div>
+      `).join('') || `<div class="text-slate-600 text-[11px] text-center py-2">Sin bajas de inventario</div>`;
+    }
+
+    function renderizarHistorialVales() {
+      const tbody = document.getElementById('historial-vales-tbody');
+      const sData = getSemanaData();
+      tbody.innerHTML = '';
+
+      document.getElementById('label-conteo-vales-historial').textContent = `${sData.valesEntrada.length} vales`;
+
+      if (sData.valesEntrada.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="9" class="p-6 text-center text-slate-500">No hay vales de entrada guardados. Pega uno arriba para comenzar.</td></tr>`;
+        return;
+      }
+
+      sData.valesEntrada.forEach(v => {
+        const prodBadges = v.items.map(i => `<span class="bg-black border border-amber-500/30 px-2 py-0.5 rounded text-[11px] font-mono mr-1">${i.cantidad}x ${i.nombre} (${i.moneda})</span>`).join(' ');
+
+        const totalCompraTxt = v.moneda === 'USD' ? `$ ${v.totalCompraUSD.toFixed(2)} USD` : `${v.totalCompraCUP.toLocaleString('es-ES')} CUP`;
+
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-slate-900';
+        tr.innerHTML = `
+          <td class="p-3 font-mono font-bold text-amber-300">${v.folio}</td>
+          <td class="p-3 text-slate-400 font-mono">${v.fecha}</td>
+          <td class="p-3 text-slate-300 font-bold">${v.proveedor}</td>
+          <td class="p-3 text-center font-mono font-bold ${v.moneda === 'USD' ? 'text-emerald-400' : 'text-amber-300'}">${v.moneda}</td>
+          <td class="p-3">${prodBadges}</td>
+          <td class="p-3 font-mono text-indigo-300">${v.transporteTotal.toFixed(2)} ${v.moneda}</td>
+          <td class="p-3 font-mono text-rose-300 font-bold">${totalCompraTxt}</td>
+          <td class="p-3 font-mono text-cyan-300 font-bold">Lote Calculado</td>
+          <td class="p-3 text-center">
+            <button onclick="editarValeHistorial('${v.id}')" class="p-1 text-amber-400 hover:text-amber-300" title="Editar vale"><i data-lucide="pencil" class="w-4 h-4"></i></button>
+              <button onclick="eliminarValeHistorial('${v.id}')" class="p-1 text-rose-400 hover:text-rose-300" title="Eliminar vale"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+      if (window.lucide && typeof lucide.createIcons === 'function') { lucide.createIcons(); }
+    }
+
+    // ================= EXPORTACIÓN EXCEL =================
+    function exportarExcel() {
+      const sData = getSemanaData();
+      const semObj = appData.semanas.find(s => s.id === appData.semanaActivaId) || { nombre: 'Semana' };
+      const wb = XLSX.utils.book_new();
+
+      const invRows = sData.lotesInventario.map(l => {
+        const calc = (l.inicio || 0) + (l.entradas || 0) - (l.bajas || 0);
+        return {
+          'Orden Llegada': l.ordenLlegada,
+          'Producto': l.producto,
+          'Vale/Lote': l.folioVale,
+          'Moneda': l.moneda,
+          'Inv. Inicial': l.inicio || 0,
+          'Entradas (+)': l.entradas || 0,
+          'Bajas (-)': l.bajas || 0,
+          'Final Calculado': calc,
+          'Final Real Físico': l.finalReal !== undefined ? l.finalReal : calc,
+          'Precio Compra': l.precioCompra,
+          'Precio Venta': l.precioVenta,
+          'Comisión Gestores': l.comisionGestores,
+          'Moneda Comisión': l.comisionMoneda || 'CUP'
+        };
+      });
+      XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(invRows), 'Inventario_Lotes');
+
+      const valesRows = [];
+      sData.valesEntrada.forEach(v => {
+        v.items.forEach(it => {
+          valesRows.push({
+            'Folio': v.folio,
+            'Fecha': v.fecha,
+            'Proveedor': v.proveedor,
+            'Moneda Vale': v.moneda,
+            'Producto': it.nombre,
+            'Cantidad': it.cantidad,
+            'Moneda Ítem': it.moneda,
+            'Precio Compra': it.precioCompra,
+            'Precio Venta': it.precioVenta,
+            'Comisión Gestor': it.comisionGestores,
+            'Transporte Unitario': it.transporteUnitario,
+            'Ganancia Estimada': it.margenGanancia
+          });
+        });
+      });
+      XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(valesRows), 'Vales_Entrada');
+
+      XLSX.writeFile(wb, `Almacen_Compras_${semObj.nombre.replace(/\s+/g, '_')}.xlsx`);
+    }
+
+    // ================= DAR DE BAJA / REACTIVAR PRODUCTO =================
+    function darDeBajaProductoLote(id) {
+      const sData = getSemanaData();
+      const lote = sData.lotesInventario.find(l => l.id === id);
+      if (!lote) return;
+      if (!confirm(`¿Dar de BAJA el producto "${lote.producto}" (Vale: ${lote.folioVale})?\n\nEl producto quedará desactivado del inventario activo.`)) return;
+      lote.dadoDeBaja = true;
+      lote.fechaBaja = new Date().toISOString().split('T')[0];
+      persistirEstado();
+      renderizarTodo();
+      alert(`Producto "${lote.producto}" dado de baja correctamente.`);
+    }
+
+    function reactivarProductoLote(id) {
+      const sData = getSemanaData();
+      const lote = sData.lotesInventario.find(l => l.id === id);
+      if (!lote) return;
+      lote.dadoDeBaja = false;
+      delete lote.fechaBaja;
+      persistirEstado();
+      renderizarTodo();
+      alert(`Producto "${lote.producto}" reactivado en inventario.`);
+    }
+
+    function eliminarLoteDirecto(id) {
+      if (!confirm('¿Eliminar este lote permanentemente del inventario?')) return;
+      const sData = getSemanaData();
+      sData.lotesInventario = sData.lotesInventario.filter(l => l.id !== id);
+      persistirEstado();
+      renderizarTodo();
+    }
+
+    // ================= FILTRO POR RANGO DE FECHAS =================
+    let valesFiltrados = null;
+
+    function filtrarValesPorRango() {
+      const desde = document.getElementById('filtro-fecha-desde').value;
+      const hasta = document.getElementById('filtro-fecha-hasta').value;
+      const sData = getSemanaData();
+
+      if (!desde && !hasta) {
+        alert('Selecciona al menos una fecha (Desde o Hasta) para filtrar.');
+        return;
+      }
+
+      valesFiltrados = sData.valesEntrada.filter(v => {
+        const fv = v.fecha || '';
+        if (desde && hasta) return fv >= desde && fv <= hasta;
+        if (desde) return fv >= desde;
+        if (hasta) return fv <= hasta;
+        return true;
+      });
+
+      renderizarResultadoFiltro();
+    }
+
+    function limpiarFiltroRango() {
+      valesFiltrados = null;
+      document.getElementById('filtro-fecha-desde').value = '';
+      document.getElementById('filtro-fecha-hasta').value = '';
+      document.getElementById('filtro-resultado-container').classList.add('hidden');
+      document.getElementById('filtro-rango-count').textContent = 'Todos los vales';
+    }
+
+    function renderizarResultadoFiltro() {
+      if (!valesFiltrados) return;
+      const container = document.getElementById('filtro-resultado-container');
+      container.classList.remove('hidden');
+
+      let totalUSD = 0, totalCUP = 0;
+      const productosSet = new Set();
+
+      valesFiltrados.forEach(v => {
+        totalUSD += v.totalCompraUSD || 0;
+        totalCUP += v.totalCompraCUP || 0;
+        v.items.forEach(it => productosSet.add(it.nombre));
+      });
+
+      document.getElementById('filtro-total-vales').textContent = valesFiltrados.length;
+      document.getElementById('filtro-total-usd').textContent = `$${totalUSD.toFixed(2)}`;
+      document.getElementById('filtro-total-cup').textContent = `${totalCUP.toLocaleString('es-ES')} CUP`;
+      document.getElementById('filtro-total-productos').textContent = productosSet.size;
+      document.getElementById('filtro-rango-count').textContent = `${valesFiltrados.length} vales filtrados`;
+
+      const tbody = document.getElementById('filtro-vales-tbody');
+      tbody.innerHTML = '';
+
+      if (valesFiltrados.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-slate-500">No se encontraron vales en el rango de fechas seleccionado.</td></tr>`;
+        return;
+      }
+
+      valesFiltrados.forEach(v => {
+        const prodBadges = v.items.map(i => `<span class="bg-black border border-amber-500/30 px-1.5 py-0.5 rounded text-[10px] font-mono mr-0.5">${i.cantidad}x ${i.nombre}</span>`).join(' ');
+        const totalTxt = v.moneda === 'USD' ? `$${(v.totalCompraUSD || 0).toFixed(2)} USD` : `${(v.totalCompraCUP || 0).toLocaleString('es-ES')} CUP`;
+
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-slate-900';
+        tr.innerHTML = `
+          <td class="p-2.5 font-mono font-bold text-amber-300">${v.folio}</td>
+          <td class="p-2.5 text-cyan-300 font-mono">${v.fecha}</td>
+          <td class="p-2.5 text-slate-300">${v.proveedor}</td>
+          <td class="p-2.5 text-center font-bold ${v.moneda === 'USD' ? 'text-emerald-400' : 'text-amber-300'}">${v.moneda}</td>
+          <td class="p-2.5">${prodBadges}</td>
+          <td class="p-2.5 font-mono text-rose-300 font-bold">${totalTxt}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+      if (window.lucide && typeof lucide.createIcons === 'function') { lucide.createIcons(); }
+    }
+
+    function generarReciboRango() {
+      if (!valesFiltrados || valesFiltrados.length === 0) {
+        alert('Primero filtra un rango de fechas que contenga vales.');
+        return;
+      }
+
+      const desde = document.getElementById('filtro-fecha-desde').value || 'Inicio';
+      const hasta = document.getElementById('filtro-fecha-hasta').value || 'Actualidad';
+
+      let totalUSD = 0, totalCUP = 0, totalUnidades = 0;
+      const detallesProductos = [];
+
+      valesFiltrados.forEach(v => {
+        totalUSD += v.totalCompraUSD || 0;
+        totalCUP += v.totalCompraCUP || 0;
+        v.items.forEach(it => {
+          totalUnidades += it.cantidad || 0;
+          detallesProductos.push(`  • ${it.cantidad}x ${it.nombre} — ${it.precioCompra} ${it.moneda} (Vale: ${v.folio}, Fecha: ${v.fecha})`);
+        });
+      });
+
+      const recibo = `
+══════════════════════════════════════════
+   RECIBO DE COMPRAS — ALMACÉN CENTRAL
+══════════════════════════════════════════
+Período: ${desde} → ${hasta}
+Total de Vales: ${valesFiltrados.length}
+Total de Unidades: ${totalUnidades}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+DETALLE POR PRODUCTO:
+${detallesProductos.join('\n')}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+TOTAL COMPRAS USD: $${totalUSD.toFixed(2)}
+TOTAL COMPRAS CUP: ${totalCUP.toLocaleString('es-ES')} CUP
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Generado: ${new Date().toLocaleString()}
+══════════════════════════════════════════
+      `.trim();
+
+      // Copiar al portapapeles y descargar
+      navigator.clipboard.writeText(recibo).catch(() => {});
+      const blob = new Blob([recibo], { type: 'text/plain;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `Recibo_Compras_${desde}_a_${hasta}.txt`;
+      a.click();
+      URL.revokeObjectURL(url);
+      alert(`📄 Recibo generado y descargado.\n\nPeríodo: ${desde} → ${hasta}\nVales: ${valesFiltrados.length}\nTotal USD: $${totalUSD.toFixed(2)}\nTotal CUP: ${totalCUP.toLocaleString('es-ES')}`);
+    }
+
+    // ================= PWA INSTALACIÓN =================
+    var deferredPromptPWA = null;
+
+    function estaEnModoInstalado() {
+      return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+    }
+
+    function ocultarOpcionesInstalacionSiYaInstalada() {
+      if (estaEnModoInstalado()) {
+        var btnHeader = document.getElementById('btn-instalar-app-pwa');
+        if (btnHeader) { btnHeader.classList.add('hidden'); btnHeader.classList.remove('flex'); }
+        var cartel = document.getElementById('cartel-instalar-app');
+        if (cartel) cartel.classList.add('hidden');
+        return true;
+      }
+      return false;
+    }
+
+    window.addEventListener('DOMContentLoaded', ocultarOpcionesInstalacionSiYaInstalada);
+
+    window.addEventListener('beforeinstallprompt', function(e) {
+      e.preventDefault();
+      deferredPromptPWA = e;
+      if (ocultarOpcionesInstalacionSiYaInstalada()) return;
+      var btnHeader = document.getElementById('btn-instalar-app-pwa');
+      if (btnHeader) { btnHeader.classList.remove('hidden'); btnHeader.classList.add('flex'); }
+      var cartel = document.getElementById('cartel-instalar-app');
+      if (cartel && !sessionStorage.getItem('cartel_instalacion_descartado')) {
+        cartel.classList.remove('hidden');
+      }
+    });
+
+    window.addEventListener('appinstalled', function() {
+      deferredPromptPWA = null;
+      var btnHeader = document.getElementById('btn-instalar-app-pwa');
+      if (btnHeader) btnHeader.classList.add('hidden');
+      var cartel = document.getElementById('cartel-instalar-app');
+      if (cartel) cartel.classList.add('hidden');
+      console.log('🎉 PWA Compras de la Tienda instalada exitosamente!');
+    });
+
+    async function ejecutarInstalacionPWA() {
+      if (deferredPromptPWA) {
+        deferredPromptPWA.prompt();
+        var choice = await deferredPromptPWA.userChoice;
+        if (choice.outcome === 'accepted') {
+          deferredPromptPWA = null;
+          var cartel = document.getElementById('cartel-instalar-app');
+          if (cartel) cartel.classList.add('hidden');
+        }
+      } else {
+        var isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+        var isStandalone = estaEnModoInstalado();
+        if (isStandalone) {
+          alert('✅ La aplicación ya está instalada y funcionando en este dispositivo.');
+        } else if (isIOS) {
+          alert('📲 Para instalar en iPhone o iPad:\n\n1. Toca el botón Compartir en Safari\n2. Selecciona "Agregar al inicio"\n3. ¡Listo! Funcionará 100% offline.');
+        } else {
+          alert('📲 Para instalar:\n\n1. Haz clic en los tres puntos ⋮ del menú de tu navegador\n2. Selecciona "Instalar Compras de la Tienda"\n3. ¡Listo!');
+        }
+      }
+    }
+
+    function descartarCartelInstalacion() {
+      var cartel = document.getElementById('cartel-instalar-app');
+      if (cartel) cartel.classList.add('hidden');
+      sessionStorage.setItem('cartel_instalacion_descartado', 'true');
+    }
+  </script>
+</body>
+</html>
+ + totalUSD.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' USD';
+      if (kpiStock) kpiStock.textContent = totalStock.toLocaleString('es-ES') + ' uds';
+
+      filtrarCatalogoProductos();
+    }
+
+    function filtrarCatalogoProductos() {
+      const contenedor = document.getElementById('contenedor-tarjetas-productos');
+      if (!contenedor) return;
+
+      if (!catalogoProductosAgrupados || catalogoProductosAgrupados.length === 0) {
+        contenedor.innerHTML = '<div class="p-8 text-center text-slate-500 bg-slate-950 border border-slate-800 rounded-2xl">No hay datos de productos disponibles. Inicia el bot o sincroniza con Gestores.</div>';
+        return;
+      }
+
+      const busq = (document.getElementById('busqueda-catalogo-productos') ? document.getElementById('busqueda-catalogo-productos').value : '').toLowerCase().trim();
+      const cat = (document.getElementById('filtro-categoria-productos') ? document.getElementById('filtro-categoria-productos').value : 'TODAS');
+      const orden = (document.getElementById('orden-catalogo-productos') ? document.getElementById('orden-catalogo-productos').value : 'VENTAS_DESC');
+
+      let lista = catalogoProductosAgrupados.filter(p => {
+        if (cat !== 'TODAS' && p.categoria !== cat) return false;
+        if (busq) {
+          const matchNorm = p.nombreNorm.toLowerCase().includes(busq);
+          const matchOrig = p.nombresOriginales.some(o => o.toLowerCase().includes(busq));
+          const matchCat = p.categoria.toLowerCase().includes(busq);
+          if (!matchNorm && !matchOrig && !matchCat) return false;
+        }
+        return true;
+      });
+
+      // Ordenamiento
+      if (orden === 'VENTAS_DESC') {
+        lista.sort((a, b) => b.totalCantidad - a.totalCantidad);
+      } else if (orden === 'MONTO_DESC') {
+        lista.sort((a, b) => b.totalUSD - a.totalUSD);
+      } else if (orden === 'NOMBRE_ASC') {
+        lista.sort((a, b) => a.nombreNorm.localeCompare(b.nombreNorm));
+      } else if (orden === 'VALES_DESC') {
+        lista.sort((a, b) => b.vales.length - a.vales.length);
+      }
+
+      if (lista.length === 0) {
+        contenedor.innerHTML = '<div class="p-8 text-center text-slate-500 bg-slate-950 border border-slate-800 rounded-2xl">No se encontraron productos que coincidan con la búsqueda.</div>';
+        return;
+      }
+
+      // Renderizar tarjetas con formato idéntico al de Gestores
+      contenedor.innerHTML = lista.map(p => {
+        const esAbierto = !!productosSubmenusAbiertos[p.id];
+        const preciosStr = p.preciosUnitarios.length > 0
+          ? p.preciosUnitarios.map(pr => '
+      renderizarSelectorSemanas();
+      renderizarKPIsBimoneda();
+      renderizarTablaInventario();
+      renderizarTablaVentasGestores();
+      const badgeInv = document.getElementById('badge-inventario-count');
+      if (badgeInv) badgeInv.textContent = (getSemanaData().lotesInventario.length) + ' lotes';
+      renderizarListasGastosInversionesBajas();
+      renderizarHistorialVales();
+      poblarSelectBajas();
+      actualizarDatalistProductos();
+      if (window.lucide && typeof lucide.createIcons === 'function') { lucide.createIcons(); }
+    }
+
+    function renderizarSelectorSemanas() {
+      const sel = document.getElementById('selector-semana');
+      sel.innerHTML = '';
+      appData.semanas.forEach(s => {
+        const opt = document.createElement('option');
+        opt.value = s.id;
+        opt.textContent = `${s.nombre} ${s.cerrada ? '🔒' : '🟢'}`;
+        if (s.id === appData.semanaActivaId) opt.selected = true;
+        sel.appendChild(opt);
+      });
+    }
+
+    function poblarSelectBajas() {
+      const sel = document.getElementById('baja-lote-select');
+      const sData = getSemanaData();
+      // FIFO: ordenar por orden de llegada para consumir primero los más antiguos
+      const lotesOrdenados = [...sData.lotesInventario]
+        .filter(l => !l.dadoDeBaja)
+        .sort((a, b) => (a.ordenLlegada || 0) - (b.ordenLlegada || 0));
+      sel.innerHTML = lotesOrdenados.map(l => {
+        const disponible = (l.inicio || 0) + (l.entradas || 0) - (l.bajas || 0) - (l.merma || 0) - (l.errores || 0);
+        return `<option value="${l.id}">#${l.ordenLlegada || '?'} ${l.producto} (Disp: ${disponible}, ${l.folioVale} • ${l.moneda})</option>`;
+      }).join('');
+    }
+
+    function renderizarKPIsBimoneda() {
+      const sData = getSemanaData();
+
+      let totalUnidades = 0;
+      let costoUSD = 0, costoCUP = 0;
+      let ventaUSD = 0, ventaCUP = 0;
+      let comisionCUP = 0;
+      let transpCUP = 0;
+
+      sData.lotesInventario.forEach(l => {
+        const cant = l.entradas || l.inicio || 0;
+        totalUnidades += cant;
+
+        if (l.moneda === 'USD') {
+          costoUSD += cant * (l.precioCompra || 0);
+          ventaUSD += cant * (l.precioVenta || 0);
+        } else {
+          costoCUP += cant * (l.precioCompra || 0);
+          ventaCUP += cant * (l.precioVenta || 0);
+        }
+
+        // Transporte y Comisión de Gestores se llevan estrictamente en CUP
+        transpCUP += cant * (l.transporteUnitario || 0);
+        comisionCUP += cant * (l.comisionGestores || 0);
+      });
+
+      const gastosUSD = sData.gastos.filter(g => g.moneda === 'USD').reduce((acc, g) => acc + g.monto, 0);
+      const gastosCUP = sData.gastos.filter(g => g.moneda === 'CUP').reduce((acc, g) => acc + g.monto, 0);
+
+      // DOS CUENTAS INDEPENDIENTES (Sin conversión forzada de USD a CUP):
+      // Cuenta DÓLAR: Ganancia neta = Venta USD - Costo USD - Gastos USD
+      const gananciaUSD = ventaUSD - costoUSD - gastosUSD;
+      // Cuenta CUP: Ganancia Neta = Venta CUP - Costo CUP - Gastos CUP - Comisión - Transporte
+      const gananciaCUP = ventaCUP - costoCUP - gastosCUP - comisionCUP - transpCUP;
+
+      document.getElementById('kpi-unidades').textContent = totalUnidades;
+      document.getElementById('kpi-vales-count').textContent = `${sData.valesEntrada.length} vales guardados`;
+
+      // Costo Compra
+      document.getElementById('kpi-costo-usd').textContent = `$ ${costoUSD.toFixed(2)} USD`;
+      document.getElementById('kpi-costo-cup').textContent = costoCUP > 0 ? `${costoCUP.toLocaleString('es-ES', { minimumFractionDigits: 2 })} CUP` : '0.00 CUP';
+      document.getElementById('kpi-costo-consolidado').textContent = 'Cuenta en USD';
+
+      // Venta Proyectada
+      document.getElementById('kpi-venta-usd').textContent = `$ ${ventaUSD.toFixed(2)} USD`;
+      document.getElementById('kpi-venta-cup').textContent = ventaCUP > 0 ? `${ventaCUP.toLocaleString('es-ES', { minimumFractionDigits: 2 })} CUP` : '0.00 CUP';
+      document.getElementById('kpi-venta-consolidado').textContent = 'Cuenta en USD';
+
+      // Comisión Gestores (Solo CUP)
+      document.getElementById('kpi-comision-cup').textContent = `${comisionCUP.toLocaleString('es-ES', { minimumFractionDigits: 2 })} CUP`;
+      document.getElementById('kpi-comision-usd').textContent = 'Cuenta en CUP';
+      document.getElementById('kpi-comision-consolidado').textContent = 'Total Gestores';
+
+      // Transporte Total (Solo CUP)
+      document.getElementById('kpi-transporte-cup').textContent = `${transpCUP.toLocaleString('es-ES', { minimumFractionDigits: 2 })} CUP`;
+      document.getElementById('kpi-transporte-usd').textContent = 'Cuenta en CUP';
+      document.getElementById('kpi-transporte-consolidado').textContent = 'Total Transporte';
+
+      // Ganancia Neta
+      document.getElementById('kpi-margen-usd').textContent = `$ ${gananciaUSD.toFixed(2)} USD`;
+      document.getElementById('kpi-margen-cup').textContent = gananciaCUP !== 0 ? `${gananciaCUP.toLocaleString('es-ES', { minimumFractionDigits: 2 })} CUP` : '0.00 CUP';
+      document.getElementById('kpi-margen-consolidado').textContent = 'USD: V-C-G | CUP: V-C-G-Com-Tr';
+
+
+      // === KPI: Inversión General (Compra + Comisión + Transporte) ===
+      // Inversión USD = Costo Compra USD (comisión y transporte van en CUP)
+      const inversionUSD = costoUSD;
+      // Inversión CUP = Costo Compra CUP + Comisión + Transporte
+      const inversionCUP = costoCUP + comisionCUP + transpCUP;
+
+      document.getElementById('kpi-inversion-usd').textContent = `$ ${inversionUSD.toFixed(2)} USD`;
+      document.getElementById('kpi-inversion-cup').textContent = `${inversionCUP.toLocaleString('es-ES', { minimumFractionDigits: 2 })} CUP`;
+      document.getElementById('kpi-inversion-detalle').textContent = `USD: Compra | CUP: Compra+Com+Transp`;
+
+      // === KPI: Ganancia Bruta (Venta - Compra, sin gastos ni comisiones) ===
+      const gananciaBrutaUSD = ventaUSD - costoUSD;
+      const gananciaBrutaCUP = ventaCUP - costoCUP;
+
+      document.getElementById('kpi-ganancia-bruta-usd').textContent = `$ ${gananciaBrutaUSD.toFixed(2)} USD`;
+      document.getElementById('kpi-ganancia-bruta-cup').textContent = `${gananciaBrutaCUP.toLocaleString('es-ES', { minimumFractionDigits: 2 })} CUP`;
+
+      document.getElementById('resumen-gastos-box').textContent = `${gastosUSD.toFixed(2)} USD / ${gastosCUP.toFixed(0)} CUP`;
+
+      const invUSD = sData.inversiones.filter(i => i.moneda === 'USD').reduce((acc, i) => acc + i.monto, 0);
+      const invCUP = sData.inversiones.filter(i => i.moneda === 'CUP').reduce((acc, i) => acc + i.monto, 0);
+      document.getElementById('resumen-inversiones-box').textContent = `${invUSD.toFixed(2)} USD / ${invCUP.toFixed(0)} CUP`;
+
+      const totalBajas = sData.bajas.reduce((acc, b) => acc + (b.cantidad || 0), 0);
+      document.getElementById('resumen-bajas-box').textContent = `${totalBajas} u.`;
+
+      // === DATOS CRUZADOS CON WEB DE GESTORES ===
+      const resG = obtenerResumenGestores();
+      if (resG) {
+        document.getElementById('kpi-gestores-vendidas').textContent = resG.totalUnidadesVendidas + ' uds vendidas';
+        document.getElementById('kpi-gestores-vales-count').textContent = resG.totalVales + ' vales gestores | ' + resG.gestoresActivos + ' gestores';
+        document.getElementById('kpi-gestores-venta-real').textContent = '$ ' + resG.totalVentasUSD.toFixed(2) + ' USD';
+        document.getElementById('kpi-gestores-com-pagadas').textContent = 'Pagadas: ' + resG.comisionesPagadasCUP.toLocaleString('es-ES') + ' CUP';
+        document.getElementById('kpi-gestores-com-pendientes').textContent = 'Pendientes: ' + resG.comisionesPendientesCUP.toLocaleString('es-ES') + ' CUP';
+        document.getElementById('kpi-gestores-activos').textContent = resG.gestoresActivos + ' gestores activos';
+
+        let costoVendidoUSD = 0;
+        const productosYaContados = {};
+        sData.lotesInventario.forEach(l => {
+          const key = normalizarNombreProducto(l.producto);
+          if (productosYaContados[key]) return;
+          const vendidas = unidadesVendidasGestores(l.producto);
+          if (vendidas > 0) {
+            const totalEnInv = sData.lotesInventario.filter(lo => normalizarNombreProducto(lo.producto) === key).reduce((s, lo) => s + (lo.entradas || lo.inicio || 0), 0);
+            costoVendidoUSD += vendidas * (l.precioCompra || 0);
+            productosYaContados[key] = true;
+          }
+        });
+        document.getElementById('kpi-gestores-costo-vendido').textContent = '$ ' + costoVendidoUSD.toFixed(2) + ' USD';
+        document.getElementById('kpi-gestores-inv-recuperada').textContent = '$ ' + resG.totalVentasUSD.toFixed(2) + ' USD cobrados';
+        const gananciaRealUSD = resG.totalVentasUSD - costoVendidoUSD;
+        document.getElementById('kpi-gestores-ganancia-real').textContent = '$ ' + gananciaRealUSD.toFixed(2) + ' USD';
+        document.getElementById('kpi-gestores-cobrado-real').textContent = '$ ' + resG.totalVentasUSD.toFixed(2) + ' USD';
+        const pctVendido = totalUnidades > 0 ? ((resG.totalUnidadesVendidas / totalUnidades) * 100).toFixed(1) : 0;
+        document.getElementById('kpi-gestores-porciento-vendido').textContent = pctVendido + '% del inventario vendido';
+      }
+    }
+
+    function renderizarListasGastosInversionesBajas() {
+      const sData = getSemanaData();
+
+      const cG = document.getElementById('lista-gastos');
+      cG.innerHTML = sData.gastos.map(g => `
+        <div class="flex items-center justify-between p-2 rounded bg-black border border-slate-800 text-xs">
+          <span class="text-slate-300">${g.concepto}</span>
+          <div class="flex items-center gap-2">
+            <span class="font-mono text-rose-400 font-bold">${g.monto.toFixed(2)} ${g.moneda}</span>
+            <button onclick="eliminarGasto('${g.id}')" class="text-rose-400"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
+          </div>
+        </div>
+      `).join('') || `<div class="text-slate-600 text-[11px] text-center py-2">Sin gastos registrados</div>`;
+
+      const cI = document.getElementById('lista-inversiones');
+      cI.innerHTML = sData.inversiones.map(i => `
+        <div class="flex items-center justify-between p-2 rounded bg-black border border-slate-800 text-xs">
+          <span class="text-slate-300">${i.motivo}</span>
+          <div class="flex items-center gap-2">
+            <span class="font-mono text-emerald-400 font-bold">${i.monto.toFixed(2)} ${i.moneda}</span>
+            <button onclick="eliminarInversion('${i.id}')" class="text-rose-400"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
+          </div>
+        </div>
+      `).join('') || `<div class="text-slate-600 text-[11px] text-center py-2">Sin inversiones extras</div>`;
+
+      const cB = document.getElementById('lista-bajas');
+      cB.innerHTML = sData.bajas.map(b => `
+        <div class="flex items-center justify-between p-2 rounded bg-black border border-slate-800 text-xs">
+          <span class="text-slate-300">${b.cantidad}x ${b.producto} (${b.motivo})</span>
+          <button onclick="eliminarBaja('${b.id}')" class="text-rose-400"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
+        </div>
+      `).join('') || `<div class="text-slate-600 text-[11px] text-center py-2">Sin bajas de inventario</div>`;
+    }
+
+    function renderizarHistorialVales() {
+      const tbody = document.getElementById('historial-vales-tbody');
+      const sData = getSemanaData();
+      tbody.innerHTML = '';
+
+      document.getElementById('label-conteo-vales-historial').textContent = `${sData.valesEntrada.length} vales`;
+
+      if (sData.valesEntrada.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="9" class="p-6 text-center text-slate-500">No hay vales de entrada guardados. Pega uno arriba para comenzar.</td></tr>`;
+        return;
+      }
+
+      sData.valesEntrada.forEach(v => {
+        const prodBadges = v.items.map(i => `<span class="bg-black border border-amber-500/30 px-2 py-0.5 rounded text-[11px] font-mono mr-1">${i.cantidad}x ${i.nombre} (${i.moneda})</span>`).join(' ');
+
+        const totalCompraTxt = v.moneda === 'USD' ? `$ ${v.totalCompraUSD.toFixed(2)} USD` : `${v.totalCompraCUP.toLocaleString('es-ES')} CUP`;
+
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-slate-900';
+        tr.innerHTML = `
+          <td class="p-3 font-mono font-bold text-amber-300">${v.folio}</td>
+          <td class="p-3 text-slate-400 font-mono">${v.fecha}</td>
+          <td class="p-3 text-slate-300 font-bold">${v.proveedor}</td>
+          <td class="p-3 text-center font-mono font-bold ${v.moneda === 'USD' ? 'text-emerald-400' : 'text-amber-300'}">${v.moneda}</td>
+          <td class="p-3">${prodBadges}</td>
+          <td class="p-3 font-mono text-indigo-300">${v.transporteTotal.toFixed(2)} ${v.moneda}</td>
+          <td class="p-3 font-mono text-rose-300 font-bold">${totalCompraTxt}</td>
+          <td class="p-3 font-mono text-cyan-300 font-bold">Lote Calculado</td>
+          <td class="p-3 text-center">
+            <button onclick="editarValeHistorial('${v.id}')" class="p-1 text-amber-400 hover:text-amber-300" title="Editar vale"><i data-lucide="pencil" class="w-4 h-4"></i></button>
+              <button onclick="eliminarValeHistorial('${v.id}')" class="p-1 text-rose-400 hover:text-rose-300" title="Eliminar vale"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+      if (window.lucide && typeof lucide.createIcons === 'function') { lucide.createIcons(); }
+    }
+
+    // ================= EXPORTACIÓN EXCEL =================
+    function exportarExcel() {
+      const sData = getSemanaData();
+      const semObj = appData.semanas.find(s => s.id === appData.semanaActivaId) || { nombre: 'Semana' };
+      const wb = XLSX.utils.book_new();
+
+      const invRows = sData.lotesInventario.map(l => {
+        const calc = (l.inicio || 0) + (l.entradas || 0) - (l.bajas || 0);
+        return {
+          'Orden Llegada': l.ordenLlegada,
+          'Producto': l.producto,
+          'Vale/Lote': l.folioVale,
+          'Moneda': l.moneda,
+          'Inv. Inicial': l.inicio || 0,
+          'Entradas (+)': l.entradas || 0,
+          'Bajas (-)': l.bajas || 0,
+          'Final Calculado': calc,
+          'Final Real Físico': l.finalReal !== undefined ? l.finalReal : calc,
+          'Precio Compra': l.precioCompra,
+          'Precio Venta': l.precioVenta,
+          'Comisión Gestores': l.comisionGestores,
+          'Moneda Comisión': l.comisionMoneda || 'CUP'
+        };
+      });
+      XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(invRows), 'Inventario_Lotes');
+
+      const valesRows = [];
+      sData.valesEntrada.forEach(v => {
+        v.items.forEach(it => {
+          valesRows.push({
+            'Folio': v.folio,
+            'Fecha': v.fecha,
+            'Proveedor': v.proveedor,
+            'Moneda Vale': v.moneda,
+            'Producto': it.nombre,
+            'Cantidad': it.cantidad,
+            'Moneda Ítem': it.moneda,
+            'Precio Compra': it.precioCompra,
+            'Precio Venta': it.precioVenta,
+            'Comisión Gestor': it.comisionGestores,
+            'Transporte Unitario': it.transporteUnitario,
+            'Ganancia Estimada': it.margenGanancia
+          });
+        });
+      });
+      XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(valesRows), 'Vales_Entrada');
+
+      XLSX.writeFile(wb, `Almacen_Compras_${semObj.nombre.replace(/\s+/g, '_')}.xlsx`);
+    }
+
+    // ================= DAR DE BAJA / REACTIVAR PRODUCTO =================
+    function darDeBajaProductoLote(id) {
+      const sData = getSemanaData();
+      const lote = sData.lotesInventario.find(l => l.id === id);
+      if (!lote) return;
+      if (!confirm(`¿Dar de BAJA el producto "${lote.producto}" (Vale: ${lote.folioVale})?\n\nEl producto quedará desactivado del inventario activo.`)) return;
+      lote.dadoDeBaja = true;
+      lote.fechaBaja = new Date().toISOString().split('T')[0];
+      persistirEstado();
+      renderizarTodo();
+      alert(`Producto "${lote.producto}" dado de baja correctamente.`);
+    }
+
+    function reactivarProductoLote(id) {
+      const sData = getSemanaData();
+      const lote = sData.lotesInventario.find(l => l.id === id);
+      if (!lote) return;
+      lote.dadoDeBaja = false;
+      delete lote.fechaBaja;
+      persistirEstado();
+      renderizarTodo();
+      alert(`Producto "${lote.producto}" reactivado en inventario.`);
+    }
+
+    function eliminarLoteDirecto(id) {
+      if (!confirm('¿Eliminar este lote permanentemente del inventario?')) return;
+      const sData = getSemanaData();
+      sData.lotesInventario = sData.lotesInventario.filter(l => l.id !== id);
+      persistirEstado();
+      renderizarTodo();
+    }
+
+    // ================= FILTRO POR RANGO DE FECHAS =================
+    let valesFiltrados = null;
+
+    function filtrarValesPorRango() {
+      const desde = document.getElementById('filtro-fecha-desde').value;
+      const hasta = document.getElementById('filtro-fecha-hasta').value;
+      const sData = getSemanaData();
+
+      if (!desde && !hasta) {
+        alert('Selecciona al menos una fecha (Desde o Hasta) para filtrar.');
+        return;
+      }
+
+      valesFiltrados = sData.valesEntrada.filter(v => {
+        const fv = v.fecha || '';
+        if (desde && hasta) return fv >= desde && fv <= hasta;
+        if (desde) return fv >= desde;
+        if (hasta) return fv <= hasta;
+        return true;
+      });
+
+      renderizarResultadoFiltro();
+    }
+
+    function limpiarFiltroRango() {
+      valesFiltrados = null;
+      document.getElementById('filtro-fecha-desde').value = '';
+      document.getElementById('filtro-fecha-hasta').value = '';
+      document.getElementById('filtro-resultado-container').classList.add('hidden');
+      document.getElementById('filtro-rango-count').textContent = 'Todos los vales';
+    }
+
+    function renderizarResultadoFiltro() {
+      if (!valesFiltrados) return;
+      const container = document.getElementById('filtro-resultado-container');
+      container.classList.remove('hidden');
+
+      let totalUSD = 0, totalCUP = 0;
+      const productosSet = new Set();
+
+      valesFiltrados.forEach(v => {
+        totalUSD += v.totalCompraUSD || 0;
+        totalCUP += v.totalCompraCUP || 0;
+        v.items.forEach(it => productosSet.add(it.nombre));
+      });
+
+      document.getElementById('filtro-total-vales').textContent = valesFiltrados.length;
+      document.getElementById('filtro-total-usd').textContent = `$${totalUSD.toFixed(2)}`;
+      document.getElementById('filtro-total-cup').textContent = `${totalCUP.toLocaleString('es-ES')} CUP`;
+      document.getElementById('filtro-total-productos').textContent = productosSet.size;
+      document.getElementById('filtro-rango-count').textContent = `${valesFiltrados.length} vales filtrados`;
+
+      const tbody = document.getElementById('filtro-vales-tbody');
+      tbody.innerHTML = '';
+
+      if (valesFiltrados.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-slate-500">No se encontraron vales en el rango de fechas seleccionado.</td></tr>`;
+        return;
+      }
+
+      valesFiltrados.forEach(v => {
+        const prodBadges = v.items.map(i => `<span class="bg-black border border-amber-500/30 px-1.5 py-0.5 rounded text-[10px] font-mono mr-0.5">${i.cantidad}x ${i.nombre}</span>`).join(' ');
+        const totalTxt = v.moneda === 'USD' ? `$${(v.totalCompraUSD || 0).toFixed(2)} USD` : `${(v.totalCompraCUP || 0).toLocaleString('es-ES')} CUP`;
+
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-slate-900';
+        tr.innerHTML = `
+          <td class="p-2.5 font-mono font-bold text-amber-300">${v.folio}</td>
+          <td class="p-2.5 text-cyan-300 font-mono">${v.fecha}</td>
+          <td class="p-2.5 text-slate-300">${v.proveedor}</td>
+          <td class="p-2.5 text-center font-bold ${v.moneda === 'USD' ? 'text-emerald-400' : 'text-amber-300'}">${v.moneda}</td>
+          <td class="p-2.5">${prodBadges}</td>
+          <td class="p-2.5 font-mono text-rose-300 font-bold">${totalTxt}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+      if (window.lucide && typeof lucide.createIcons === 'function') { lucide.createIcons(); }
+    }
+
+    function generarReciboRango() {
+      if (!valesFiltrados || valesFiltrados.length === 0) {
+        alert('Primero filtra un rango de fechas que contenga vales.');
+        return;
+      }
+
+      const desde = document.getElementById('filtro-fecha-desde').value || 'Inicio';
+      const hasta = document.getElementById('filtro-fecha-hasta').value || 'Actualidad';
+
+      let totalUSD = 0, totalCUP = 0, totalUnidades = 0;
+      const detallesProductos = [];
+
+      valesFiltrados.forEach(v => {
+        totalUSD += v.totalCompraUSD || 0;
+        totalCUP += v.totalCompraCUP || 0;
+        v.items.forEach(it => {
+          totalUnidades += it.cantidad || 0;
+          detallesProductos.push(`  • ${it.cantidad}x ${it.nombre} — ${it.precioCompra} ${it.moneda} (Vale: ${v.folio}, Fecha: ${v.fecha})`);
+        });
+      });
+
+      const recibo = `
+══════════════════════════════════════════
+   RECIBO DE COMPRAS — ALMACÉN CENTRAL
+══════════════════════════════════════════
+Período: ${desde} → ${hasta}
+Total de Vales: ${valesFiltrados.length}
+Total de Unidades: ${totalUnidades}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+DETALLE POR PRODUCTO:
+${detallesProductos.join('\n')}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+TOTAL COMPRAS USD: $${totalUSD.toFixed(2)}
+TOTAL COMPRAS CUP: ${totalCUP.toLocaleString('es-ES')} CUP
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Generado: ${new Date().toLocaleString()}
+══════════════════════════════════════════
+      `.trim();
+
+      // Copiar al portapapeles y descargar
+      navigator.clipboard.writeText(recibo).catch(() => {});
+      const blob = new Blob([recibo], { type: 'text/plain;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `Recibo_Compras_${desde}_a_${hasta}.txt`;
+      a.click();
+      URL.revokeObjectURL(url);
+      alert(`📄 Recibo generado y descargado.\n\nPeríodo: ${desde} → ${hasta}\nVales: ${valesFiltrados.length}\nTotal USD: $${totalUSD.toFixed(2)}\nTotal CUP: ${totalCUP.toLocaleString('es-ES')}`);
+    }
+
+    // ================= PWA INSTALACIÓN =================
+    var deferredPromptPWA = null;
+
+    function estaEnModoInstalado() {
+      return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+    }
+
+    function ocultarOpcionesInstalacionSiYaInstalada() {
+      if (estaEnModoInstalado()) {
+        var btnHeader = document.getElementById('btn-instalar-app-pwa');
+        if (btnHeader) { btnHeader.classList.add('hidden'); btnHeader.classList.remove('flex'); }
+        var cartel = document.getElementById('cartel-instalar-app');
+        if (cartel) cartel.classList.add('hidden');
+        return true;
+      }
+      return false;
+    }
+
+    window.addEventListener('DOMContentLoaded', ocultarOpcionesInstalacionSiYaInstalada);
+
+    window.addEventListener('beforeinstallprompt', function(e) {
+      e.preventDefault();
+      deferredPromptPWA = e;
+      if (ocultarOpcionesInstalacionSiYaInstalada()) return;
+      var btnHeader = document.getElementById('btn-instalar-app-pwa');
+      if (btnHeader) { btnHeader.classList.remove('hidden'); btnHeader.classList.add('flex'); }
+      var cartel = document.getElementById('cartel-instalar-app');
+      if (cartel && !sessionStorage.getItem('cartel_instalacion_descartado')) {
+        cartel.classList.remove('hidden');
+      }
+    });
+
+    window.addEventListener('appinstalled', function() {
+      deferredPromptPWA = null;
+      var btnHeader = document.getElementById('btn-instalar-app-pwa');
+      if (btnHeader) btnHeader.classList.add('hidden');
+      var cartel = document.getElementById('cartel-instalar-app');
+      if (cartel) cartel.classList.add('hidden');
+      console.log('🎉 PWA Compras de la Tienda instalada exitosamente!');
+    });
+
+    async function ejecutarInstalacionPWA() {
+      if (deferredPromptPWA) {
+        deferredPromptPWA.prompt();
+        var choice = await deferredPromptPWA.userChoice;
+        if (choice.outcome === 'accepted') {
+          deferredPromptPWA = null;
+          var cartel = document.getElementById('cartel-instalar-app');
+          if (cartel) cartel.classList.add('hidden');
+        }
+      } else {
+        var isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+        var isStandalone = estaEnModoInstalado();
+        if (isStandalone) {
+          alert('✅ La aplicación ya está instalada y funcionando en este dispositivo.');
+        } else if (isIOS) {
+          alert('📲 Para instalar en iPhone o iPad:\n\n1. Toca el botón Compartir en Safari\n2. Selecciona "Agregar al inicio"\n3. ¡Listo! Funcionará 100% offline.');
+        } else {
+          alert('📲 Para instalar:\n\n1. Haz clic en los tres puntos ⋮ del menú de tu navegador\n2. Selecciona "Instalar Compras de la Tienda"\n3. ¡Listo!');
+        }
+      }
+    }
+
+    function descartarCartelInstalacion() {
+      var cartel = document.getElementById('cartel-instalar-app');
+      if (cartel) cartel.classList.add('hidden');
+      sessionStorage.setItem('cartel_instalacion_descartado', 'true');
+    }
+  </script>
+</body>
+</html>
+ + pr.toFixed(2)).join(' / ') + ' USD'
+          : '—';
+
+        // Avatar de inicial o icono
+        const avatarLetra = p.nombreNorm.charAt(0).toUpperCase();
+
+        // Filas del submenú desplegable de vales
+        let valesRowsHtml = '';
+        if (p.vales.length === 0) {
+          valesRowsHtml = '<div class="p-4 text-center text-slate-500 text-xs">Sin vales de venta registrados.</div>';
+        } else {
+          valesRowsHtml = '<div class="overflow-x-auto"><table class="w-full text-left text-xs">' +
+            '<thead class="bg-black/90 text-teal-300 uppercase font-semibold text-[10px] tracking-wider sticky top-0 border-b border-teal-500/20">' +
+              '<tr>' +
+                '<th class="p-2.5">Folio</th>' +
+                '<th class="p-2.5">Fecha</th>' +
+                '<th class="p-2.5">Gestor</th>' +
+                '<th class="p-2.5">Cliente</th>' +
+                '<th class="p-2.5 text-center">Cantidad</th>' +
+                '<th class="p-2.5 text-right">P. Venta</th>' +
+                '<th class="p-2.5 text-right">Total USD</th>' +
+              '</tr>' +
+            '</thead>' +
+            '<tbody class="divide-y divide-slate-800/80 bg-black/40 font-mono text-[11px]">' +
+              p.vales.map(v => {
+                return '<tr class="hover:bg-teal-950/20 transition-colors">' +
+                  '<td class="p-2.5 font-bold text-amber-300">' + v.folio + '</td>' +
+                  '<td class="p-2.5 text-slate-400">' + v.fecha + '</td>' +
+                  '<td class="p-2.5 text-white font-sans">' + v.gestorNombre + '</td>' +
+                  '<td class="p-2.5 text-slate-300 font-sans">' + v.clienteNombre + '</td>' +
+                  '<td class="p-2.5 text-center font-bold text-teal-300">' + v.cantidad + 'x</td>' +
+                  '<td class="p-2.5 text-right text-slate-300">
+      renderizarSelectorSemanas();
+      renderizarKPIsBimoneda();
+      renderizarTablaInventario();
+      renderizarTablaVentasGestores();
+      const badgeInv = document.getElementById('badge-inventario-count');
+      if (badgeInv) badgeInv.textContent = (getSemanaData().lotesInventario.length) + ' lotes';
+      renderizarListasGastosInversionesBajas();
+      renderizarHistorialVales();
+      poblarSelectBajas();
+      actualizarDatalistProductos();
+      if (window.lucide && typeof lucide.createIcons === 'function') { lucide.createIcons(); }
+    }
+
+    function renderizarSelectorSemanas() {
+      const sel = document.getElementById('selector-semana');
+      sel.innerHTML = '';
+      appData.semanas.forEach(s => {
+        const opt = document.createElement('option');
+        opt.value = s.id;
+        opt.textContent = `${s.nombre} ${s.cerrada ? '🔒' : '🟢'}`;
+        if (s.id === appData.semanaActivaId) opt.selected = true;
+        sel.appendChild(opt);
+      });
+    }
+
+    function poblarSelectBajas() {
+      const sel = document.getElementById('baja-lote-select');
+      const sData = getSemanaData();
+      // FIFO: ordenar por orden de llegada para consumir primero los más antiguos
+      const lotesOrdenados = [...sData.lotesInventario]
+        .filter(l => !l.dadoDeBaja)
+        .sort((a, b) => (a.ordenLlegada || 0) - (b.ordenLlegada || 0));
+      sel.innerHTML = lotesOrdenados.map(l => {
+        const disponible = (l.inicio || 0) + (l.entradas || 0) - (l.bajas || 0) - (l.merma || 0) - (l.errores || 0);
+        return `<option value="${l.id}">#${l.ordenLlegada || '?'} ${l.producto} (Disp: ${disponible}, ${l.folioVale} • ${l.moneda})</option>`;
+      }).join('');
+    }
+
+    function renderizarKPIsBimoneda() {
+      const sData = getSemanaData();
+
+      let totalUnidades = 0;
+      let costoUSD = 0, costoCUP = 0;
+      let ventaUSD = 0, ventaCUP = 0;
+      let comisionCUP = 0;
+      let transpCUP = 0;
+
+      sData.lotesInventario.forEach(l => {
+        const cant = l.entradas || l.inicio || 0;
+        totalUnidades += cant;
+
+        if (l.moneda === 'USD') {
+          costoUSD += cant * (l.precioCompra || 0);
+          ventaUSD += cant * (l.precioVenta || 0);
+        } else {
+          costoCUP += cant * (l.precioCompra || 0);
+          ventaCUP += cant * (l.precioVenta || 0);
+        }
+
+        // Transporte y Comisión de Gestores se llevan estrictamente en CUP
+        transpCUP += cant * (l.transporteUnitario || 0);
+        comisionCUP += cant * (l.comisionGestores || 0);
+      });
+
+      const gastosUSD = sData.gastos.filter(g => g.moneda === 'USD').reduce((acc, g) => acc + g.monto, 0);
+      const gastosCUP = sData.gastos.filter(g => g.moneda === 'CUP').reduce((acc, g) => acc + g.monto, 0);
+
+      // DOS CUENTAS INDEPENDIENTES (Sin conversión forzada de USD a CUP):
+      // Cuenta DÓLAR: Ganancia neta = Venta USD - Costo USD - Gastos USD
+      const gananciaUSD = ventaUSD - costoUSD - gastosUSD;
+      // Cuenta CUP: Ganancia Neta = Venta CUP - Costo CUP - Gastos CUP - Comisión - Transporte
+      const gananciaCUP = ventaCUP - costoCUP - gastosCUP - comisionCUP - transpCUP;
+
+      document.getElementById('kpi-unidades').textContent = totalUnidades;
+      document.getElementById('kpi-vales-count').textContent = `${sData.valesEntrada.length} vales guardados`;
+
+      // Costo Compra
+      document.getElementById('kpi-costo-usd').textContent = `$ ${costoUSD.toFixed(2)} USD`;
+      document.getElementById('kpi-costo-cup').textContent = costoCUP > 0 ? `${costoCUP.toLocaleString('es-ES', { minimumFractionDigits: 2 })} CUP` : '0.00 CUP';
+      document.getElementById('kpi-costo-consolidado').textContent = 'Cuenta en USD';
+
+      // Venta Proyectada
+      document.getElementById('kpi-venta-usd').textContent = `$ ${ventaUSD.toFixed(2)} USD`;
+      document.getElementById('kpi-venta-cup').textContent = ventaCUP > 0 ? `${ventaCUP.toLocaleString('es-ES', { minimumFractionDigits: 2 })} CUP` : '0.00 CUP';
+      document.getElementById('kpi-venta-consolidado').textContent = 'Cuenta en USD';
+
+      // Comisión Gestores (Solo CUP)
+      document.getElementById('kpi-comision-cup').textContent = `${comisionCUP.toLocaleString('es-ES', { minimumFractionDigits: 2 })} CUP`;
+      document.getElementById('kpi-comision-usd').textContent = 'Cuenta en CUP';
+      document.getElementById('kpi-comision-consolidado').textContent = 'Total Gestores';
+
+      // Transporte Total (Solo CUP)
+      document.getElementById('kpi-transporte-cup').textContent = `${transpCUP.toLocaleString('es-ES', { minimumFractionDigits: 2 })} CUP`;
+      document.getElementById('kpi-transporte-usd').textContent = 'Cuenta en CUP';
+      document.getElementById('kpi-transporte-consolidado').textContent = 'Total Transporte';
+
+      // Ganancia Neta
+      document.getElementById('kpi-margen-usd').textContent = `$ ${gananciaUSD.toFixed(2)} USD`;
+      document.getElementById('kpi-margen-cup').textContent = gananciaCUP !== 0 ? `${gananciaCUP.toLocaleString('es-ES', { minimumFractionDigits: 2 })} CUP` : '0.00 CUP';
+      document.getElementById('kpi-margen-consolidado').textContent = 'USD: V-C-G | CUP: V-C-G-Com-Tr';
+
+
+      // === KPI: Inversión General (Compra + Comisión + Transporte) ===
+      // Inversión USD = Costo Compra USD (comisión y transporte van en CUP)
+      const inversionUSD = costoUSD;
+      // Inversión CUP = Costo Compra CUP + Comisión + Transporte
+      const inversionCUP = costoCUP + comisionCUP + transpCUP;
+
+      document.getElementById('kpi-inversion-usd').textContent = `$ ${inversionUSD.toFixed(2)} USD`;
+      document.getElementById('kpi-inversion-cup').textContent = `${inversionCUP.toLocaleString('es-ES', { minimumFractionDigits: 2 })} CUP`;
+      document.getElementById('kpi-inversion-detalle').textContent = `USD: Compra | CUP: Compra+Com+Transp`;
+
+      // === KPI: Ganancia Bruta (Venta - Compra, sin gastos ni comisiones) ===
+      const gananciaBrutaUSD = ventaUSD - costoUSD;
+      const gananciaBrutaCUP = ventaCUP - costoCUP;
+
+      document.getElementById('kpi-ganancia-bruta-usd').textContent = `$ ${gananciaBrutaUSD.toFixed(2)} USD`;
+      document.getElementById('kpi-ganancia-bruta-cup').textContent = `${gananciaBrutaCUP.toLocaleString('es-ES', { minimumFractionDigits: 2 })} CUP`;
+
+      document.getElementById('resumen-gastos-box').textContent = `${gastosUSD.toFixed(2)} USD / ${gastosCUP.toFixed(0)} CUP`;
+
+      const invUSD = sData.inversiones.filter(i => i.moneda === 'USD').reduce((acc, i) => acc + i.monto, 0);
+      const invCUP = sData.inversiones.filter(i => i.moneda === 'CUP').reduce((acc, i) => acc + i.monto, 0);
+      document.getElementById('resumen-inversiones-box').textContent = `${invUSD.toFixed(2)} USD / ${invCUP.toFixed(0)} CUP`;
+
+      const totalBajas = sData.bajas.reduce((acc, b) => acc + (b.cantidad || 0), 0);
+      document.getElementById('resumen-bajas-box').textContent = `${totalBajas} u.`;
+
+      // === DATOS CRUZADOS CON WEB DE GESTORES ===
+      const resG = obtenerResumenGestores();
+      if (resG) {
+        document.getElementById('kpi-gestores-vendidas').textContent = resG.totalUnidadesVendidas + ' uds vendidas';
+        document.getElementById('kpi-gestores-vales-count').textContent = resG.totalVales + ' vales gestores | ' + resG.gestoresActivos + ' gestores';
+        document.getElementById('kpi-gestores-venta-real').textContent = '$ ' + resG.totalVentasUSD.toFixed(2) + ' USD';
+        document.getElementById('kpi-gestores-com-pagadas').textContent = 'Pagadas: ' + resG.comisionesPagadasCUP.toLocaleString('es-ES') + ' CUP';
+        document.getElementById('kpi-gestores-com-pendientes').textContent = 'Pendientes: ' + resG.comisionesPendientesCUP.toLocaleString('es-ES') + ' CUP';
+        document.getElementById('kpi-gestores-activos').textContent = resG.gestoresActivos + ' gestores activos';
+
+        let costoVendidoUSD = 0;
+        const productosYaContados = {};
+        sData.lotesInventario.forEach(l => {
+          const key = normalizarNombreProducto(l.producto);
+          if (productosYaContados[key]) return;
+          const vendidas = unidadesVendidasGestores(l.producto);
+          if (vendidas > 0) {
+            const totalEnInv = sData.lotesInventario.filter(lo => normalizarNombreProducto(lo.producto) === key).reduce((s, lo) => s + (lo.entradas || lo.inicio || 0), 0);
+            costoVendidoUSD += vendidas * (l.precioCompra || 0);
+            productosYaContados[key] = true;
+          }
+        });
+        document.getElementById('kpi-gestores-costo-vendido').textContent = '$ ' + costoVendidoUSD.toFixed(2) + ' USD';
+        document.getElementById('kpi-gestores-inv-recuperada').textContent = '$ ' + resG.totalVentasUSD.toFixed(2) + ' USD cobrados';
+        const gananciaRealUSD = resG.totalVentasUSD - costoVendidoUSD;
+        document.getElementById('kpi-gestores-ganancia-real').textContent = '$ ' + gananciaRealUSD.toFixed(2) + ' USD';
+        document.getElementById('kpi-gestores-cobrado-real').textContent = '$ ' + resG.totalVentasUSD.toFixed(2) + ' USD';
+        const pctVendido = totalUnidades > 0 ? ((resG.totalUnidadesVendidas / totalUnidades) * 100).toFixed(1) : 0;
+        document.getElementById('kpi-gestores-porciento-vendido').textContent = pctVendido + '% del inventario vendido';
+      }
+    }
+
+    function renderizarListasGastosInversionesBajas() {
+      const sData = getSemanaData();
+
+      const cG = document.getElementById('lista-gastos');
+      cG.innerHTML = sData.gastos.map(g => `
+        <div class="flex items-center justify-between p-2 rounded bg-black border border-slate-800 text-xs">
+          <span class="text-slate-300">${g.concepto}</span>
+          <div class="flex items-center gap-2">
+            <span class="font-mono text-rose-400 font-bold">${g.monto.toFixed(2)} ${g.moneda}</span>
+            <button onclick="eliminarGasto('${g.id}')" class="text-rose-400"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
+          </div>
+        </div>
+      `).join('') || `<div class="text-slate-600 text-[11px] text-center py-2">Sin gastos registrados</div>`;
+
+      const cI = document.getElementById('lista-inversiones');
+      cI.innerHTML = sData.inversiones.map(i => `
+        <div class="flex items-center justify-between p-2 rounded bg-black border border-slate-800 text-xs">
+          <span class="text-slate-300">${i.motivo}</span>
+          <div class="flex items-center gap-2">
+            <span class="font-mono text-emerald-400 font-bold">${i.monto.toFixed(2)} ${i.moneda}</span>
+            <button onclick="eliminarInversion('${i.id}')" class="text-rose-400"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
+          </div>
+        </div>
+      `).join('') || `<div class="text-slate-600 text-[11px] text-center py-2">Sin inversiones extras</div>`;
+
+      const cB = document.getElementById('lista-bajas');
+      cB.innerHTML = sData.bajas.map(b => `
+        <div class="flex items-center justify-between p-2 rounded bg-black border border-slate-800 text-xs">
+          <span class="text-slate-300">${b.cantidad}x ${b.producto} (${b.motivo})</span>
+          <button onclick="eliminarBaja('${b.id}')" class="text-rose-400"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
+        </div>
+      `).join('') || `<div class="text-slate-600 text-[11px] text-center py-2">Sin bajas de inventario</div>`;
+    }
+
+    function renderizarHistorialVales() {
+      const tbody = document.getElementById('historial-vales-tbody');
+      const sData = getSemanaData();
+      tbody.innerHTML = '';
+
+      document.getElementById('label-conteo-vales-historial').textContent = `${sData.valesEntrada.length} vales`;
+
+      if (sData.valesEntrada.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="9" class="p-6 text-center text-slate-500">No hay vales de entrada guardados. Pega uno arriba para comenzar.</td></tr>`;
+        return;
+      }
+
+      sData.valesEntrada.forEach(v => {
+        const prodBadges = v.items.map(i => `<span class="bg-black border border-amber-500/30 px-2 py-0.5 rounded text-[11px] font-mono mr-1">${i.cantidad}x ${i.nombre} (${i.moneda})</span>`).join(' ');
+
+        const totalCompraTxt = v.moneda === 'USD' ? `$ ${v.totalCompraUSD.toFixed(2)} USD` : `${v.totalCompraCUP.toLocaleString('es-ES')} CUP`;
+
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-slate-900';
+        tr.innerHTML = `
+          <td class="p-3 font-mono font-bold text-amber-300">${v.folio}</td>
+          <td class="p-3 text-slate-400 font-mono">${v.fecha}</td>
+          <td class="p-3 text-slate-300 font-bold">${v.proveedor}</td>
+          <td class="p-3 text-center font-mono font-bold ${v.moneda === 'USD' ? 'text-emerald-400' : 'text-amber-300'}">${v.moneda}</td>
+          <td class="p-3">${prodBadges}</td>
+          <td class="p-3 font-mono text-indigo-300">${v.transporteTotal.toFixed(2)} ${v.moneda}</td>
+          <td class="p-3 font-mono text-rose-300 font-bold">${totalCompraTxt}</td>
+          <td class="p-3 font-mono text-cyan-300 font-bold">Lote Calculado</td>
+          <td class="p-3 text-center">
+            <button onclick="editarValeHistorial('${v.id}')" class="p-1 text-amber-400 hover:text-amber-300" title="Editar vale"><i data-lucide="pencil" class="w-4 h-4"></i></button>
+              <button onclick="eliminarValeHistorial('${v.id}')" class="p-1 text-rose-400 hover:text-rose-300" title="Eliminar vale"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+      if (window.lucide && typeof lucide.createIcons === 'function') { lucide.createIcons(); }
+    }
+
+    // ================= EXPORTACIÓN EXCEL =================
+    function exportarExcel() {
+      const sData = getSemanaData();
+      const semObj = appData.semanas.find(s => s.id === appData.semanaActivaId) || { nombre: 'Semana' };
+      const wb = XLSX.utils.book_new();
+
+      const invRows = sData.lotesInventario.map(l => {
+        const calc = (l.inicio || 0) + (l.entradas || 0) - (l.bajas || 0);
+        return {
+          'Orden Llegada': l.ordenLlegada,
+          'Producto': l.producto,
+          'Vale/Lote': l.folioVale,
+          'Moneda': l.moneda,
+          'Inv. Inicial': l.inicio || 0,
+          'Entradas (+)': l.entradas || 0,
+          'Bajas (-)': l.bajas || 0,
+          'Final Calculado': calc,
+          'Final Real Físico': l.finalReal !== undefined ? l.finalReal : calc,
+          'Precio Compra': l.precioCompra,
+          'Precio Venta': l.precioVenta,
+          'Comisión Gestores': l.comisionGestores,
+          'Moneda Comisión': l.comisionMoneda || 'CUP'
+        };
+      });
+      XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(invRows), 'Inventario_Lotes');
+
+      const valesRows = [];
+      sData.valesEntrada.forEach(v => {
+        v.items.forEach(it => {
+          valesRows.push({
+            'Folio': v.folio,
+            'Fecha': v.fecha,
+            'Proveedor': v.proveedor,
+            'Moneda Vale': v.moneda,
+            'Producto': it.nombre,
+            'Cantidad': it.cantidad,
+            'Moneda Ítem': it.moneda,
+            'Precio Compra': it.precioCompra,
+            'Precio Venta': it.precioVenta,
+            'Comisión Gestor': it.comisionGestores,
+            'Transporte Unitario': it.transporteUnitario,
+            'Ganancia Estimada': it.margenGanancia
+          });
+        });
+      });
+      XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(valesRows), 'Vales_Entrada');
+
+      XLSX.writeFile(wb, `Almacen_Compras_${semObj.nombre.replace(/\s+/g, '_')}.xlsx`);
+    }
+
+    // ================= DAR DE BAJA / REACTIVAR PRODUCTO =================
+    function darDeBajaProductoLote(id) {
+      const sData = getSemanaData();
+      const lote = sData.lotesInventario.find(l => l.id === id);
+      if (!lote) return;
+      if (!confirm(`¿Dar de BAJA el producto "${lote.producto}" (Vale: ${lote.folioVale})?\n\nEl producto quedará desactivado del inventario activo.`)) return;
+      lote.dadoDeBaja = true;
+      lote.fechaBaja = new Date().toISOString().split('T')[0];
+      persistirEstado();
+      renderizarTodo();
+      alert(`Producto "${lote.producto}" dado de baja correctamente.`);
+    }
+
+    function reactivarProductoLote(id) {
+      const sData = getSemanaData();
+      const lote = sData.lotesInventario.find(l => l.id === id);
+      if (!lote) return;
+      lote.dadoDeBaja = false;
+      delete lote.fechaBaja;
+      persistirEstado();
+      renderizarTodo();
+      alert(`Producto "${lote.producto}" reactivado en inventario.`);
+    }
+
+    function eliminarLoteDirecto(id) {
+      if (!confirm('¿Eliminar este lote permanentemente del inventario?')) return;
+      const sData = getSemanaData();
+      sData.lotesInventario = sData.lotesInventario.filter(l => l.id !== id);
+      persistirEstado();
+      renderizarTodo();
+    }
+
+    // ================= FILTRO POR RANGO DE FECHAS =================
+    let valesFiltrados = null;
+
+    function filtrarValesPorRango() {
+      const desde = document.getElementById('filtro-fecha-desde').value;
+      const hasta = document.getElementById('filtro-fecha-hasta').value;
+      const sData = getSemanaData();
+
+      if (!desde && !hasta) {
+        alert('Selecciona al menos una fecha (Desde o Hasta) para filtrar.');
+        return;
+      }
+
+      valesFiltrados = sData.valesEntrada.filter(v => {
+        const fv = v.fecha || '';
+        if (desde && hasta) return fv >= desde && fv <= hasta;
+        if (desde) return fv >= desde;
+        if (hasta) return fv <= hasta;
+        return true;
+      });
+
+      renderizarResultadoFiltro();
+    }
+
+    function limpiarFiltroRango() {
+      valesFiltrados = null;
+      document.getElementById('filtro-fecha-desde').value = '';
+      document.getElementById('filtro-fecha-hasta').value = '';
+      document.getElementById('filtro-resultado-container').classList.add('hidden');
+      document.getElementById('filtro-rango-count').textContent = 'Todos los vales';
+    }
+
+    function renderizarResultadoFiltro() {
+      if (!valesFiltrados) return;
+      const container = document.getElementById('filtro-resultado-container');
+      container.classList.remove('hidden');
+
+      let totalUSD = 0, totalCUP = 0;
+      const productosSet = new Set();
+
+      valesFiltrados.forEach(v => {
+        totalUSD += v.totalCompraUSD || 0;
+        totalCUP += v.totalCompraCUP || 0;
+        v.items.forEach(it => productosSet.add(it.nombre));
+      });
+
+      document.getElementById('filtro-total-vales').textContent = valesFiltrados.length;
+      document.getElementById('filtro-total-usd').textContent = `$${totalUSD.toFixed(2)}`;
+      document.getElementById('filtro-total-cup').textContent = `${totalCUP.toLocaleString('es-ES')} CUP`;
+      document.getElementById('filtro-total-productos').textContent = productosSet.size;
+      document.getElementById('filtro-rango-count').textContent = `${valesFiltrados.length} vales filtrados`;
+
+      const tbody = document.getElementById('filtro-vales-tbody');
+      tbody.innerHTML = '';
+
+      if (valesFiltrados.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-slate-500">No se encontraron vales en el rango de fechas seleccionado.</td></tr>`;
+        return;
+      }
+
+      valesFiltrados.forEach(v => {
+        const prodBadges = v.items.map(i => `<span class="bg-black border border-amber-500/30 px-1.5 py-0.5 rounded text-[10px] font-mono mr-0.5">${i.cantidad}x ${i.nombre}</span>`).join(' ');
+        const totalTxt = v.moneda === 'USD' ? `$${(v.totalCompraUSD || 0).toFixed(2)} USD` : `${(v.totalCompraCUP || 0).toLocaleString('es-ES')} CUP`;
+
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-slate-900';
+        tr.innerHTML = `
+          <td class="p-2.5 font-mono font-bold text-amber-300">${v.folio}</td>
+          <td class="p-2.5 text-cyan-300 font-mono">${v.fecha}</td>
+          <td class="p-2.5 text-slate-300">${v.proveedor}</td>
+          <td class="p-2.5 text-center font-bold ${v.moneda === 'USD' ? 'text-emerald-400' : 'text-amber-300'}">${v.moneda}</td>
+          <td class="p-2.5">${prodBadges}</td>
+          <td class="p-2.5 font-mono text-rose-300 font-bold">${totalTxt}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+      if (window.lucide && typeof lucide.createIcons === 'function') { lucide.createIcons(); }
+    }
+
+    function generarReciboRango() {
+      if (!valesFiltrados || valesFiltrados.length === 0) {
+        alert('Primero filtra un rango de fechas que contenga vales.');
+        return;
+      }
+
+      const desde = document.getElementById('filtro-fecha-desde').value || 'Inicio';
+      const hasta = document.getElementById('filtro-fecha-hasta').value || 'Actualidad';
+
+      let totalUSD = 0, totalCUP = 0, totalUnidades = 0;
+      const detallesProductos = [];
+
+      valesFiltrados.forEach(v => {
+        totalUSD += v.totalCompraUSD || 0;
+        totalCUP += v.totalCompraCUP || 0;
+        v.items.forEach(it => {
+          totalUnidades += it.cantidad || 0;
+          detallesProductos.push(`  • ${it.cantidad}x ${it.nombre} — ${it.precioCompra} ${it.moneda} (Vale: ${v.folio}, Fecha: ${v.fecha})`);
+        });
+      });
+
+      const recibo = `
+══════════════════════════════════════════
+   RECIBO DE COMPRAS — ALMACÉN CENTRAL
+══════════════════════════════════════════
+Período: ${desde} → ${hasta}
+Total de Vales: ${valesFiltrados.length}
+Total de Unidades: ${totalUnidades}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+DETALLE POR PRODUCTO:
+${detallesProductos.join('\n')}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+TOTAL COMPRAS USD: $${totalUSD.toFixed(2)}
+TOTAL COMPRAS CUP: ${totalCUP.toLocaleString('es-ES')} CUP
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Generado: ${new Date().toLocaleString()}
+══════════════════════════════════════════
+      `.trim();
+
+      // Copiar al portapapeles y descargar
+      navigator.clipboard.writeText(recibo).catch(() => {});
+      const blob = new Blob([recibo], { type: 'text/plain;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `Recibo_Compras_${desde}_a_${hasta}.txt`;
+      a.click();
+      URL.revokeObjectURL(url);
+      alert(`📄 Recibo generado y descargado.\n\nPeríodo: ${desde} → ${hasta}\nVales: ${valesFiltrados.length}\nTotal USD: $${totalUSD.toFixed(2)}\nTotal CUP: ${totalCUP.toLocaleString('es-ES')}`);
+    }
+
+    // ================= PWA INSTALACIÓN =================
+    var deferredPromptPWA = null;
+
+    function estaEnModoInstalado() {
+      return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+    }
+
+    function ocultarOpcionesInstalacionSiYaInstalada() {
+      if (estaEnModoInstalado()) {
+        var btnHeader = document.getElementById('btn-instalar-app-pwa');
+        if (btnHeader) { btnHeader.classList.add('hidden'); btnHeader.classList.remove('flex'); }
+        var cartel = document.getElementById('cartel-instalar-app');
+        if (cartel) cartel.classList.add('hidden');
+        return true;
+      }
+      return false;
+    }
+
+    window.addEventListener('DOMContentLoaded', ocultarOpcionesInstalacionSiYaInstalada);
+
+    window.addEventListener('beforeinstallprompt', function(e) {
+      e.preventDefault();
+      deferredPromptPWA = e;
+      if (ocultarOpcionesInstalacionSiYaInstalada()) return;
+      var btnHeader = document.getElementById('btn-instalar-app-pwa');
+      if (btnHeader) { btnHeader.classList.remove('hidden'); btnHeader.classList.add('flex'); }
+      var cartel = document.getElementById('cartel-instalar-app');
+      if (cartel && !sessionStorage.getItem('cartel_instalacion_descartado')) {
+        cartel.classList.remove('hidden');
+      }
+    });
+
+    window.addEventListener('appinstalled', function() {
+      deferredPromptPWA = null;
+      var btnHeader = document.getElementById('btn-instalar-app-pwa');
+      if (btnHeader) btnHeader.classList.add('hidden');
+      var cartel = document.getElementById('cartel-instalar-app');
+      if (cartel) cartel.classList.add('hidden');
+      console.log('🎉 PWA Compras de la Tienda instalada exitosamente!');
+    });
+
+    async function ejecutarInstalacionPWA() {
+      if (deferredPromptPWA) {
+        deferredPromptPWA.prompt();
+        var choice = await deferredPromptPWA.userChoice;
+        if (choice.outcome === 'accepted') {
+          deferredPromptPWA = null;
+          var cartel = document.getElementById('cartel-instalar-app');
+          if (cartel) cartel.classList.add('hidden');
+        }
+      } else {
+        var isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+        var isStandalone = estaEnModoInstalado();
+        if (isStandalone) {
+          alert('✅ La aplicación ya está instalada y funcionando en este dispositivo.');
+        } else if (isIOS) {
+          alert('📲 Para instalar en iPhone o iPad:\n\n1. Toca el botón Compartir en Safari\n2. Selecciona "Agregar al inicio"\n3. ¡Listo! Funcionará 100% offline.');
+        } else {
+          alert('📲 Para instalar:\n\n1. Haz clic en los tres puntos ⋮ del menú de tu navegador\n2. Selecciona "Instalar Compras de la Tienda"\n3. ¡Listo!');
+        }
+      }
+    }
+
+    function descartarCartelInstalacion() {
+      var cartel = document.getElementById('cartel-instalar-app');
+      if (cartel) cartel.classList.add('hidden');
+      sessionStorage.setItem('cartel_instalacion_descartado', 'true');
+    }
+  </script>
+</body>
+</html>
+ + v.precioVenta.toFixed(2) + '</td>' +
+                  '<td class="p-2.5 text-right font-bold text-emerald-400">
+      renderizarSelectorSemanas();
+      renderizarKPIsBimoneda();
+      renderizarTablaInventario();
+      renderizarTablaVentasGestores();
+      const badgeInv = document.getElementById('badge-inventario-count');
+      if (badgeInv) badgeInv.textContent = (getSemanaData().lotesInventario.length) + ' lotes';
+      renderizarListasGastosInversionesBajas();
+      renderizarHistorialVales();
+      poblarSelectBajas();
+      actualizarDatalistProductos();
+      if (window.lucide && typeof lucide.createIcons === 'function') { lucide.createIcons(); }
+    }
+
+    function renderizarSelectorSemanas() {
+      const sel = document.getElementById('selector-semana');
+      sel.innerHTML = '';
+      appData.semanas.forEach(s => {
+        const opt = document.createElement('option');
+        opt.value = s.id;
+        opt.textContent = `${s.nombre} ${s.cerrada ? '🔒' : '🟢'}`;
+        if (s.id === appData.semanaActivaId) opt.selected = true;
+        sel.appendChild(opt);
+      });
+    }
+
+    function poblarSelectBajas() {
+      const sel = document.getElementById('baja-lote-select');
+      const sData = getSemanaData();
+      // FIFO: ordenar por orden de llegada para consumir primero los más antiguos
+      const lotesOrdenados = [...sData.lotesInventario]
+        .filter(l => !l.dadoDeBaja)
+        .sort((a, b) => (a.ordenLlegada || 0) - (b.ordenLlegada || 0));
+      sel.innerHTML = lotesOrdenados.map(l => {
+        const disponible = (l.inicio || 0) + (l.entradas || 0) - (l.bajas || 0) - (l.merma || 0) - (l.errores || 0);
+        return `<option value="${l.id}">#${l.ordenLlegada || '?'} ${l.producto} (Disp: ${disponible}, ${l.folioVale} • ${l.moneda})</option>`;
+      }).join('');
+    }
+
+    function renderizarKPIsBimoneda() {
+      const sData = getSemanaData();
+
+      let totalUnidades = 0;
+      let costoUSD = 0, costoCUP = 0;
+      let ventaUSD = 0, ventaCUP = 0;
+      let comisionCUP = 0;
+      let transpCUP = 0;
+
+      sData.lotesInventario.forEach(l => {
+        const cant = l.entradas || l.inicio || 0;
+        totalUnidades += cant;
+
+        if (l.moneda === 'USD') {
+          costoUSD += cant * (l.precioCompra || 0);
+          ventaUSD += cant * (l.precioVenta || 0);
+        } else {
+          costoCUP += cant * (l.precioCompra || 0);
+          ventaCUP += cant * (l.precioVenta || 0);
+        }
+
+        // Transporte y Comisión de Gestores se llevan estrictamente en CUP
+        transpCUP += cant * (l.transporteUnitario || 0);
+        comisionCUP += cant * (l.comisionGestores || 0);
+      });
+
+      const gastosUSD = sData.gastos.filter(g => g.moneda === 'USD').reduce((acc, g) => acc + g.monto, 0);
+      const gastosCUP = sData.gastos.filter(g => g.moneda === 'CUP').reduce((acc, g) => acc + g.monto, 0);
+
+      // DOS CUENTAS INDEPENDIENTES (Sin conversión forzada de USD a CUP):
+      // Cuenta DÓLAR: Ganancia neta = Venta USD - Costo USD - Gastos USD
+      const gananciaUSD = ventaUSD - costoUSD - gastosUSD;
+      // Cuenta CUP: Ganancia Neta = Venta CUP - Costo CUP - Gastos CUP - Comisión - Transporte
+      const gananciaCUP = ventaCUP - costoCUP - gastosCUP - comisionCUP - transpCUP;
+
+      document.getElementById('kpi-unidades').textContent = totalUnidades;
+      document.getElementById('kpi-vales-count').textContent = `${sData.valesEntrada.length} vales guardados`;
+
+      // Costo Compra
+      document.getElementById('kpi-costo-usd').textContent = `$ ${costoUSD.toFixed(2)} USD`;
+      document.getElementById('kpi-costo-cup').textContent = costoCUP > 0 ? `${costoCUP.toLocaleString('es-ES', { minimumFractionDigits: 2 })} CUP` : '0.00 CUP';
+      document.getElementById('kpi-costo-consolidado').textContent = 'Cuenta en USD';
+
+      // Venta Proyectada
+      document.getElementById('kpi-venta-usd').textContent = `$ ${ventaUSD.toFixed(2)} USD`;
+      document.getElementById('kpi-venta-cup').textContent = ventaCUP > 0 ? `${ventaCUP.toLocaleString('es-ES', { minimumFractionDigits: 2 })} CUP` : '0.00 CUP';
+      document.getElementById('kpi-venta-consolidado').textContent = 'Cuenta en USD';
+
+      // Comisión Gestores (Solo CUP)
+      document.getElementById('kpi-comision-cup').textContent = `${comisionCUP.toLocaleString('es-ES', { minimumFractionDigits: 2 })} CUP`;
+      document.getElementById('kpi-comision-usd').textContent = 'Cuenta en CUP';
+      document.getElementById('kpi-comision-consolidado').textContent = 'Total Gestores';
+
+      // Transporte Total (Solo CUP)
+      document.getElementById('kpi-transporte-cup').textContent = `${transpCUP.toLocaleString('es-ES', { minimumFractionDigits: 2 })} CUP`;
+      document.getElementById('kpi-transporte-usd').textContent = 'Cuenta en CUP';
+      document.getElementById('kpi-transporte-consolidado').textContent = 'Total Transporte';
+
+      // Ganancia Neta
+      document.getElementById('kpi-margen-usd').textContent = `$ ${gananciaUSD.toFixed(2)} USD`;
+      document.getElementById('kpi-margen-cup').textContent = gananciaCUP !== 0 ? `${gananciaCUP.toLocaleString('es-ES', { minimumFractionDigits: 2 })} CUP` : '0.00 CUP';
+      document.getElementById('kpi-margen-consolidado').textContent = 'USD: V-C-G | CUP: V-C-G-Com-Tr';
+
+
+      // === KPI: Inversión General (Compra + Comisión + Transporte) ===
+      // Inversión USD = Costo Compra USD (comisión y transporte van en CUP)
+      const inversionUSD = costoUSD;
+      // Inversión CUP = Costo Compra CUP + Comisión + Transporte
+      const inversionCUP = costoCUP + comisionCUP + transpCUP;
+
+      document.getElementById('kpi-inversion-usd').textContent = `$ ${inversionUSD.toFixed(2)} USD`;
+      document.getElementById('kpi-inversion-cup').textContent = `${inversionCUP.toLocaleString('es-ES', { minimumFractionDigits: 2 })} CUP`;
+      document.getElementById('kpi-inversion-detalle').textContent = `USD: Compra | CUP: Compra+Com+Transp`;
+
+      // === KPI: Ganancia Bruta (Venta - Compra, sin gastos ni comisiones) ===
+      const gananciaBrutaUSD = ventaUSD - costoUSD;
+      const gananciaBrutaCUP = ventaCUP - costoCUP;
+
+      document.getElementById('kpi-ganancia-bruta-usd').textContent = `$ ${gananciaBrutaUSD.toFixed(2)} USD`;
+      document.getElementById('kpi-ganancia-bruta-cup').textContent = `${gananciaBrutaCUP.toLocaleString('es-ES', { minimumFractionDigits: 2 })} CUP`;
+
+      document.getElementById('resumen-gastos-box').textContent = `${gastosUSD.toFixed(2)} USD / ${gastosCUP.toFixed(0)} CUP`;
+
+      const invUSD = sData.inversiones.filter(i => i.moneda === 'USD').reduce((acc, i) => acc + i.monto, 0);
+      const invCUP = sData.inversiones.filter(i => i.moneda === 'CUP').reduce((acc, i) => acc + i.monto, 0);
+      document.getElementById('resumen-inversiones-box').textContent = `${invUSD.toFixed(2)} USD / ${invCUP.toFixed(0)} CUP`;
+
+      const totalBajas = sData.bajas.reduce((acc, b) => acc + (b.cantidad || 0), 0);
+      document.getElementById('resumen-bajas-box').textContent = `${totalBajas} u.`;
+
+      // === DATOS CRUZADOS CON WEB DE GESTORES ===
+      const resG = obtenerResumenGestores();
+      if (resG) {
+        document.getElementById('kpi-gestores-vendidas').textContent = resG.totalUnidadesVendidas + ' uds vendidas';
+        document.getElementById('kpi-gestores-vales-count').textContent = resG.totalVales + ' vales gestores | ' + resG.gestoresActivos + ' gestores';
+        document.getElementById('kpi-gestores-venta-real').textContent = '$ ' + resG.totalVentasUSD.toFixed(2) + ' USD';
+        document.getElementById('kpi-gestores-com-pagadas').textContent = 'Pagadas: ' + resG.comisionesPagadasCUP.toLocaleString('es-ES') + ' CUP';
+        document.getElementById('kpi-gestores-com-pendientes').textContent = 'Pendientes: ' + resG.comisionesPendientesCUP.toLocaleString('es-ES') + ' CUP';
+        document.getElementById('kpi-gestores-activos').textContent = resG.gestoresActivos + ' gestores activos';
+
+        let costoVendidoUSD = 0;
+        const productosYaContados = {};
+        sData.lotesInventario.forEach(l => {
+          const key = normalizarNombreProducto(l.producto);
+          if (productosYaContados[key]) return;
+          const vendidas = unidadesVendidasGestores(l.producto);
+          if (vendidas > 0) {
+            const totalEnInv = sData.lotesInventario.filter(lo => normalizarNombreProducto(lo.producto) === key).reduce((s, lo) => s + (lo.entradas || lo.inicio || 0), 0);
+            costoVendidoUSD += vendidas * (l.precioCompra || 0);
+            productosYaContados[key] = true;
+          }
+        });
+        document.getElementById('kpi-gestores-costo-vendido').textContent = '$ ' + costoVendidoUSD.toFixed(2) + ' USD';
+        document.getElementById('kpi-gestores-inv-recuperada').textContent = '$ ' + resG.totalVentasUSD.toFixed(2) + ' USD cobrados';
+        const gananciaRealUSD = resG.totalVentasUSD - costoVendidoUSD;
+        document.getElementById('kpi-gestores-ganancia-real').textContent = '$ ' + gananciaRealUSD.toFixed(2) + ' USD';
+        document.getElementById('kpi-gestores-cobrado-real').textContent = '$ ' + resG.totalVentasUSD.toFixed(2) + ' USD';
+        const pctVendido = totalUnidades > 0 ? ((resG.totalUnidadesVendidas / totalUnidades) * 100).toFixed(1) : 0;
+        document.getElementById('kpi-gestores-porciento-vendido').textContent = pctVendido + '% del inventario vendido';
+      }
+    }
+
+    function renderizarListasGastosInversionesBajas() {
+      const sData = getSemanaData();
+
+      const cG = document.getElementById('lista-gastos');
+      cG.innerHTML = sData.gastos.map(g => `
+        <div class="flex items-center justify-between p-2 rounded bg-black border border-slate-800 text-xs">
+          <span class="text-slate-300">${g.concepto}</span>
+          <div class="flex items-center gap-2">
+            <span class="font-mono text-rose-400 font-bold">${g.monto.toFixed(2)} ${g.moneda}</span>
+            <button onclick="eliminarGasto('${g.id}')" class="text-rose-400"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
+          </div>
+        </div>
+      `).join('') || `<div class="text-slate-600 text-[11px] text-center py-2">Sin gastos registrados</div>`;
+
+      const cI = document.getElementById('lista-inversiones');
+      cI.innerHTML = sData.inversiones.map(i => `
+        <div class="flex items-center justify-between p-2 rounded bg-black border border-slate-800 text-xs">
+          <span class="text-slate-300">${i.motivo}</span>
+          <div class="flex items-center gap-2">
+            <span class="font-mono text-emerald-400 font-bold">${i.monto.toFixed(2)} ${i.moneda}</span>
+            <button onclick="eliminarInversion('${i.id}')" class="text-rose-400"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
+          </div>
+        </div>
+      `).join('') || `<div class="text-slate-600 text-[11px] text-center py-2">Sin inversiones extras</div>`;
+
+      const cB = document.getElementById('lista-bajas');
+      cB.innerHTML = sData.bajas.map(b => `
+        <div class="flex items-center justify-between p-2 rounded bg-black border border-slate-800 text-xs">
+          <span class="text-slate-300">${b.cantidad}x ${b.producto} (${b.motivo})</span>
+          <button onclick="eliminarBaja('${b.id}')" class="text-rose-400"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
+        </div>
+      `).join('') || `<div class="text-slate-600 text-[11px] text-center py-2">Sin bajas de inventario</div>`;
+    }
+
+    function renderizarHistorialVales() {
+      const tbody = document.getElementById('historial-vales-tbody');
+      const sData = getSemanaData();
+      tbody.innerHTML = '';
+
+      document.getElementById('label-conteo-vales-historial').textContent = `${sData.valesEntrada.length} vales`;
+
+      if (sData.valesEntrada.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="9" class="p-6 text-center text-slate-500">No hay vales de entrada guardados. Pega uno arriba para comenzar.</td></tr>`;
+        return;
+      }
+
+      sData.valesEntrada.forEach(v => {
+        const prodBadges = v.items.map(i => `<span class="bg-black border border-amber-500/30 px-2 py-0.5 rounded text-[11px] font-mono mr-1">${i.cantidad}x ${i.nombre} (${i.moneda})</span>`).join(' ');
+
+        const totalCompraTxt = v.moneda === 'USD' ? `$ ${v.totalCompraUSD.toFixed(2)} USD` : `${v.totalCompraCUP.toLocaleString('es-ES')} CUP`;
+
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-slate-900';
+        tr.innerHTML = `
+          <td class="p-3 font-mono font-bold text-amber-300">${v.folio}</td>
+          <td class="p-3 text-slate-400 font-mono">${v.fecha}</td>
+          <td class="p-3 text-slate-300 font-bold">${v.proveedor}</td>
+          <td class="p-3 text-center font-mono font-bold ${v.moneda === 'USD' ? 'text-emerald-400' : 'text-amber-300'}">${v.moneda}</td>
+          <td class="p-3">${prodBadges}</td>
+          <td class="p-3 font-mono text-indigo-300">${v.transporteTotal.toFixed(2)} ${v.moneda}</td>
+          <td class="p-3 font-mono text-rose-300 font-bold">${totalCompraTxt}</td>
+          <td class="p-3 font-mono text-cyan-300 font-bold">Lote Calculado</td>
+          <td class="p-3 text-center">
+            <button onclick="editarValeHistorial('${v.id}')" class="p-1 text-amber-400 hover:text-amber-300" title="Editar vale"><i data-lucide="pencil" class="w-4 h-4"></i></button>
+              <button onclick="eliminarValeHistorial('${v.id}')" class="p-1 text-rose-400 hover:text-rose-300" title="Eliminar vale"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+      if (window.lucide && typeof lucide.createIcons === 'function') { lucide.createIcons(); }
+    }
+
+    // ================= EXPORTACIÓN EXCEL =================
+    function exportarExcel() {
+      const sData = getSemanaData();
+      const semObj = appData.semanas.find(s => s.id === appData.semanaActivaId) || { nombre: 'Semana' };
+      const wb = XLSX.utils.book_new();
+
+      const invRows = sData.lotesInventario.map(l => {
+        const calc = (l.inicio || 0) + (l.entradas || 0) - (l.bajas || 0);
+        return {
+          'Orden Llegada': l.ordenLlegada,
+          'Producto': l.producto,
+          'Vale/Lote': l.folioVale,
+          'Moneda': l.moneda,
+          'Inv. Inicial': l.inicio || 0,
+          'Entradas (+)': l.entradas || 0,
+          'Bajas (-)': l.bajas || 0,
+          'Final Calculado': calc,
+          'Final Real Físico': l.finalReal !== undefined ? l.finalReal : calc,
+          'Precio Compra': l.precioCompra,
+          'Precio Venta': l.precioVenta,
+          'Comisión Gestores': l.comisionGestores,
+          'Moneda Comisión': l.comisionMoneda || 'CUP'
+        };
+      });
+      XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(invRows), 'Inventario_Lotes');
+
+      const valesRows = [];
+      sData.valesEntrada.forEach(v => {
+        v.items.forEach(it => {
+          valesRows.push({
+            'Folio': v.folio,
+            'Fecha': v.fecha,
+            'Proveedor': v.proveedor,
+            'Moneda Vale': v.moneda,
+            'Producto': it.nombre,
+            'Cantidad': it.cantidad,
+            'Moneda Ítem': it.moneda,
+            'Precio Compra': it.precioCompra,
+            'Precio Venta': it.precioVenta,
+            'Comisión Gestor': it.comisionGestores,
+            'Transporte Unitario': it.transporteUnitario,
+            'Ganancia Estimada': it.margenGanancia
+          });
+        });
+      });
+      XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(valesRows), 'Vales_Entrada');
+
+      XLSX.writeFile(wb, `Almacen_Compras_${semObj.nombre.replace(/\s+/g, '_')}.xlsx`);
+    }
+
+    // ================= DAR DE BAJA / REACTIVAR PRODUCTO =================
+    function darDeBajaProductoLote(id) {
+      const sData = getSemanaData();
+      const lote = sData.lotesInventario.find(l => l.id === id);
+      if (!lote) return;
+      if (!confirm(`¿Dar de BAJA el producto "${lote.producto}" (Vale: ${lote.folioVale})?\n\nEl producto quedará desactivado del inventario activo.`)) return;
+      lote.dadoDeBaja = true;
+      lote.fechaBaja = new Date().toISOString().split('T')[0];
+      persistirEstado();
+      renderizarTodo();
+      alert(`Producto "${lote.producto}" dado de baja correctamente.`);
+    }
+
+    function reactivarProductoLote(id) {
+      const sData = getSemanaData();
+      const lote = sData.lotesInventario.find(l => l.id === id);
+      if (!lote) return;
+      lote.dadoDeBaja = false;
+      delete lote.fechaBaja;
+      persistirEstado();
+      renderizarTodo();
+      alert(`Producto "${lote.producto}" reactivado en inventario.`);
+    }
+
+    function eliminarLoteDirecto(id) {
+      if (!confirm('¿Eliminar este lote permanentemente del inventario?')) return;
+      const sData = getSemanaData();
+      sData.lotesInventario = sData.lotesInventario.filter(l => l.id !== id);
+      persistirEstado();
+      renderizarTodo();
+    }
+
+    // ================= FILTRO POR RANGO DE FECHAS =================
+    let valesFiltrados = null;
+
+    function filtrarValesPorRango() {
+      const desde = document.getElementById('filtro-fecha-desde').value;
+      const hasta = document.getElementById('filtro-fecha-hasta').value;
+      const sData = getSemanaData();
+
+      if (!desde && !hasta) {
+        alert('Selecciona al menos una fecha (Desde o Hasta) para filtrar.');
+        return;
+      }
+
+      valesFiltrados = sData.valesEntrada.filter(v => {
+        const fv = v.fecha || '';
+        if (desde && hasta) return fv >= desde && fv <= hasta;
+        if (desde) return fv >= desde;
+        if (hasta) return fv <= hasta;
+        return true;
+      });
+
+      renderizarResultadoFiltro();
+    }
+
+    function limpiarFiltroRango() {
+      valesFiltrados = null;
+      document.getElementById('filtro-fecha-desde').value = '';
+      document.getElementById('filtro-fecha-hasta').value = '';
+      document.getElementById('filtro-resultado-container').classList.add('hidden');
+      document.getElementById('filtro-rango-count').textContent = 'Todos los vales';
+    }
+
+    function renderizarResultadoFiltro() {
+      if (!valesFiltrados) return;
+      const container = document.getElementById('filtro-resultado-container');
+      container.classList.remove('hidden');
+
+      let totalUSD = 0, totalCUP = 0;
+      const productosSet = new Set();
+
+      valesFiltrados.forEach(v => {
+        totalUSD += v.totalCompraUSD || 0;
+        totalCUP += v.totalCompraCUP || 0;
+        v.items.forEach(it => productosSet.add(it.nombre));
+      });
+
+      document.getElementById('filtro-total-vales').textContent = valesFiltrados.length;
+      document.getElementById('filtro-total-usd').textContent = `$${totalUSD.toFixed(2)}`;
+      document.getElementById('filtro-total-cup').textContent = `${totalCUP.toLocaleString('es-ES')} CUP`;
+      document.getElementById('filtro-total-productos').textContent = productosSet.size;
+      document.getElementById('filtro-rango-count').textContent = `${valesFiltrados.length} vales filtrados`;
+
+      const tbody = document.getElementById('filtro-vales-tbody');
+      tbody.innerHTML = '';
+
+      if (valesFiltrados.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-slate-500">No se encontraron vales en el rango de fechas seleccionado.</td></tr>`;
+        return;
+      }
+
+      valesFiltrados.forEach(v => {
+        const prodBadges = v.items.map(i => `<span class="bg-black border border-amber-500/30 px-1.5 py-0.5 rounded text-[10px] font-mono mr-0.5">${i.cantidad}x ${i.nombre}</span>`).join(' ');
+        const totalTxt = v.moneda === 'USD' ? `$${(v.totalCompraUSD || 0).toFixed(2)} USD` : `${(v.totalCompraCUP || 0).toLocaleString('es-ES')} CUP`;
+
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-slate-900';
+        tr.innerHTML = `
+          <td class="p-2.5 font-mono font-bold text-amber-300">${v.folio}</td>
+          <td class="p-2.5 text-cyan-300 font-mono">${v.fecha}</td>
+          <td class="p-2.5 text-slate-300">${v.proveedor}</td>
+          <td class="p-2.5 text-center font-bold ${v.moneda === 'USD' ? 'text-emerald-400' : 'text-amber-300'}">${v.moneda}</td>
+          <td class="p-2.5">${prodBadges}</td>
+          <td class="p-2.5 font-mono text-rose-300 font-bold">${totalTxt}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+      if (window.lucide && typeof lucide.createIcons === 'function') { lucide.createIcons(); }
+    }
+
+    function generarReciboRango() {
+      if (!valesFiltrados || valesFiltrados.length === 0) {
+        alert('Primero filtra un rango de fechas que contenga vales.');
+        return;
+      }
+
+      const desde = document.getElementById('filtro-fecha-desde').value || 'Inicio';
+      const hasta = document.getElementById('filtro-fecha-hasta').value || 'Actualidad';
+
+      let totalUSD = 0, totalCUP = 0, totalUnidades = 0;
+      const detallesProductos = [];
+
+      valesFiltrados.forEach(v => {
+        totalUSD += v.totalCompraUSD || 0;
+        totalCUP += v.totalCompraCUP || 0;
+        v.items.forEach(it => {
+          totalUnidades += it.cantidad || 0;
+          detallesProductos.push(`  • ${it.cantidad}x ${it.nombre} — ${it.precioCompra} ${it.moneda} (Vale: ${v.folio}, Fecha: ${v.fecha})`);
+        });
+      });
+
+      const recibo = `
+══════════════════════════════════════════
+   RECIBO DE COMPRAS — ALMACÉN CENTRAL
+══════════════════════════════════════════
+Período: ${desde} → ${hasta}
+Total de Vales: ${valesFiltrados.length}
+Total de Unidades: ${totalUnidades}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+DETALLE POR PRODUCTO:
+${detallesProductos.join('\n')}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+TOTAL COMPRAS USD: $${totalUSD.toFixed(2)}
+TOTAL COMPRAS CUP: ${totalCUP.toLocaleString('es-ES')} CUP
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Generado: ${new Date().toLocaleString()}
+══════════════════════════════════════════
+      `.trim();
+
+      // Copiar al portapapeles y descargar
+      navigator.clipboard.writeText(recibo).catch(() => {});
+      const blob = new Blob([recibo], { type: 'text/plain;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `Recibo_Compras_${desde}_a_${hasta}.txt`;
+      a.click();
+      URL.revokeObjectURL(url);
+      alert(`📄 Recibo generado y descargado.\n\nPeríodo: ${desde} → ${hasta}\nVales: ${valesFiltrados.length}\nTotal USD: $${totalUSD.toFixed(2)}\nTotal CUP: ${totalCUP.toLocaleString('es-ES')}`);
+    }
+
+    // ================= PWA INSTALACIÓN =================
+    var deferredPromptPWA = null;
+
+    function estaEnModoInstalado() {
+      return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+    }
+
+    function ocultarOpcionesInstalacionSiYaInstalada() {
+      if (estaEnModoInstalado()) {
+        var btnHeader = document.getElementById('btn-instalar-app-pwa');
+        if (btnHeader) { btnHeader.classList.add('hidden'); btnHeader.classList.remove('flex'); }
+        var cartel = document.getElementById('cartel-instalar-app');
+        if (cartel) cartel.classList.add('hidden');
+        return true;
+      }
+      return false;
+    }
+
+    window.addEventListener('DOMContentLoaded', ocultarOpcionesInstalacionSiYaInstalada);
+
+    window.addEventListener('beforeinstallprompt', function(e) {
+      e.preventDefault();
+      deferredPromptPWA = e;
+      if (ocultarOpcionesInstalacionSiYaInstalada()) return;
+      var btnHeader = document.getElementById('btn-instalar-app-pwa');
+      if (btnHeader) { btnHeader.classList.remove('hidden'); btnHeader.classList.add('flex'); }
+      var cartel = document.getElementById('cartel-instalar-app');
+      if (cartel && !sessionStorage.getItem('cartel_instalacion_descartado')) {
+        cartel.classList.remove('hidden');
+      }
+    });
+
+    window.addEventListener('appinstalled', function() {
+      deferredPromptPWA = null;
+      var btnHeader = document.getElementById('btn-instalar-app-pwa');
+      if (btnHeader) btnHeader.classList.add('hidden');
+      var cartel = document.getElementById('cartel-instalar-app');
+      if (cartel) cartel.classList.add('hidden');
+      console.log('🎉 PWA Compras de la Tienda instalada exitosamente!');
+    });
+
+    async function ejecutarInstalacionPWA() {
+      if (deferredPromptPWA) {
+        deferredPromptPWA.prompt();
+        var choice = await deferredPromptPWA.userChoice;
+        if (choice.outcome === 'accepted') {
+          deferredPromptPWA = null;
+          var cartel = document.getElementById('cartel-instalar-app');
+          if (cartel) cartel.classList.add('hidden');
+        }
+      } else {
+        var isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+        var isStandalone = estaEnModoInstalado();
+        if (isStandalone) {
+          alert('✅ La aplicación ya está instalada y funcionando en este dispositivo.');
+        } else if (isIOS) {
+          alert('📲 Para instalar en iPhone o iPad:\n\n1. Toca el botón Compartir en Safari\n2. Selecciona "Agregar al inicio"\n3. ¡Listo! Funcionará 100% offline.');
+        } else {
+          alert('📲 Para instalar:\n\n1. Haz clic en los tres puntos ⋮ del menú de tu navegador\n2. Selecciona "Instalar Compras de la Tienda"\n3. ¡Listo!');
+        }
+      }
+    }
+
+    function descartarCartelInstalacion() {
+      var cartel = document.getElementById('cartel-instalar-app');
+      if (cartel) cartel.classList.add('hidden');
+      sessionStorage.setItem('cartel_instalacion_descartado', 'true');
+    }
+  </script>
+</body>
+</html>
+ + v.subtotalUSD.toFixed(2) + '</td>' +
+                '</tr>';
+              }).join('') +
+            '</tbody>' +
+          '</table></div>';
+        }
+
+        return '<div class="bg-zinc-950/90 border border-teal-500/20 hover:border-teal-500/40 rounded-2xl overflow-hidden shadow-lg transition-all">' +
+          '<div class="p-4 sm:p-5 flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-zinc-950">' +
+            '<!-- Header: Icono + Nombre + Categoría -->' +
+            '<div class="flex items-center gap-3.5 min-w-[280px]">' +
+              '<div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-teal-950 to-slate-900 border border-teal-500/30 flex items-center justify-center text-teal-300 font-black text-xl shrink-0 shadow-md">' +
+                avatarLetra +
+              '</div>' +
+              '<div>' +
+                '<div class="flex items-center gap-2 flex-wrap">' +
+                  '<h4 class="text-base font-bold text-white tracking-tight">' + p.nombreNorm + '</h4>' +
+                  '<span class="text-[10px] px-2 py-0.5 rounded-full bg-teal-500/10 text-teal-300 border border-teal-500/25 uppercase font-mono">' +
+                    p.categoria.replace(/_/g, ' ') +
+                  '</span>' +
+                '</div>' +
+                '<div class="text-[11px] text-slate-400 mt-0.5">' +
+                  '<span>Precios: <strong class="text-teal-400 font-mono">' + preciosStr + '</strong></span>' +
+                  (p.nombresOriginales.length > 1 ? '<span class="text-slate-600 mx-1.5">•</span><span class="text-slate-500 text-[10px]" title="' + p.nombresOriginales.join(', ') + '">' + p.nombresOriginales.length + ' variantes</span>' : '') +
+                '</div>' +
+              '</div>' +
+            '</div>' +
+
+            '<!-- Grid de Estadísticas (Formato Gestores) -->' +
+            '<div class="grid grid-cols-2 sm:grid-cols-4 gap-2 bg-black/70 p-3 rounded-xl border border-teal-500/20 text-center items-center flex-1">' +
+              '<div>' +
+                '<span class="text-[10px] text-teal-300/70 uppercase block font-semibold">Vendidos</span>' +
+                '<span class="text-sm font-black text-white font-mono">' + p.totalCantidad + ' uds</span>' +
+              '</div>' +
+              '<div>' +
+                '<span class="text-[10px] text-teal-300/70 uppercase block font-semibold">Vales</span>' +
+                '<span class="text-sm font-black text-amber-300 font-mono">' + p.vales.length + ' vales</span>' +
+              '</div>' +
+              '<div>' +
+                '<span class="text-[10px] text-teal-300/70 uppercase block font-semibold">Total Facturado</span>' +
+                '<span class="text-sm font-bold text-emerald-400 font-mono block">
+      renderizarSelectorSemanas();
+      renderizarKPIsBimoneda();
+      renderizarTablaInventario();
+      renderizarTablaVentasGestores();
+      const badgeInv = document.getElementById('badge-inventario-count');
+      if (badgeInv) badgeInv.textContent = (getSemanaData().lotesInventario.length) + ' lotes';
+      renderizarListasGastosInversionesBajas();
+      renderizarHistorialVales();
+      poblarSelectBajas();
+      actualizarDatalistProductos();
+      if (window.lucide && typeof lucide.createIcons === 'function') { lucide.createIcons(); }
+    }
+
+    function renderizarSelectorSemanas() {
+      const sel = document.getElementById('selector-semana');
+      sel.innerHTML = '';
+      appData.semanas.forEach(s => {
+        const opt = document.createElement('option');
+        opt.value = s.id;
+        opt.textContent = `${s.nombre} ${s.cerrada ? '🔒' : '🟢'}`;
+        if (s.id === appData.semanaActivaId) opt.selected = true;
+        sel.appendChild(opt);
+      });
+    }
+
+    function poblarSelectBajas() {
+      const sel = document.getElementById('baja-lote-select');
+      const sData = getSemanaData();
+      // FIFO: ordenar por orden de llegada para consumir primero los más antiguos
+      const lotesOrdenados = [...sData.lotesInventario]
+        .filter(l => !l.dadoDeBaja)
+        .sort((a, b) => (a.ordenLlegada || 0) - (b.ordenLlegada || 0));
+      sel.innerHTML = lotesOrdenados.map(l => {
+        const disponible = (l.inicio || 0) + (l.entradas || 0) - (l.bajas || 0) - (l.merma || 0) - (l.errores || 0);
+        return `<option value="${l.id}">#${l.ordenLlegada || '?'} ${l.producto} (Disp: ${disponible}, ${l.folioVale} • ${l.moneda})</option>`;
+      }).join('');
+    }
+
+    function renderizarKPIsBimoneda() {
+      const sData = getSemanaData();
+
+      let totalUnidades = 0;
+      let costoUSD = 0, costoCUP = 0;
+      let ventaUSD = 0, ventaCUP = 0;
+      let comisionCUP = 0;
+      let transpCUP = 0;
+
+      sData.lotesInventario.forEach(l => {
+        const cant = l.entradas || l.inicio || 0;
+        totalUnidades += cant;
+
+        if (l.moneda === 'USD') {
+          costoUSD += cant * (l.precioCompra || 0);
+          ventaUSD += cant * (l.precioVenta || 0);
+        } else {
+          costoCUP += cant * (l.precioCompra || 0);
+          ventaCUP += cant * (l.precioVenta || 0);
+        }
+
+        // Transporte y Comisión de Gestores se llevan estrictamente en CUP
+        transpCUP += cant * (l.transporteUnitario || 0);
+        comisionCUP += cant * (l.comisionGestores || 0);
+      });
+
+      const gastosUSD = sData.gastos.filter(g => g.moneda === 'USD').reduce((acc, g) => acc + g.monto, 0);
+      const gastosCUP = sData.gastos.filter(g => g.moneda === 'CUP').reduce((acc, g) => acc + g.monto, 0);
+
+      // DOS CUENTAS INDEPENDIENTES (Sin conversión forzada de USD a CUP):
+      // Cuenta DÓLAR: Ganancia neta = Venta USD - Costo USD - Gastos USD
+      const gananciaUSD = ventaUSD - costoUSD - gastosUSD;
+      // Cuenta CUP: Ganancia Neta = Venta CUP - Costo CUP - Gastos CUP - Comisión - Transporte
+      const gananciaCUP = ventaCUP - costoCUP - gastosCUP - comisionCUP - transpCUP;
+
+      document.getElementById('kpi-unidades').textContent = totalUnidades;
+      document.getElementById('kpi-vales-count').textContent = `${sData.valesEntrada.length} vales guardados`;
+
+      // Costo Compra
+      document.getElementById('kpi-costo-usd').textContent = `$ ${costoUSD.toFixed(2)} USD`;
+      document.getElementById('kpi-costo-cup').textContent = costoCUP > 0 ? `${costoCUP.toLocaleString('es-ES', { minimumFractionDigits: 2 })} CUP` : '0.00 CUP';
+      document.getElementById('kpi-costo-consolidado').textContent = 'Cuenta en USD';
+
+      // Venta Proyectada
+      document.getElementById('kpi-venta-usd').textContent = `$ ${ventaUSD.toFixed(2)} USD`;
+      document.getElementById('kpi-venta-cup').textContent = ventaCUP > 0 ? `${ventaCUP.toLocaleString('es-ES', { minimumFractionDigits: 2 })} CUP` : '0.00 CUP';
+      document.getElementById('kpi-venta-consolidado').textContent = 'Cuenta en USD';
+
+      // Comisión Gestores (Solo CUP)
+      document.getElementById('kpi-comision-cup').textContent = `${comisionCUP.toLocaleString('es-ES', { minimumFractionDigits: 2 })} CUP`;
+      document.getElementById('kpi-comision-usd').textContent = 'Cuenta en CUP';
+      document.getElementById('kpi-comision-consolidado').textContent = 'Total Gestores';
+
+      // Transporte Total (Solo CUP)
+      document.getElementById('kpi-transporte-cup').textContent = `${transpCUP.toLocaleString('es-ES', { minimumFractionDigits: 2 })} CUP`;
+      document.getElementById('kpi-transporte-usd').textContent = 'Cuenta en CUP';
+      document.getElementById('kpi-transporte-consolidado').textContent = 'Total Transporte';
+
+      // Ganancia Neta
+      document.getElementById('kpi-margen-usd').textContent = `$ ${gananciaUSD.toFixed(2)} USD`;
+      document.getElementById('kpi-margen-cup').textContent = gananciaCUP !== 0 ? `${gananciaCUP.toLocaleString('es-ES', { minimumFractionDigits: 2 })} CUP` : '0.00 CUP';
+      document.getElementById('kpi-margen-consolidado').textContent = 'USD: V-C-G | CUP: V-C-G-Com-Tr';
+
+
+      // === KPI: Inversión General (Compra + Comisión + Transporte) ===
+      // Inversión USD = Costo Compra USD (comisión y transporte van en CUP)
+      const inversionUSD = costoUSD;
+      // Inversión CUP = Costo Compra CUP + Comisión + Transporte
+      const inversionCUP = costoCUP + comisionCUP + transpCUP;
+
+      document.getElementById('kpi-inversion-usd').textContent = `$ ${inversionUSD.toFixed(2)} USD`;
+      document.getElementById('kpi-inversion-cup').textContent = `${inversionCUP.toLocaleString('es-ES', { minimumFractionDigits: 2 })} CUP`;
+      document.getElementById('kpi-inversion-detalle').textContent = `USD: Compra | CUP: Compra+Com+Transp`;
+
+      // === KPI: Ganancia Bruta (Venta - Compra, sin gastos ni comisiones) ===
+      const gananciaBrutaUSD = ventaUSD - costoUSD;
+      const gananciaBrutaCUP = ventaCUP - costoCUP;
+
+      document.getElementById('kpi-ganancia-bruta-usd').textContent = `$ ${gananciaBrutaUSD.toFixed(2)} USD`;
+      document.getElementById('kpi-ganancia-bruta-cup').textContent = `${gananciaBrutaCUP.toLocaleString('es-ES', { minimumFractionDigits: 2 })} CUP`;
+
+      document.getElementById('resumen-gastos-box').textContent = `${gastosUSD.toFixed(2)} USD / ${gastosCUP.toFixed(0)} CUP`;
+
+      const invUSD = sData.inversiones.filter(i => i.moneda === 'USD').reduce((acc, i) => acc + i.monto, 0);
+      const invCUP = sData.inversiones.filter(i => i.moneda === 'CUP').reduce((acc, i) => acc + i.monto, 0);
+      document.getElementById('resumen-inversiones-box').textContent = `${invUSD.toFixed(2)} USD / ${invCUP.toFixed(0)} CUP`;
+
+      const totalBajas = sData.bajas.reduce((acc, b) => acc + (b.cantidad || 0), 0);
+      document.getElementById('resumen-bajas-box').textContent = `${totalBajas} u.`;
+
+      // === DATOS CRUZADOS CON WEB DE GESTORES ===
+      const resG = obtenerResumenGestores();
+      if (resG) {
+        document.getElementById('kpi-gestores-vendidas').textContent = resG.totalUnidadesVendidas + ' uds vendidas';
+        document.getElementById('kpi-gestores-vales-count').textContent = resG.totalVales + ' vales gestores | ' + resG.gestoresActivos + ' gestores';
+        document.getElementById('kpi-gestores-venta-real').textContent = '$ ' + resG.totalVentasUSD.toFixed(2) + ' USD';
+        document.getElementById('kpi-gestores-com-pagadas').textContent = 'Pagadas: ' + resG.comisionesPagadasCUP.toLocaleString('es-ES') + ' CUP';
+        document.getElementById('kpi-gestores-com-pendientes').textContent = 'Pendientes: ' + resG.comisionesPendientesCUP.toLocaleString('es-ES') + ' CUP';
+        document.getElementById('kpi-gestores-activos').textContent = resG.gestoresActivos + ' gestores activos';
+
+        let costoVendidoUSD = 0;
+        const productosYaContados = {};
+        sData.lotesInventario.forEach(l => {
+          const key = normalizarNombreProducto(l.producto);
+          if (productosYaContados[key]) return;
+          const vendidas = unidadesVendidasGestores(l.producto);
+          if (vendidas > 0) {
+            const totalEnInv = sData.lotesInventario.filter(lo => normalizarNombreProducto(lo.producto) === key).reduce((s, lo) => s + (lo.entradas || lo.inicio || 0), 0);
+            costoVendidoUSD += vendidas * (l.precioCompra || 0);
+            productosYaContados[key] = true;
+          }
+        });
+        document.getElementById('kpi-gestores-costo-vendido').textContent = '$ ' + costoVendidoUSD.toFixed(2) + ' USD';
+        document.getElementById('kpi-gestores-inv-recuperada').textContent = '$ ' + resG.totalVentasUSD.toFixed(2) + ' USD cobrados';
+        const gananciaRealUSD = resG.totalVentasUSD - costoVendidoUSD;
+        document.getElementById('kpi-gestores-ganancia-real').textContent = '$ ' + gananciaRealUSD.toFixed(2) + ' USD';
+        document.getElementById('kpi-gestores-cobrado-real').textContent = '$ ' + resG.totalVentasUSD.toFixed(2) + ' USD';
+        const pctVendido = totalUnidades > 0 ? ((resG.totalUnidadesVendidas / totalUnidades) * 100).toFixed(1) : 0;
+        document.getElementById('kpi-gestores-porciento-vendido').textContent = pctVendido + '% del inventario vendido';
+      }
+    }
+
+    function renderizarListasGastosInversionesBajas() {
+      const sData = getSemanaData();
+
+      const cG = document.getElementById('lista-gastos');
+      cG.innerHTML = sData.gastos.map(g => `
+        <div class="flex items-center justify-between p-2 rounded bg-black border border-slate-800 text-xs">
+          <span class="text-slate-300">${g.concepto}</span>
+          <div class="flex items-center gap-2">
+            <span class="font-mono text-rose-400 font-bold">${g.monto.toFixed(2)} ${g.moneda}</span>
+            <button onclick="eliminarGasto('${g.id}')" class="text-rose-400"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
+          </div>
+        </div>
+      `).join('') || `<div class="text-slate-600 text-[11px] text-center py-2">Sin gastos registrados</div>`;
+
+      const cI = document.getElementById('lista-inversiones');
+      cI.innerHTML = sData.inversiones.map(i => `
+        <div class="flex items-center justify-between p-2 rounded bg-black border border-slate-800 text-xs">
+          <span class="text-slate-300">${i.motivo}</span>
+          <div class="flex items-center gap-2">
+            <span class="font-mono text-emerald-400 font-bold">${i.monto.toFixed(2)} ${i.moneda}</span>
+            <button onclick="eliminarInversion('${i.id}')" class="text-rose-400"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
+          </div>
+        </div>
+      `).join('') || `<div class="text-slate-600 text-[11px] text-center py-2">Sin inversiones extras</div>`;
+
+      const cB = document.getElementById('lista-bajas');
+      cB.innerHTML = sData.bajas.map(b => `
+        <div class="flex items-center justify-between p-2 rounded bg-black border border-slate-800 text-xs">
+          <span class="text-slate-300">${b.cantidad}x ${b.producto} (${b.motivo})</span>
+          <button onclick="eliminarBaja('${b.id}')" class="text-rose-400"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
+        </div>
+      `).join('') || `<div class="text-slate-600 text-[11px] text-center py-2">Sin bajas de inventario</div>`;
+    }
+
+    function renderizarHistorialVales() {
+      const tbody = document.getElementById('historial-vales-tbody');
+      const sData = getSemanaData();
+      tbody.innerHTML = '';
+
+      document.getElementById('label-conteo-vales-historial').textContent = `${sData.valesEntrada.length} vales`;
+
+      if (sData.valesEntrada.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="9" class="p-6 text-center text-slate-500">No hay vales de entrada guardados. Pega uno arriba para comenzar.</td></tr>`;
+        return;
+      }
+
+      sData.valesEntrada.forEach(v => {
+        const prodBadges = v.items.map(i => `<span class="bg-black border border-amber-500/30 px-2 py-0.5 rounded text-[11px] font-mono mr-1">${i.cantidad}x ${i.nombre} (${i.moneda})</span>`).join(' ');
+
+        const totalCompraTxt = v.moneda === 'USD' ? `$ ${v.totalCompraUSD.toFixed(2)} USD` : `${v.totalCompraCUP.toLocaleString('es-ES')} CUP`;
+
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-slate-900';
+        tr.innerHTML = `
+          <td class="p-3 font-mono font-bold text-amber-300">${v.folio}</td>
+          <td class="p-3 text-slate-400 font-mono">${v.fecha}</td>
+          <td class="p-3 text-slate-300 font-bold">${v.proveedor}</td>
+          <td class="p-3 text-center font-mono font-bold ${v.moneda === 'USD' ? 'text-emerald-400' : 'text-amber-300'}">${v.moneda}</td>
+          <td class="p-3">${prodBadges}</td>
+          <td class="p-3 font-mono text-indigo-300">${v.transporteTotal.toFixed(2)} ${v.moneda}</td>
+          <td class="p-3 font-mono text-rose-300 font-bold">${totalCompraTxt}</td>
+          <td class="p-3 font-mono text-cyan-300 font-bold">Lote Calculado</td>
+          <td class="p-3 text-center">
+            <button onclick="editarValeHistorial('${v.id}')" class="p-1 text-amber-400 hover:text-amber-300" title="Editar vale"><i data-lucide="pencil" class="w-4 h-4"></i></button>
+              <button onclick="eliminarValeHistorial('${v.id}')" class="p-1 text-rose-400 hover:text-rose-300" title="Eliminar vale"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+      if (window.lucide && typeof lucide.createIcons === 'function') { lucide.createIcons(); }
+    }
+
+    // ================= EXPORTACIÓN EXCEL =================
+    function exportarExcel() {
+      const sData = getSemanaData();
+      const semObj = appData.semanas.find(s => s.id === appData.semanaActivaId) || { nombre: 'Semana' };
+      const wb = XLSX.utils.book_new();
+
+      const invRows = sData.lotesInventario.map(l => {
+        const calc = (l.inicio || 0) + (l.entradas || 0) - (l.bajas || 0);
+        return {
+          'Orden Llegada': l.ordenLlegada,
+          'Producto': l.producto,
+          'Vale/Lote': l.folioVale,
+          'Moneda': l.moneda,
+          'Inv. Inicial': l.inicio || 0,
+          'Entradas (+)': l.entradas || 0,
+          'Bajas (-)': l.bajas || 0,
+          'Final Calculado': calc,
+          'Final Real Físico': l.finalReal !== undefined ? l.finalReal : calc,
+          'Precio Compra': l.precioCompra,
+          'Precio Venta': l.precioVenta,
+          'Comisión Gestores': l.comisionGestores,
+          'Moneda Comisión': l.comisionMoneda || 'CUP'
+        };
+      });
+      XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(invRows), 'Inventario_Lotes');
+
+      const valesRows = [];
+      sData.valesEntrada.forEach(v => {
+        v.items.forEach(it => {
+          valesRows.push({
+            'Folio': v.folio,
+            'Fecha': v.fecha,
+            'Proveedor': v.proveedor,
+            'Moneda Vale': v.moneda,
+            'Producto': it.nombre,
+            'Cantidad': it.cantidad,
+            'Moneda Ítem': it.moneda,
+            'Precio Compra': it.precioCompra,
+            'Precio Venta': it.precioVenta,
+            'Comisión Gestor': it.comisionGestores,
+            'Transporte Unitario': it.transporteUnitario,
+            'Ganancia Estimada': it.margenGanancia
+          });
+        });
+      });
+      XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(valesRows), 'Vales_Entrada');
+
+      XLSX.writeFile(wb, `Almacen_Compras_${semObj.nombre.replace(/\s+/g, '_')}.xlsx`);
+    }
+
+    // ================= DAR DE BAJA / REACTIVAR PRODUCTO =================
+    function darDeBajaProductoLote(id) {
+      const sData = getSemanaData();
+      const lote = sData.lotesInventario.find(l => l.id === id);
+      if (!lote) return;
+      if (!confirm(`¿Dar de BAJA el producto "${lote.producto}" (Vale: ${lote.folioVale})?\n\nEl producto quedará desactivado del inventario activo.`)) return;
+      lote.dadoDeBaja = true;
+      lote.fechaBaja = new Date().toISOString().split('T')[0];
+      persistirEstado();
+      renderizarTodo();
+      alert(`Producto "${lote.producto}" dado de baja correctamente.`);
+    }
+
+    function reactivarProductoLote(id) {
+      const sData = getSemanaData();
+      const lote = sData.lotesInventario.find(l => l.id === id);
+      if (!lote) return;
+      lote.dadoDeBaja = false;
+      delete lote.fechaBaja;
+      persistirEstado();
+      renderizarTodo();
+      alert(`Producto "${lote.producto}" reactivado en inventario.`);
+    }
+
+    function eliminarLoteDirecto(id) {
+      if (!confirm('¿Eliminar este lote permanentemente del inventario?')) return;
+      const sData = getSemanaData();
+      sData.lotesInventario = sData.lotesInventario.filter(l => l.id !== id);
+      persistirEstado();
+      renderizarTodo();
+    }
+
+    // ================= FILTRO POR RANGO DE FECHAS =================
+    let valesFiltrados = null;
+
+    function filtrarValesPorRango() {
+      const desde = document.getElementById('filtro-fecha-desde').value;
+      const hasta = document.getElementById('filtro-fecha-hasta').value;
+      const sData = getSemanaData();
+
+      if (!desde && !hasta) {
+        alert('Selecciona al menos una fecha (Desde o Hasta) para filtrar.');
+        return;
+      }
+
+      valesFiltrados = sData.valesEntrada.filter(v => {
+        const fv = v.fecha || '';
+        if (desde && hasta) return fv >= desde && fv <= hasta;
+        if (desde) return fv >= desde;
+        if (hasta) return fv <= hasta;
+        return true;
+      });
+
+      renderizarResultadoFiltro();
+    }
+
+    function limpiarFiltroRango() {
+      valesFiltrados = null;
+      document.getElementById('filtro-fecha-desde').value = '';
+      document.getElementById('filtro-fecha-hasta').value = '';
+      document.getElementById('filtro-resultado-container').classList.add('hidden');
+      document.getElementById('filtro-rango-count').textContent = 'Todos los vales';
+    }
+
+    function renderizarResultadoFiltro() {
+      if (!valesFiltrados) return;
+      const container = document.getElementById('filtro-resultado-container');
+      container.classList.remove('hidden');
+
+      let totalUSD = 0, totalCUP = 0;
+      const productosSet = new Set();
+
+      valesFiltrados.forEach(v => {
+        totalUSD += v.totalCompraUSD || 0;
+        totalCUP += v.totalCompraCUP || 0;
+        v.items.forEach(it => productosSet.add(it.nombre));
+      });
+
+      document.getElementById('filtro-total-vales').textContent = valesFiltrados.length;
+      document.getElementById('filtro-total-usd').textContent = `$${totalUSD.toFixed(2)}`;
+      document.getElementById('filtro-total-cup').textContent = `${totalCUP.toLocaleString('es-ES')} CUP`;
+      document.getElementById('filtro-total-productos').textContent = productosSet.size;
+      document.getElementById('filtro-rango-count').textContent = `${valesFiltrados.length} vales filtrados`;
+
+      const tbody = document.getElementById('filtro-vales-tbody');
+      tbody.innerHTML = '';
+
+      if (valesFiltrados.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-slate-500">No se encontraron vales en el rango de fechas seleccionado.</td></tr>`;
+        return;
+      }
+
+      valesFiltrados.forEach(v => {
+        const prodBadges = v.items.map(i => `<span class="bg-black border border-amber-500/30 px-1.5 py-0.5 rounded text-[10px] font-mono mr-0.5">${i.cantidad}x ${i.nombre}</span>`).join(' ');
+        const totalTxt = v.moneda === 'USD' ? `$${(v.totalCompraUSD || 0).toFixed(2)} USD` : `${(v.totalCompraCUP || 0).toLocaleString('es-ES')} CUP`;
+
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-slate-900';
+        tr.innerHTML = `
+          <td class="p-2.5 font-mono font-bold text-amber-300">${v.folio}</td>
+          <td class="p-2.5 text-cyan-300 font-mono">${v.fecha}</td>
+          <td class="p-2.5 text-slate-300">${v.proveedor}</td>
+          <td class="p-2.5 text-center font-bold ${v.moneda === 'USD' ? 'text-emerald-400' : 'text-amber-300'}">${v.moneda}</td>
+          <td class="p-2.5">${prodBadges}</td>
+          <td class="p-2.5 font-mono text-rose-300 font-bold">${totalTxt}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+      if (window.lucide && typeof lucide.createIcons === 'function') { lucide.createIcons(); }
+    }
+
+    function generarReciboRango() {
+      if (!valesFiltrados || valesFiltrados.length === 0) {
+        alert('Primero filtra un rango de fechas que contenga vales.');
+        return;
+      }
+
+      const desde = document.getElementById('filtro-fecha-desde').value || 'Inicio';
+      const hasta = document.getElementById('filtro-fecha-hasta').value || 'Actualidad';
+
+      let totalUSD = 0, totalCUP = 0, totalUnidades = 0;
+      const detallesProductos = [];
+
+      valesFiltrados.forEach(v => {
+        totalUSD += v.totalCompraUSD || 0;
+        totalCUP += v.totalCompraCUP || 0;
+        v.items.forEach(it => {
+          totalUnidades += it.cantidad || 0;
+          detallesProductos.push(`  • ${it.cantidad}x ${it.nombre} — ${it.precioCompra} ${it.moneda} (Vale: ${v.folio}, Fecha: ${v.fecha})`);
+        });
+      });
+
+      const recibo = `
+══════════════════════════════════════════
+   RECIBO DE COMPRAS — ALMACÉN CENTRAL
+══════════════════════════════════════════
+Período: ${desde} → ${hasta}
+Total de Vales: ${valesFiltrados.length}
+Total de Unidades: ${totalUnidades}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+DETALLE POR PRODUCTO:
+${detallesProductos.join('\n')}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+TOTAL COMPRAS USD: $${totalUSD.toFixed(2)}
+TOTAL COMPRAS CUP: ${totalCUP.toLocaleString('es-ES')} CUP
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Generado: ${new Date().toLocaleString()}
+══════════════════════════════════════════
+      `.trim();
+
+      // Copiar al portapapeles y descargar
+      navigator.clipboard.writeText(recibo).catch(() => {});
+      const blob = new Blob([recibo], { type: 'text/plain;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `Recibo_Compras_${desde}_a_${hasta}.txt`;
+      a.click();
+      URL.revokeObjectURL(url);
+      alert(`📄 Recibo generado y descargado.\n\nPeríodo: ${desde} → ${hasta}\nVales: ${valesFiltrados.length}\nTotal USD: $${totalUSD.toFixed(2)}\nTotal CUP: ${totalCUP.toLocaleString('es-ES')}`);
+    }
+
+    // ================= PWA INSTALACIÓN =================
+    var deferredPromptPWA = null;
+
+    function estaEnModoInstalado() {
+      return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+    }
+
+    function ocultarOpcionesInstalacionSiYaInstalada() {
+      if (estaEnModoInstalado()) {
+        var btnHeader = document.getElementById('btn-instalar-app-pwa');
+        if (btnHeader) { btnHeader.classList.add('hidden'); btnHeader.classList.remove('flex'); }
+        var cartel = document.getElementById('cartel-instalar-app');
+        if (cartel) cartel.classList.add('hidden');
+        return true;
+      }
+      return false;
+    }
+
+    window.addEventListener('DOMContentLoaded', ocultarOpcionesInstalacionSiYaInstalada);
+
+    window.addEventListener('beforeinstallprompt', function(e) {
+      e.preventDefault();
+      deferredPromptPWA = e;
+      if (ocultarOpcionesInstalacionSiYaInstalada()) return;
+      var btnHeader = document.getElementById('btn-instalar-app-pwa');
+      if (btnHeader) { btnHeader.classList.remove('hidden'); btnHeader.classList.add('flex'); }
+      var cartel = document.getElementById('cartel-instalar-app');
+      if (cartel && !sessionStorage.getItem('cartel_instalacion_descartado')) {
+        cartel.classList.remove('hidden');
+      }
+    });
+
+    window.addEventListener('appinstalled', function() {
+      deferredPromptPWA = null;
+      var btnHeader = document.getElementById('btn-instalar-app-pwa');
+      if (btnHeader) btnHeader.classList.add('hidden');
+      var cartel = document.getElementById('cartel-instalar-app');
+      if (cartel) cartel.classList.add('hidden');
+      console.log('🎉 PWA Compras de la Tienda instalada exitosamente!');
+    });
+
+    async function ejecutarInstalacionPWA() {
+      if (deferredPromptPWA) {
+        deferredPromptPWA.prompt();
+        var choice = await deferredPromptPWA.userChoice;
+        if (choice.outcome === 'accepted') {
+          deferredPromptPWA = null;
+          var cartel = document.getElementById('cartel-instalar-app');
+          if (cartel) cartel.classList.add('hidden');
+        }
+      } else {
+        var isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+        var isStandalone = estaEnModoInstalado();
+        if (isStandalone) {
+          alert('✅ La aplicación ya está instalada y funcionando en este dispositivo.');
+        } else if (isIOS) {
+          alert('📲 Para instalar en iPhone o iPad:\n\n1. Toca el botón Compartir en Safari\n2. Selecciona "Agregar al inicio"\n3. ¡Listo! Funcionará 100% offline.');
+        } else {
+          alert('📲 Para instalar:\n\n1. Haz clic en los tres puntos ⋮ del menú de tu navegador\n2. Selecciona "Instalar Compras de la Tienda"\n3. ¡Listo!');
+        }
+      }
+    }
+
+    function descartarCartelInstalacion() {
+      var cartel = document.getElementById('cartel-instalar-app');
+      if (cartel) cartel.classList.add('hidden');
+      sessionStorage.setItem('cartel_instalacion_descartado', 'true');
+    }
+  </script>
+</body>
+</html>
+ + p.totalUSD.toFixed(2) + ' USD</span>' +
+              '</div>' +
+              '<div>' +
+                '<span class="text-[10px] text-teal-300/70 uppercase block font-semibold">Stock Tienda</span>' +
+                '<span class="text-sm font-black font-mono ' + (p.stockRestante > 0 ? 'text-indigo-300' : 'text-slate-500') + '">' +
+                  (p.stockEntradas > 0 ? p.stockRestante + ' de ' + p.stockEntradas + ' uds' : 'Sin lote entrada') +
+                '</span>' +
+              '</div>' +
+            '</div>' +
+
+            '<!-- Botones de Acción -->' +
+            '<div class="flex items-center gap-2 justify-end shrink-0">' +
+              '<button onclick="toggleSubmenuProducto('' + p.id + '')" class="px-3.5 py-2 rounded-xl bg-teal-500/15 hover:bg-teal-500/30 text-teal-300 border border-teal-500/30 text-xs font-bold flex items-center gap-1.5 transition-all">' +
+                '<i data-lucide="receipt" class="w-4 h-4"></i>' +
+                '<span>Ver Vales (' + p.vales.length + ')</span>' +
+                '<i id="prod-chevron-' + p.id + '" data-lucide="chevron-down" class="w-3.5 h-3.5 transition-transform ' + (esAbierto ? 'rotate-180' : '') + '"></i>' +
+              '</button>' +
+            '</div>' +
+          '</div>' +
+
+          '<!-- Submenú Desplegable con la Lista Detallada de Vales del Producto -->' +
+          '<div id="prod-submenu-' + p.id + '" class="' + (esAbierto ? '' : 'hidden') + ' border-t border-teal-500/20 bg-black/60 p-3 sm:p-4">' +
+            '<div class="flex items-center justify-between gap-2 mb-2 px-1">' +
+              '<span class="text-[11px] font-bold text-teal-300 uppercase tracking-wider flex items-center gap-1.5">' +
+                '<i data-lucide="list" class="w-3.5 h-3.5"></i> Vales donde se vendió este producto (' + p.vales.length + ' registros)' +
+              '</span>' +
+              '<span class="text-[11px] font-mono text-emerald-400 font-bold">Total: ' + p.totalCantidad + ' unidades vendidas</span>' +
+            '</div>' +
+            valesRowsHtml +
+          '</div>' +
+        '</div>';
+      }).join('');
+
+      if (window.lucide && typeof lucide.createIcons === 'function') { lucide.createIcons(); }
+    }
+
     // ================= RENDERIZADO GENERAL =================
     function renderizarTodo() {
       renderizarSelectorSemanas();
       renderizarKPIsBimoneda();
       renderizarTablaInventario();
       renderizarTablaVentasGestores();
+      renderizarCatalogoProductos();
       const badgeInv = document.getElementById('badge-inventario-count');
       if (badgeInv) badgeInv.textContent = (getSemanaData().lotesInventario.length) + ' lotes';
       renderizarListasGastosInversionesBajas();
