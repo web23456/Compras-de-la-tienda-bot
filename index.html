@@ -409,8 +409,8 @@
             <input type="text" id="filtro-ventas-busqueda" oninput="renderizarTablaVentasGestores()" placeholder="Buscar producto o vale..." class="bg-black text-xs text-white placeholder-slate-500 border border-slate-700 focus:border-teal-400 rounded-lg pl-7 pr-3 py-1 font-mono w-52 focus:outline-none">
             <i data-lucide="search" class="w-3.5 h-3.5 text-slate-400 absolute left-2 top-2"></i>
           </div>
-          <button onclick="cargarDatosGestores()" title="Recargar ventas desde GitHub Gestores" class="px-2.5 py-1 bg-slate-900 hover:bg-slate-800 text-teal-300 border border-teal-500/40 rounded-lg text-xs font-bold flex items-center gap-1 transition">
-            <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Actualizar
+          <button onclick="solicitarSincronizacionGestores()" id="btn-sync-gestores" title="Sincronizar base de datos de Gestores con el Bot" class="px-2.5 py-1 bg-teal-950/60 hover:bg-teal-900/80 text-teal-300 border border-teal-500/50 rounded-lg text-xs font-bold flex items-center gap-1.5 transition shadow-sm">
+            <i data-lucide="refresh-cw" class="w-3.5 h-3.5" id="icono-sync-gestores"></i> Sincronizar Gestores
           </button>
         </div>
       </div>
@@ -793,36 +793,40 @@
     let editandoValeId = null; // Track si estamos editando un vale existente
 
     // ================= INTEGRACIÓN CON WEB DE GESTORES (OFFLINE + ONLINE AUTO-SYNC) =================
-    const GESTORES_DB_URL = 'https://web23456.github.io/Gestores/database.json';
-    // Base de datos de gestores precargada localmente para visualización instantánea 100% offline
+    // La base de datos de ventas de gestores proviene de gestores_datos.json en este mismo sitio web
+    // sincronizada de forma independiente por el bot de compras desde el repositorio de gestores.
+    const GESTORES_DB_URL = './gestores_datos.json';
+    const GESTORES_FALLBACK_REMOTE_URL = 'https://web23456.github.io/Gestores/database.json';
+    // Base de datos de gestores precargada para visualización instantánea 100% offline
     let datosGestores = null;
 
     async function cargarDatosGestores() {
-      // 1. Intentar descargar desde la web remota de GitHub Pages de Gestores
+      // 1. Intentar cargar desde la propia web de Compras (gestores_datos.json generado por el bot)
       try {
-        const res = await fetch(GESTORES_DB_URL, { cache: 'no-cache' });
-        if (res.ok) {
-          const fresh = await res.json();
+        const resLocal = await fetch(GESTORES_DB_URL, { cache: 'no-cache' });
+        if (resLocal.ok) {
+          const fresh = await resLocal.json();
           if (fresh && fresh.vales && fresh.vales.length > 0) {
             datosGestores = fresh;
             try { localStorage.setItem('gestores_cache_backup', JSON.stringify(fresh)); } catch(e){}
-            console.log('✅ Datos de Gestores actualizados desde GitHub:', datosGestores.vales.length, 'vales');
+            console.log('✅ Datos de Gestores cargados desde la web de compras (gestores_datos.json):', datosGestores.vales.length, 'vales');
             renderizarTodo();
             return;
           }
         }
       } catch (e) {
-        console.warn('Fallo fetch remoto de Gestores, intentando copia local:', e.message);
+        console.warn('Fallo fetch de gestores_datos.json en la web de compras:', e.message);
       }
 
-      // 2. Si falla el remoto (ej offline o CORS), intentar cargar el archivo local gestores_datos.json
+      // 2. Si falló la web local, intentar directo del origen de Gestores en GitHub Pages
       try {
-        const resLocal = await fetch('./gestores_datos.json', { cache: 'no-cache' });
-        if (resLocal.ok) {
-          const localData = await resLocal.json();
+        const resRemoto = await fetch(GESTORES_FALLBACK_REMOTE_URL, { cache: 'no-cache' });
+        if (resRemoto.ok) {
+          const localData = await resRemoto.json();
           if (localData && localData.vales && localData.vales.length > 0) {
             datosGestores = localData;
-            console.log('✅ Datos de Gestores cargados desde archivo local gestores_datos.json:', datosGestores.vales.length, 'vales');
+            try { localStorage.setItem('gestores_cache_backup', JSON.stringify(localData)); } catch(e){}
+            console.log('✅ Datos de Gestores cargados desde fallback remoto:', datosGestores.vales.length, 'vales');
             renderizarTodo();
             return;
           }
@@ -838,6 +842,43 @@
           renderizarTodo();
         }
       } catch(e) {}
+    }
+
+    // Acción para solicitar al Bot local sincronización inmediata si está ejecutándose
+    async function solicitarSincronizacionGestores() {
+      const btn = document.getElementById('btn-sync-gestores');
+      const icono = document.getElementById('icono-sync-gestores');
+      if (icono) icono.classList.add('animate-spin');
+      if (btn) btn.disabled = true;
+
+      try {
+        // Intentar invocar al Bot local en puerto 3060
+        const res = await fetch('http://localhost:3060/api/gestores/sync', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ force: true })
+        });
+        if (res.ok) {
+          const data = await res.json();
+          if (data.ok) {
+            mostrarToast('✅ Base de datos de Gestores sincronizada con éxito (' + (data.totalVales || 'OK') + ' vales)');
+          } else {
+            mostrarToast('ℹ️ ' + (data.message || 'Sincronización procesada'));
+          }
+        } else {
+          // Si el bot local no responde, recargar directamente los datos remotos en la web
+          await cargarDatosGestores();
+          mostrarToast('✅ Datos de Gestores recargados en la web');
+        }
+      } catch (e) {
+        // Si no está corriendo el bot local, recargar los datos disponibles en la web
+        await cargarDatosGestores();
+        mostrarToast('✅ Datos de Gestores actualizados desde la web');
+      } finally {
+        if (icono) icono.classList.remove('animate-spin');
+        if (btn) btn.disabled = false;
+        await cargarDatosGestores();
+      }
     }
 
     // Normalizar nombre de producto para matching difuso
