@@ -415,27 +415,37 @@
         </div>
       </div>
 
-      <!-- Resumen rápido de ventas arriba de la tabla -->
-      <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 bg-black/60 border border-teal-500/20 rounded-xl p-3 text-xs">
+      <!-- Resumen rápido de ventas arriba de la tabla con métricas globales y de inventario -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-2.5 bg-black/60 border border-teal-500/20 rounded-xl p-3 text-xs">
         <div>
-          <span class="text-[10px] text-slate-400 uppercase font-bold">Total Productos Vendidos</span>
+          <span class="text-[10px] text-slate-400 uppercase font-bold">Total Venta Gestores</span>
           <div class="text-base font-black text-white font-mono" id="resumen-ventas-unidades">0 uds</div>
           <span class="text-[10px] text-teal-400/80 font-mono" id="resumen-ventas-total-vales">0 vales gestores</span>
         </div>
         <div>
-          <span class="text-[10px] text-slate-400 uppercase font-bold">Venta Total Facturada</span>
+          <span class="text-[10px] text-slate-400 uppercase font-bold">Stock Almacén Tienda</span>
+          <div class="text-base font-black text-indigo-300 font-mono" id="resumen-ventas-stock-tienda">0 uds</div>
+          <span class="text-[10px] text-slate-500 font-mono" id="resumen-ventas-lotes-count">0 lotes registrados</span>
+        </div>
+        <div>
+          <span class="text-[10px] text-slate-400 uppercase font-bold">Facturación Cobrada</span>
           <div class="text-base font-black text-emerald-400 font-mono" id="resumen-ventas-monto-usd">$0.00 USD</div>
           <span class="text-[10px] text-slate-500 font-mono">Ingreso Bruto Ventas</span>
         </div>
         <div>
-          <span class="text-[10px] text-slate-400 uppercase font-bold">Costo Real de lo Vendido</span>
+          <span class="text-[10px] text-slate-400 uppercase font-bold">Costo Real Vendido</span>
           <div class="text-base font-black text-rose-400 font-mono" id="resumen-ventas-costo-usd">$0.00 USD</div>
           <span class="text-[10px] text-slate-500 font-mono">Inversión Recuperada</span>
         </div>
         <div>
-          <span class="text-[10px] text-slate-400 uppercase font-bold">Ganancia Neta Obtenida</span>
+          <span class="text-[10px] text-slate-400 uppercase font-bold">Ganancia Neta Lotes</span>
           <div class="text-base font-black text-amber-300 font-mono" id="resumen-ventas-ganancia-usd">$0.00 USD</div>
           <span class="text-[10px] text-amber-400/80 font-mono" id="resumen-ventas-comisiones-cup">Comisiones: 0 CUP</span>
+        </div>
+        <div>
+          <span class="text-[10px] text-slate-400 uppercase font-bold">Rotación & Estado</span>
+          <div class="text-base font-black text-teal-300 font-mono" id="resumen-ventas-rotacion">0%</div>
+          <span class="text-[10px] text-slate-500 font-mono" id="resumen-ventas-agotados-count">0 lotes agotados</span>
         </div>
       </div>
 
@@ -881,59 +891,92 @@
       }
     }
 
-    // Normalizar nombre de producto para matching difuso
+    // ================= DICCIONARIO INTELIGENTE & NORMALIZADOR DE PRODUCTOS =================
+    const ALIAS_PRODUCTOS = {
+      'reyna': 'reina',
+      'reynas': 'reina',
+      'bravoking': 'bravo king',
+      'esteletric': 'estelectric',
+      'bich': 'beach',
+      'f6': 'f6 recargable',
+      'vetilador': 'ventilador',
+      'descodificaora': 'descodificadora',
+      'mircropresion': 'micropresion',
+      'pedestar': 'pedestal',
+      'inflarojo': 'infrarroja',
+      'inflarroja': 'infrarroja',
+      'infrarojo': 'infrarroja',
+      'infraroja': 'infrarroja',
+      'ornilla': 'cocina',
+      'fogon': 'cocina',
+      'fogones': 'cocina',
+      'salten': 'sarten',
+      'vatidora': 'batidora'
+    };
+
     function normalizarNombreProducto(nombre) {
-      return (nombre || '').toLowerCase()
+      if (!nombre) return '';
+      let s = String(nombre).toLowerCase()
         .normalize('NFD').replace(/[\u0300-\u036f]/g, '') // quitar acentos
-        .replace(/[^a-z0-9\s]/g, '') // quitar especiales
+        .replace(/[^a-z0-9\s]/g, ' ') // solo letras y números
         .replace(/\s+/g, ' ').trim();
+      const tokens = s.split(' ').map(w => ALIAS_PRODUCTOS[w] || w);
+      return tokens.join(' ');
     }
 
-    // Verificar si un nombre de producto de gestores coincide con uno del inventario
+    // Clasificación taxonómica de productos para matching de alta precisión
+    function categorizarProducto(texto) {
+      const t = normalizarNombreProducto(texto);
+      if (/ventilador.*(pared|denpared|paret)/.test(t)) return 'VENTILADOR_PARED';
+      if (/ventilador.*(pedestal|pie)/.test(t)) return 'VENTILADOR_PEDESTAL';
+      if (/ventilador.*(recargable|f6)/.test(t) || /f6/.test(t)) return 'VENTILADOR_RECARGABLE';
+      if (/ventilador.*(3\s*en\s*1|3\s*posiciones)/.test(t)) return 'VENTILADOR_3_EN_1';
+      if (/ventilador.*20\s*pulgadas/.test(t)) return 'VENTILADOR_20_PULG';
+      if (/mini\s*ciclon/.test(t)) return 'MINI_CICLON';
+      if (/(olla\s*)?(reina|reyna)/.test(t)) return 'OLLA_REINA';
+      if (/(olla\s*)?arrocera|arrocera/.test(t)) return 'OLLA_ARROCERA';
+      if (/micropresion|calabaza/.test(t)) return 'OLLA_MICROPRESION';
+      if (/freidora/.test(t)) return 'FREIDORA_AIRE';
+      if (/batidora|licuadora/.test(t)) return 'BATIDORA';
+      if (/cafetera/.test(t)) return 'CAFETERA';
+      if (/infrarroja|infrarojo|inflarojo/.test(t)) return 'COCINA_INFRARROJA';
+      if (/induccion/.test(t)) return 'COCINA_INDUCCION';
+      if (/cocina.*gas/.test(t)) return 'COCINA_GAS';
+      if (/petroleo/.test(t)) return 'COCINA_PETROLEO';
+      if (/sarten|cazuela|caldero/.test(t)) return 'SARTEN';
+      if (/cajita|convertidor|descodificad/.test(t)) return 'CAJITA';
+      if (/power\s*bank|cargador/.test(t)) return 'POWER_BANK';
+      if (/plancha/.test(t)) return 'PLANCHA';
+      return null;
+    }
+
+    // Verificar si un producto de gestores corresponde a un lote/producto de la tienda
     function productoCoincide(nombreInventario, nombreGestores) {
       const inv = normalizarNombreProducto(nombreInventario);
       const ges = normalizarNombreProducto(nombreGestores);
       if (!inv || !ges) return false;
       
-      // Match exacto
+      // 1. Coincidencia exacta o contenida directa
       if (inv === ges) return true;
-      
-      // Un nombre contiene al otro
       if (inv.includes(ges) || ges.includes(inv)) return true;
+
+      // 2. Coincidencia categórica inteligente con validación de marcas
+      const catInv = categorizarProducto(inv);
+      const catGes = categorizarProducto(ges);
+      if (catInv && catGes && catInv === catGes) {
+        const marcas = ['hamilton', 'houselux', 'estelectric', 'eko', 'dawan', 'marwa', 'jm', 'milexus', 'bravoking', 'rca', 'garuda', 'px'];
+        const mInv = marcas.find(m => inv.includes(m));
+        const mGes = marcas.find(m => ges.includes(m));
+        // Si ambos especifican marcas y son distintas, no corresponden al mismo lote
+        if (mInv && mGes && mInv !== mGes) return false;
+        return true;
+      }
       
-      // Match por palabras clave principales (al menos 2 palabras en común)
+      // 3. Match por intersección de palabras clave principales (mínimo 2 palabras)
       const wordsInv = inv.split(' ').filter(w => w.length > 2);
       const wordsGes = ges.split(' ').filter(w => w.length > 2);
       const comunes = wordsInv.filter(w => wordsGes.some(wg => wg.includes(w) || w.includes(wg)));
       if (comunes.length >= 2) return true;
-      
-      // Categorías genéricas con keywords
-      const categorias = {
-        'ventilador pared': ['ventilador de pared', 'ventilador pared', 'ventilador denpared', 'ventilador de paret', 'vetilador de pared'],
-        'ventilador pedestal': ['ventilador de pedestal', 'ventilador pedestal'],
-        'ventilador recargable': ['ventilador recargable', 'ventilador f6'],
-        'mini ciclon': ['mini ciclon', 'mini ciclones'],
-        'olla reina': ['olla reina', 'ollas reina', 'reina houselux', 'reina houslex', 'reina houslux', 'reina jm', 'ollas reynas'],
-        'olla arrocera': ['olla arrocera', 'arrocera', 'arroceras', 'arrocera estelectric', 'arrocera electric'],
-        'batidora': ['batidora', 'batidora con triturador', 'batidora esteletric'],
-        'cafetera': ['cafetera', 'cafetera electrica', 'cafetera negra', 'cafetera eko'],
-        'infrarroja': ['infrarroja', 'infrarojo', 'inflarojo', 'cocina infraroja', 'cocina infrarroja', 'cocina infrarrojo', 'fogon inflarojo', 'cocinas infrarrojas'],
-        'freidora': ['freidora de aire', 'freidora'],
-        'juegos sartenes': ['juegos de sartenes', 'set de sartenes', 'juegos sartenes', 'set de 4 piezas', 'juego de sartenes'],
-        'ollas micropresion': ['ollas de micropresion', 'olla de micropresion', 'set de ollas de micropresion', 'set de dos ollas', 'set de 2 ollas', 'ollas de mircropresion', 'ollas tipo calabaza', 'juego de ollas micropresion'],
-        'cocina gas': ['cocina de gas'],
-        'cocina petroleo': ['cocina de petroleo', 'cocinas de petroleo', 'fogon de petroleo', 'fogones de petroleo'],
-        'licuadora': ['licuadora', 'licuadoras'],
-        'juegos induccion': ['juegos de induccion', 'set de induccion'],
-        'sarten electrico': ['sarten electrico'],
-        'power bank': ['power bank', 'cargador portatil'],
-      };
-      
-      for (const [cat, keywords] of Object.entries(categorias)) {
-        const invMatchCat = keywords.some(kw => inv.includes(normalizarNombreProducto(kw)) || normalizarNombreProducto(kw).includes(inv));
-        const gesMatchCat = keywords.some(kw => ges.includes(normalizarNombreProducto(kw)) || normalizarNombreProducto(kw).includes(ges));
-        if (invMatchCat && gesMatchCat) return true;
-      }
       
       return false;
     }
@@ -1051,33 +1094,44 @@
 
 
     window.addEventListener('DOMContentLoaded', async () => {
-      // Inicializar memoria multicapa
-      appData = await window.memoryEngine.init(DEFAULT_APP_STATE);
-      // Limpiar lotes demo si existían en datos locales anteriores
-      if (appData && appData.datosSemanales) {
-        Object.keys(appData.datosSemanales).forEach(k => {
-          if (appData.datosSemanales[k] && appData.datosSemanales[k].lotesInventario) {
-            appData.datosSemanales[k].lotesInventario = appData.datosSemanales[k].lotesInventario.filter(l => !l.id.includes('demo') && l.folioVale !== 'ENT-DEMO');
-          }
-        });
+      try {
+        // Inicializar memoria multicapa
+        appData = await window.memoryEngine.init(DEFAULT_APP_STATE);
+        // Limpiar lotes demo si existían en datos locales anteriores
+        if (appData && appData.datosSemanales) {
+          Object.keys(appData.datosSemanales).forEach(k => {
+            if (appData.datosSemanales[k] && appData.datosSemanales[k].lotesInventario) {
+              appData.datosSemanales[k].lotesInventario = appData.datosSemanales[k].lotesInventario.filter(l => !l.id.includes('demo') && l.folioVale !== 'ENT-DEMO');
+            }
+          });
+        }
+
+        const elComDef = document.getElementById('input-comision-default');
+        if (elComDef) elComDef.value = appData.comisionDefault || 1500;
+        const elMonCom = document.getElementById('select-moneda-comision-default');
+        if (elMonCom) elMonCom.value = appData.monedaComisionDefault || 'CUP';
+        const elMonGlob = document.getElementById('select-moneda-global');
+        if (elMonGlob) elMonGlob.value = appData.monedaGlobal || 'USD';
+        const elTasaUsd = document.getElementById('input-tasa-usd-a-cup');
+        if (elTasaUsd) elTasaUsd.value = appData.tasaUsdACup || 350;
+        const elTasaCup = document.getElementById('input-tasa-cup-a-usd');
+        if (elTasaCup) elTasaCup.value = appData.tasaCupAUsd || 360;
+        const elValeFecha = document.getElementById('vale-fecha');
+        if (elValeFecha) elValeFecha.value = new Date().toISOString().split('T')[0];
+
+        inicializarFormularioValeConItemsPorDefecto();
+
+        // Cargar datos de la Web de Gestores
+        await cargarDatosGestores();
+
+        // Renderizado general protegido contra fallos
+        renderizarTodo();
+        const elValeFolio = document.getElementById('vale-folio');
+        if (elValeFolio) elValeFolio.value = generarSiguienteFolio();
+        if (window.lucide && typeof lucide.createIcons === 'function') { lucide.createIcons(); }
+      } catch (errInit) {
+        console.error('Error durante la inicialización de la app:', errInit);
       }
-
-      document.getElementById('input-comision-default').value = appData.comisionDefault || 1500;
-      document.getElementById('select-moneda-comision-default').value = appData.monedaComisionDefault || 'CUP';
-      document.getElementById('select-moneda-global').value = appData.monedaGlobal || 'USD';
-      document.getElementById('input-tasa-usd-a-cup').value = appData.tasaUsdACup || 350;
-      document.getElementById('input-tasa-cup-a-usd').value = appData.tasaCupAUsd || 360;
-      document.getElementById('vale-fecha').value = new Date().toISOString().split('T')[0];
-
-      inicializarFormularioValeConItemsPorDefecto();
-
-      // Cargar datos de la Web de Gestores ANTES del primer render para tener datos FIFO
-      await cargarDatosGestores();
-      setInterval(cargarDatosGestores, 3 * 60 * 1000);
-
-      renderizarTodo();
-      document.getElementById('vale-folio').value = generarSiguienteFolio();
-      if (window.lucide && typeof lucide.createIcons === 'function') { lucide.createIcons(); }
 
       // Registro de Service Worker para PWA Offline con Auto-Actualización online
       if ('serviceWorker' in navigator) {
@@ -2069,13 +2123,26 @@ Transporte: 2500
       const costoEl = document.getElementById("resumen-ventas-costo-usd");
       const gananciaEl = document.getElementById("resumen-ventas-ganancia-usd");
       const comisionesEl = document.getElementById("resumen-ventas-comisiones-cup");
+      const stockTiendaEl = document.getElementById("resumen-ventas-stock-tienda");
+      const lotesCountEl = document.getElementById("resumen-ventas-lotes-count");
+      const rotacionEl = document.getElementById("resumen-ventas-rotacion");
+      const agotadosCountEl = document.getElementById("resumen-ventas-agotados-count");
 
-      if (totalValesEl) totalValesEl.textContent = datosGestores.vales.length + " vales de gestores";
+      const totalStockInventario = lotesState.reduce((acc, l) => acc + (l.entradas || 0), 0);
+      const totalStockRestante = lotesState.reduce((acc, l) => acc + (l.restantes || 0), 0);
+      const lotesAgotados = lotesState.filter(l => l.entradas > 0 && l.restantes === 0).length;
+      const pctRotacion = totalStockInventario > 0 ? Math.round(((totalStockInventario - totalStockRestante) / totalStockInventario) * 100) : 0;
+
+      if (totalValesEl) totalValesEl.textContent = datosGestores.vales.length + " vales gestores";
       if (unidadesEl) unidadesEl.textContent = totalUnidadesVendidas + " uds vendidas";
+      if (stockTiendaEl) stockTiendaEl.textContent = totalStockRestante + " / " + totalStockInventario + " uds";
+      if (lotesCountEl) lotesCountEl.textContent = lotesState.length + " lotes (" + lotesAgotados + " agotados)";
       if (montoEl) montoEl.textContent = "$" + totalVentasUSD.toFixed(2) + " USD";
       if (costoEl) costoEl.textContent = "$" + totalCostoVendidoUSD.toFixed(2) + " USD";
       if (gananciaEl) gananciaEl.textContent = "$" + gananciaTotalUSD.toFixed(2) + " USD";
       if (comisionesEl) comisionesEl.textContent = "Comisiones: " + totalComisionesCUP.toLocaleString("es-ES") + " CUP";
+      if (rotacionEl) rotacionEl.textContent = pctRotacion + "% rotación";
+      if (agotadosCountEl) agotadosCountEl.textContent = lotesAgotados + " agotados, " + (lotesState.length - lotesAgotados) + " activos";
 
       // 5. Filtrar lotes para renderizar la tabla
       const filtroEstado = document.getElementById("filtro-ventas-estado") ? document.getElementById("filtro-ventas-estado").value : "TODOS";
