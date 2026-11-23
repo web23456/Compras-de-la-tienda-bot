@@ -2468,7 +2468,7 @@ function cambiarPestanaPrincipal(pestana) {
     if (secGastos) secGastos.classList.add('hidden');
     if (secVales) secVales.classList.add('hidden');
     // Pre-cargar y pintar inmediatamente sin demora
-    if (!catalogoProductosAgrupados || catalogoProductosAgrupados.length === 0) {
+    if (!catalogoFamiliasAgrupadas || catalogoFamiliasAgrupadas.length === 0) {
       renderizarCatalogoProductos();
     } else {
       filtrarCatalogoProductos();
@@ -2505,15 +2505,228 @@ function cambiarPestanaPrincipal(pestana) {
   if (window.lucide && typeof lucide.createIcons === 'function') { lucide.createIcons(); }
 }
 
-let catalogoProductosAgrupados = [];
-let productosSubmenusAbiertos = {};
+let catalogoFamiliasAgrupadas = [];
+let familiasSubmenusAbiertos = {};
+let variantesSubmenusAbiertos = {};
 
-function toggleSubmenuProducto(prodId) {
-  productosSubmenusAbiertos[prodId] = !productosSubmenusAbiertos[prodId];
-  const sub = document.getElementById('prod-submenu-' + prodId);
-  const chevron = document.getElementById('prod-chevron-' + prodId);
+// ================= DICCIONARIO INTELIGENTE DE FAMILIAS DE PRODUCTOS =================
+const FAMILIAS_PRODUCTOS = [
+  { id: 'OLLA_REINA', nombre: 'Olla Reina (Presión)', icon: '🍲',
+    test: function(n) { return /(reina|reyna|\bolla\b)/.test(n) && !/(arrocera|micro|calabaz)/.test(n); }
+  },
+  { id: 'OLLA_ARROCERA', nombre: 'Olla Arrocera', icon: '🍚',
+    test: function(n) { return /arrocera/.test(n); }
+  },
+  { id: 'OLLA_MICROPRESION', nombre: 'Set Ollas Micropresión / Calabaza', icon: '🫕',
+    test: function(n) { return /(micropresion|micro presion|micro presión|calabaz)/.test(n); }
+  },
+  { id: 'VENTILADOR_PARED', nombre: 'Ventilador de Pared', icon: '💨',
+    test: function(n) { return /(ventilador|vetilador)/.test(n) && /(pared|paret|denpared)/.test(n); }
+  },
+  { id: 'VENTILADOR_PEDESTAL', nombre: 'Ventilador de Pedestal', icon: '🌀',
+    test: function(n) { return /(ventilador|ventiladores)/.test(n) && /pedestal/.test(n); }
+  },
+  { id: 'VENTILADOR_RECARGABLE', nombre: 'Ventilador Recargable / F6', icon: '🔋',
+    test: function(n) { return /(ventilador|ventiladores)/.test(n) && /(recargable|regable|\bf6\b)/.test(n); }
+  },
+  { id: 'VENTILADOR_OTRO', nombre: 'Ventilador (Otros / Combo)', icon: '🌬️',
+    test: function(n) { return /(ventilador|ventiladores|vetilador)/.test(n); }
+  },
+  { id: 'COCINA_INFRARROJA', nombre: 'Cocina Infrarroja', icon: '🔴',
+    test: function(n) { return /(infrarroj|inflaroj|infraroj|infrraroj|ornilla)/.test(n) || (/\b(cocina|fogon|fogón|fogones)\b/.test(n) && !/(gas|petroleo|petróleo|induccion|inducción)/.test(n) && !/(arrocera|reina|reyna|sarten|sartén)/.test(n)); }
+  },
+  { id: 'COCINA_INDUCCION', nombre: 'Cocina de Inducción', icon: '⚡',
+    test: function(n) { return /(induccion|inducción)/.test(n); }
+  },
+  { id: 'COCINA_PETROLEO', nombre: 'Fogón de Petróleo', icon: '🛢️',
+    test: function(n) { return /(petroleo|petróleo)/.test(n); }
+  },
+  { id: 'COCINA_GAS', nombre: 'Cocina de Gas', icon: '🔥',
+    test: function(n) { return /cocina.*gas|gas.*cocina/.test(n); }
+  },
+  { id: 'FREIDORA', nombre: 'Freidora de Aire', icon: '🍟',
+    test: function(n) { return /freidora/.test(n); }
+  },
+  { id: 'BATIDORA_LICUADORA', nombre: 'Batidora / Licuadora', icon: '🥤',
+    test: function(n) { return /(batidora|licuadora|vatidora)/.test(n); }
+  },
+  { id: 'CAFETERA', nombre: 'Cafetera Eléctrica', icon: '☕',
+    test: function(n) { return /cafetera/.test(n); }
+  },
+  { id: 'SARTEN_ELECTRICO', nombre: 'Sartén Eléctrico', icon: '🍳',
+    test: function(n) { return /(sarten|sartén)/.test(n) && /(electr|eléctric|800w)/.test(n); }
+  },
+  { id: 'SET_SARTENES', nombre: 'Set Sartenes / Calderos (Piezas)', icon: '🍳',
+    test: function(n) { return /(sarten|sartén|sartenes|caldero|juego.*sarten|set.*piezas|piezas.*sarten|calderito)/.test(n) && !/(electr|eléctric|800w)/.test(n); }
+  },
+  { id: 'CAJITA_DESCODIFICADOR', nombre: 'Cajita Descodificadora', icon: '📺',
+    test: function(n) { return /(cajita|descodificad|convertidor|convertidora)/.test(n); }
+  },
+  { id: 'POWER_BANK', nombre: 'Power Bank / Cargador', icon: '🔌',
+    test: function(n) { return /(power\s*bank|powerbank|cargador.*portatil|cargador.*portátil|\bmah\b|\bmha\b)/.test(n); }
+  },
+  { id: 'PLANCHA', nombre: 'Plancha de Ropa', icon: '👔',
+    test: function(n) { return /plancha/.test(n); }
+  },
+  { id: 'ALARMA', nombre: 'Alarma', icon: '🚨',
+    test: function(n) { return /alarma/.test(n); }
+  }
+];
+
+function clasificarFamiliaProducto(nombreProducto) {
+  if (!nombreProducto) return null;
+  var n = String(nombreProducto).toLowerCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9\s]/g, ' ').replace(/\s+/g, ' ').trim();
+  for (var i = 0; i < FAMILIAS_PRODUCTOS.length; i++) {
+    if (FAMILIAS_PRODUCTOS[i].test(n)) return FAMILIAS_PRODUCTOS[i];
+  }
+  return null;
+}
+
+function formatearNombreVariante(nombre) {
+  if (!nombre) return 'Producto';
+  var s = String(nombre).trim();
+  return s.charAt(0).toUpperCase() + s.slice(1);
+}
+
+// ================= ANÁLISIS INTELIGENTE POR FAMILIAS CON VARIANTES =================
+function analizarYAgruparPorFamilias(fechaDesde, fechaHasta) {
+  if (!datosGestores || !datosGestores.vales) return [];
+
+  var familiasMapa = new Map();
+  var sData = getSemanaData();
+  var lotesInv = sData.lotesInventario || [];
+
+  // Filtrar vales por rango de fecha y validez
+  var valesFiltrados = datosGestores.vales.filter(function(vale) {
+    var fStr = (vale.fecha || '').trim();
+    if (fStr) {
+      var partes = fStr.split('-');
+      if (partes.length === 3 && Number(partes[1]) > 12) return false;
+    }
+    if (fechaDesde && fStr < fechaDesde) return false;
+    if (fechaHasta && fStr > fechaHasta) return false;
+    return true;
+  });
+
+  valesFiltrados.forEach(function(vale) {
+    (vale.items || []).forEach(function(item) {
+      var rawNombre = (item.producto || '').trim();
+      if (!rawNombre) return;
+
+      var familia = clasificarFamiliaProducto(rawNombre);
+      var famId = familia ? familia.id : 'OTROS';
+      var famNombre = familia ? familia.nombre : 'Otros Productos';
+      var famIcon = familia ? familia.icon : '📦';
+
+      if (!familiasMapa.has(famId)) {
+        familiasMapa.set(famId, {
+          id: famId,
+          nombre: famNombre,
+          icon: famIcon,
+          totalCantidad: 0,
+          totalUSD: 0,
+          comisionesCUP: 0,
+          valesSet: new Set(),
+          variantes: new Map()
+        });
+      }
+
+      var fam = familiasMapa.get(famId);
+      var cant = Number(item.cantidad || 1);
+      var pUnit = Number(item.precioVenta || 0);
+      var subtotalUSD = cant * pUnit;
+      var comisionTot = Number(item.comisionTotalCUP || ((item.comisionUnitCUP || 1500) * cant));
+
+      fam.totalCantidad += cant;
+      fam.totalUSD += subtotalUSD;
+      fam.comisionesCUP += comisionTot;
+      fam.valesSet.add(vale.folio || vale.id);
+
+      // Agrupar variantes dentro de cada familia
+      var varKey = rawNombre.toLowerCase().replace(/\s+/g, ' ');
+      if (!fam.variantes.has(varKey)) {
+        fam.variantes.set(varKey, {
+          id: 'var_' + Math.abs(varKey.split('').reduce(function(a,b){a=((a<<5)-a)+b.charCodeAt(0);return a&a;},0)),
+          nombreDisplay: formatearNombreVariante(rawNombre),
+          totalCantidad: 0,
+          totalUSD: 0,
+          preciosUnitarios: new Set(),
+          vales: []
+        });
+      }
+
+      var variante = fam.variantes.get(varKey);
+      variante.totalCantidad += cant;
+      variante.totalUSD += subtotalUSD;
+      if (pUnit > 0) variante.preciosUnitarios.add(pUnit);
+
+      variante.vales.push({
+        valeId: vale.id,
+        folio: vale.folio || 'V-?',
+        fecha: vale.fecha || '—',
+        gestorNombre: vale.gestorNombre || 'Sin gestor',
+        clienteNombre: vale.clienteNombre || 'Cliente',
+        cantidad: cant,
+        precioVenta: pUnit,
+        subtotalUSD: subtotalUSD,
+        createdAt: vale.createdAt || 0
+      });
+    });
+  });
+
+  // Convertir a array y calcular stock
+  var familiasArray = Array.from(familiasMapa.values()).map(function(fam) {
+    var stockEntradas = 0;
+    lotesInv.forEach(function(l) {
+      if (clasificarFamiliaProducto(l.producto)) {
+        var loteFam = clasificarFamiliaProducto(l.producto);
+        if (loteFam && loteFam.id === fam.id) {
+          stockEntradas += (l.entradas || l.inicio || 0);
+        }
+      }
+    });
+
+    var variantesArray = Array.from(fam.variantes.values()).map(function(v) {
+      v.preciosUnitarios = Array.from(v.preciosUnitarios).sort(function(a,b){return a-b;});
+      v.vales.sort(function(a, b) {
+        var fa = parsearFechaFlexible(a.fecha);
+        var fb = parsearFechaFlexible(b.fecha);
+        var ta = fa ? fa.getTime() : (a.createdAt || 0);
+        var tb = fb ? fb.getTime() : (b.createdAt || 0);
+        return tb - ta;
+      });
+      return v;
+    });
+
+    // Ordenar variantes por cantidad vendida desc
+    variantesArray.sort(function(a, b) { return b.totalCantidad - a.totalCantidad; });
+
+    return {
+      id: fam.id,
+      nombre: fam.nombre,
+      icon: fam.icon,
+      totalCantidad: fam.totalCantidad,
+      totalUSD: fam.totalUSD,
+      comisionesCUP: fam.comisionesCUP,
+      totalVales: fam.valesSet.size,
+      stockEntradas: stockEntradas,
+      stockRestante: Math.max(0, stockEntradas - fam.totalCantidad),
+      variantes: variantesArray,
+      totalVariantes: variantesArray.length
+    };
+  });
+
+  return familiasArray;
+}
+
+function toggleFamiliaSubmenu(famId) {
+  familiasSubmenusAbiertos[famId] = !familiasSubmenusAbiertos[famId];
+  var sub = document.getElementById('fam-submenu-' + famId);
+  var chevron = document.getElementById('fam-chevron-' + famId);
   if (sub) {
-    if (productosSubmenusAbiertos[prodId]) {
+    if (familiasSubmenusAbiertos[famId]) {
       sub.classList.remove('hidden');
       if (chevron) chevron.classList.add('rotate-180');
     } else {
@@ -2524,125 +2737,19 @@ function toggleSubmenuProducto(prodId) {
   if (window.lucide && typeof lucide.createIcons === 'function') { lucide.createIcons(); }
 }
 
-function formatearNombreProductoElegante(nombre) {
-  if (!nombre) return 'Producto sin nombre';
-  const s = String(nombre).trim();
-  return s.charAt(0).toUpperCase() + s.slice(1);
-}
-
-function analizarYAgruparProductos(fechaDesde, fechaHasta) {
-  if (!datosGestores || !datosGestores.vales) return [];
-
-  const mapa = new Map();
-  const sData = getSemanaData();
-  const lotesInv = sData.lotesInventario || [];
-
-  // Filtrar vales por rango de fecha si se especifica
-  let valesFiltrados = datosGestores.vales;
-  if (fechaDesde || fechaHasta) {
-    valesFiltrados = datosGestores.vales.filter(vale => {
-      const fStr = (vale.fecha || '').trim();
-      if (!fStr) return false;
-      // Validar que la fecha sea razonable (mes <= 12)
-      const partes = fStr.split('-');
-      if (partes.length === 3 && Number(partes[1]) > 12) return false;
-      if (fechaDesde && fStr < fechaDesde) return false;
-      if (fechaHasta && fStr > fechaHasta) return false;
-      return true;
-    });
-  } else {
-    // Sin filtro de fecha: excluir vales con fechas claramente inválidas (mes > 12)
-    valesFiltrados = datosGestores.vales.filter(vale => {
-      const fStr = (vale.fecha || '').trim();
-      if (!fStr) return true;
-      const partes = fStr.split('-');
-      if (partes.length === 3 && Number(partes[1]) > 12) return false;
-      return true;
-    });
+function toggleVarianteVales(varId) {
+  variantesSubmenusAbiertos[varId] = !variantesSubmenusAbiertos[varId];
+  var sub = document.getElementById('var-vales-' + varId);
+  var chevron = document.getElementById('var-chevron-' + varId);
+  if (sub) {
+    if (variantesSubmenusAbiertos[varId]) {
+      sub.classList.remove('hidden');
+      if (chevron) chevron.classList.add('rotate-180');
+    } else {
+      sub.classList.add('hidden');
+      if (chevron) chevron.classList.remove('rotate-180');
+    }
   }
-
-  valesFiltrados.forEach(vale => {
-    (vale.items || []).forEach(item => {
-      const rawNombre = (item.producto || '').trim();
-      if (!rawNombre) return;
-
-      // Agrupar preservando cada producto individual sin colapsar agresivamente (case-insensitive limpio)
-      const clave = rawNombre.toLowerCase().replace(/\s+/g, ' ');
-      const cat = categorizarProducto(rawNombre) || 'PRODUCTOS GENERALES';
-      const nombreVisual = formatearNombreProductoElegante(rawNombre);
-
-      if (!mapa.has(clave)) {
-        mapa.set(clave, {
-          id: 'prod_' + Math.abs(clave.split('').reduce((a,b)=>{a=((a<<5)-a)+b.charCodeAt(0);return a&a},0)),
-          nombreNorm: nombreVisual,
-          nombresOriginales: new Set([rawNombre]),
-          categoria: cat,
-          totalCantidad: 0,
-          totalUSD: 0,
-          comisionesCUP: 0,
-          preciosUnitarios: new Set(),
-          vales: []
-        });
-      }
-
-      const entry = mapa.get(clave);
-      entry.nombresOriginales.add(rawNombre);
-      const cant = Number(item.cantidad || 1);
-      const pUnit = Number(item.precioVenta || 0);
-      const subtotalUSD = cant * pUnit;
-      const comisionTot = Number(item.comisionTotalCUP || ((item.comisionUnitCUP || 1500) * cant));
-
-      entry.totalCantidad += cant;
-      entry.totalUSD += subtotalUSD;
-      entry.comisionesCUP += comisionTot;
-      if (pUnit > 0) entry.preciosUnitarios.add(pUnit);
-
-      // Cada vale que tenga este producto se añade (permitiendo que vales multi-producto aparezcan en cada producto correspondiente)
-      entry.vales.push({
-        valeId: vale.id,
-        folio: vale.folio || 'V-?',
-        fecha: vale.fecha || '—',
-        gestorNombre: vale.gestorNombre || 'Sin gestor',
-        gestorTelefono: vale.gestorTelefono || '',
-        clienteNombre: vale.clienteNombre || 'Cliente',
-        cantidad: cant,
-        precioVenta: pUnit,
-        subtotalUSD: subtotalUSD,
-        tipoEquipo: item.tipoEquipo || 'Equipo',
-        createdAt: vale.createdAt || 0
-      });
-    });
-  });
-
-  const agrupados = Array.from(mapa.values()).map(p => {
-    let stockEntradas = 0;
-    let stockRestanteEstimado = 0;
-    lotesInv.forEach(l => {
-      if (productoCoincide(l.producto, p.nombreNorm)) {
-        stockEntradas += (l.entradas || l.inicio || 0);
-      }
-    });
-
-    stockRestanteEstimado = Math.max(0, stockEntradas - p.totalCantidad);
-
-    p.vales.sort((a, b) => {
-      const fa = parsearFechaFlexible(a.fecha);
-      const fb = parsearFechaFlexible(b.fecha);
-      const ta = fa ? fa.getTime() : (a.createdAt || 0);
-      const tb = fb ? fb.getTime() : (b.createdAt || 0);
-      return tb - ta;
-    });
-
-    return {
-      ...p,
-      nombresOriginales: Array.from(p.nombresOriginales),
-      preciosUnitarios: Array.from(p.preciosUnitarios).sort((a,b)=>a-b),
-      stockEntradas: stockEntradas,
-      stockRestante: stockRestanteEstimado
-    };
-  });
-
-  return agrupados;
 }
 
 function recalcularCatalogoProductos() {
@@ -2650,61 +2757,64 @@ function recalcularCatalogoProductos() {
 }
 
 function limpiarFiltroProdFechas() {
-  const desdeEl = document.getElementById('filtro-prod-fecha-desde');
-  const hastaEl = document.getElementById('filtro-prod-fecha-hasta');
+  var desdeEl = document.getElementById('filtro-prod-fecha-desde');
+  var hastaEl = document.getElementById('filtro-prod-fecha-hasta');
   if (desdeEl) desdeEl.value = '';
   if (hastaEl) hastaEl.value = '';
   renderizarCatalogoProductos();
 }
 
+// ================= RENDERIZADO DEL CATÁLOGO POR FAMILIAS =================
 function renderizarCatalogoProductos() {
-  const fechaDesde = (document.getElementById('filtro-prod-fecha-desde') ? document.getElementById('filtro-prod-fecha-desde').value : '') || null;
-  const fechaHasta = (document.getElementById('filtro-prod-fecha-hasta') ? document.getElementById('filtro-prod-fecha-hasta').value : '') || null;
-  catalogoProductosAgrupados = analizarYAgruparProductos(fechaDesde, fechaHasta);
+  var fechaDesde = (document.getElementById('filtro-prod-fecha-desde') ? document.getElementById('filtro-prod-fecha-desde').value : '') || null;
+  var fechaHasta = (document.getElementById('filtro-prod-fecha-hasta') ? document.getElementById('filtro-prod-fecha-hasta').value : '') || null;
+  catalogoFamiliasAgrupadas = analizarYAgruparPorFamilias(fechaDesde, fechaHasta);
 
-  const badgeNav = document.getElementById('badge-total-productos-nav');
-  if (badgeNav) badgeNav.textContent = catalogoProductosAgrupados.length;
+  var badgeNav = document.getElementById('badge-total-productos-nav');
+  if (badgeNav) {
+    var totalVariantes = catalogoFamiliasAgrupadas.reduce(function(s,f){return s+f.totalVariantes;}, 0);
+    badgeNav.textContent = catalogoFamiliasAgrupadas.length + ' familias';
+  }
 
-  const contadorTotal = document.getElementById('contador-productos-total');
-  if (contadorTotal) contadorTotal.textContent = catalogoProductosAgrupados.length + ' productos';
+  var contadorTotal = document.getElementById('contador-productos-total');
+  if (contadorTotal) contadorTotal.textContent = catalogoFamiliasAgrupadas.length + ' familias de productos';
 
-  const selCat = document.getElementById('filtro-categoria-productos');
+  // Categorías para filtro
+  var selCat = document.getElementById('filtro-categoria-productos');
   if (selCat) {
-    const valActual = selCat.value;
-    const categoriasUnicas = Array.from(new Set(catalogoProductosAgrupados.map(p => p.categoria))).filter(c => c !== 'OTRO').sort();
-    selCat.innerHTML = '<option value="TODAS">Todas las Categorías (' + catalogoProductosAgrupados.length + ')</option>' +
-      categoriasUnicas.map(c => '<option value="' + c + '">' + c.replace(/_/g, ' ') + '</option>').join('') +
-      '<option value="OTRO">OTRAS CATEGORÍAS</option>';
-    if (valActual && Array.from(selCat.options).some(o => o.value === valActual)) {
+    var valActual = selCat.value;
+    selCat.innerHTML = '<option value="TODAS">Todas las Familias (' + catalogoFamiliasAgrupadas.length + ')</option>' +
+      catalogoFamiliasAgrupadas.map(function(f) { return '<option value="' + f.id + '">' + f.icon + ' ' + f.nombre + ' (' + f.totalCantidad + ' uds)</option>'; }).join('');
+    if (valActual && Array.from(selCat.options).some(function(o) { return o.value === valActual; })) {
       selCat.value = valActual;
     }
   }
 
-  let totalVendidas = 0;
-  let totalUSD = 0;
-  let totalStock = 0;
-  let setVales = new Set();
-  let categoriasSet = new Set();
+  // KPIs globales
+  var totalVendidas = 0;
+  var totalUSD = 0;
+  var totalStock = 0;
+  var setVales = new Set();
+  var totalVariantesGlobal = 0;
 
-  catalogoProductosAgrupados.forEach(p => {
-    totalVendidas += p.totalCantidad;
-    totalUSD += p.totalUSD;
-    totalStock += p.stockRestante;
-    categoriasSet.add(p.categoria);
-    p.vales.forEach(v => setVales.add(v.folio));
+  catalogoFamiliasAgrupadas.forEach(function(f) {
+    totalVendidas += f.totalCantidad;
+    totalUSD += f.totalUSD;
+    totalStock += f.stockRestante;
+    totalVariantesGlobal += f.totalVariantes;
   });
 
-  const kpiTotalDist = document.getElementById('kpi-prod-total-distintos');
-  const kpiCatCount = document.getElementById('kpi-prod-categorias-count');
-  const kpiTotalVend = document.getElementById('kpi-prod-total-vendidas');
-  const kpiValesCount = document.getElementById('kpi-prod-vales-count');
-  const kpiTotalUsd = document.getElementById('kpi-prod-total-usd');
-  const kpiStock = document.getElementById('kpi-prod-stock-disponible');
+  var kpiTotalDist = document.getElementById('kpi-prod-total-distintos');
+  var kpiCatCount = document.getElementById('kpi-prod-categorias-count');
+  var kpiTotalVend = document.getElementById('kpi-prod-total-vendidas');
+  var kpiValesCount = document.getElementById('kpi-prod-vales-count');
+  var kpiTotalUsd = document.getElementById('kpi-prod-total-usd');
+  var kpiStock = document.getElementById('kpi-prod-stock-disponible');
 
-  if (kpiTotalDist) kpiTotalDist.textContent = catalogoProductosAgrupados.length;
-  if (kpiCatCount) kpiCatCount.textContent = categoriasSet.size + ' categorías clasificadas';
+  if (kpiTotalDist) kpiTotalDist.textContent = catalogoFamiliasAgrupadas.length + ' familias';
+  if (kpiCatCount) kpiCatCount.textContent = totalVariantesGlobal + ' variantes de productos';
   if (kpiTotalVend) kpiTotalVend.textContent = totalVendidas.toLocaleString('es-ES') + ' uds';
-  if (kpiValesCount) kpiValesCount.textContent = 'En ' + setVales.size + ' vales de gestores';
+  if (kpiValesCount) kpiValesCount.textContent = 'En ' + catalogoFamiliasAgrupadas.reduce(function(s,f){return s+f.totalVales;}, 0) + ' vales de gestores';
   if (kpiTotalUsd) kpiTotalUsd.textContent = '$' + totalUSD.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' USD';
   if (kpiStock) kpiStock.textContent = totalStock.toLocaleString('es-ES') + ' uds';
 
@@ -2712,174 +2822,198 @@ function renderizarCatalogoProductos() {
 }
 
 let paginaActualProductos = 1;
-const PRODUCTOS_POR_PAGINA = 20;
+const PRODUCTOS_POR_PAGINA = 10;
 
 function cambiarPaginaProductos(delta) {
   paginaActualProductos += delta;
   filtrarCatalogoProductos();
-  const contenedor = document.getElementById('seccion-vista-productos');
+  var contenedor = document.getElementById('seccion-vista-productos');
   if (contenedor) contenedor.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 function filtrarCatalogoProductos() {
-  const contenedor = document.getElementById('contenedor-tarjetas-productos');
+  var contenedor = document.getElementById('contenedor-tarjetas-productos');
   if (!contenedor) return;
 
-  if (!catalogoProductosAgrupados || catalogoProductosAgrupados.length === 0) {
+  if (!catalogoFamiliasAgrupadas || catalogoFamiliasAgrupadas.length === 0) {
     contenedor.innerHTML = '<div class="p-8 text-center text-slate-500 bg-slate-950 border border-slate-800 rounded-2xl">No hay datos de productos disponibles. Inicia el bot o presiona "Copiar base de datos de gestores".</div>';
-    const pag = document.getElementById('paginacion-productos');
+    var pag = document.getElementById('paginacion-productos');
     if (pag) pag.classList.add('hidden');
     return;
   }
 
-  const busq = (document.getElementById('busqueda-catalogo-productos') ? document.getElementById('busqueda-catalogo-productos').value : '').toLowerCase().trim();
-  const cat = (document.getElementById('filtro-categoria-productos') ? document.getElementById('filtro-categoria-productos').value : 'TODAS');
-  const orden = (document.getElementById('orden-catalogo-productos') ? document.getElementById('orden-catalogo-productos').value : 'NOMBRE_ASC');
+  var busq = (document.getElementById('busqueda-catalogo-productos') ? document.getElementById('busqueda-catalogo-productos').value : '').toLowerCase().trim();
+  var cat = (document.getElementById('filtro-categoria-productos') ? document.getElementById('filtro-categoria-productos').value : 'TODAS');
+  var orden = (document.getElementById('orden-catalogo-productos') ? document.getElementById('orden-catalogo-productos').value : 'NOMBRE_ASC');
 
-  let lista = catalogoProductosAgrupados.filter(p => {
-    if (cat !== 'TODAS' && p.categoria !== cat) return false;
+  var lista = catalogoFamiliasAgrupadas.filter(function(f) {
+    if (cat !== 'TODAS' && f.id !== cat) return false;
     if (busq) {
-      const matchNorm = p.nombreNorm.toLowerCase().includes(busq);
-      const matchOrig = p.nombresOriginales.some(o => o.toLowerCase().includes(busq));
-      const matchCat = p.categoria.toLowerCase().includes(busq);
-      if (!matchNorm && !matchOrig && !matchCat) return false;
+      var matchNombre = f.nombre.toLowerCase().includes(busq);
+      var matchVariantes = f.variantes.some(function(v) { return v.nombreDisplay.toLowerCase().includes(busq); });
+      if (!matchNombre && !matchVariantes) return false;
     }
     return true;
   });
 
   if (orden === 'VENTAS_DESC') {
-    lista.sort((a, b) => b.totalCantidad - a.totalCantidad);
+    lista.sort(function(a, b) { return b.totalCantidad - a.totalCantidad; });
   } else if (orden === 'MONTO_DESC') {
-    lista.sort((a, b) => b.totalUSD - a.totalUSD);
+    lista.sort(function(a, b) { return b.totalUSD - a.totalUSD; });
   } else if (orden === 'NOMBRE_ASC') {
-    lista.sort((a, b) => a.nombreNorm.localeCompare(b.nombreNorm));
+    lista.sort(function(a, b) { return a.nombre.localeCompare(b.nombre); });
   } else if (orden === 'VALES_DESC') {
-    lista.sort((a, b) => b.vales.length - a.vales.length);
+    lista.sort(function(a, b) { return b.totalVales - a.totalVales; });
   }
 
   if (lista.length === 0) {
-    contenedor.innerHTML = '<div class="p-8 text-center text-slate-500 bg-slate-950 border border-slate-800 rounded-2xl">No se encontraron productos que coincidan con la búsqueda.</div>';
-    const pag = document.getElementById('paginacion-productos');
-    if (pag) pag.classList.add('hidden');
+    contenedor.innerHTML = '<div class="p-8 text-center text-slate-500 bg-slate-950 border border-slate-800 rounded-2xl">No se encontraron familias que coincidan con la búsqueda.</div>';
+    var pag2 = document.getElementById('paginacion-productos');
+    if (pag2) pag2.classList.add('hidden');
     return;
   }
 
-  // Paginación fluida
-  const totalItems = lista.length;
-  const totalPaginas = Math.ceil(totalItems / PRODUCTOS_POR_PAGINA);
+  // Paginación
+  var totalItems = lista.length;
+  var totalPaginas = Math.ceil(totalItems / PRODUCTOS_POR_PAGINA);
   if (paginaActualProductos < 1) paginaActualProductos = 1;
   if (paginaActualProductos > totalPaginas) paginaActualProductos = totalPaginas;
 
-  const inicio = (paginaActualProductos - 1) * PRODUCTOS_POR_PAGINA;
-  const fin = Math.min(inicio + PRODUCTOS_POR_PAGINA, totalItems);
-  const itemsPagina = lista.slice(inicio, fin);
+  var inicio = (paginaActualProductos - 1) * PRODUCTOS_POR_PAGINA;
+  var fin = Math.min(inicio + PRODUCTOS_POR_PAGINA, totalItems);
+  var itemsPagina = lista.slice(inicio, fin);
 
-  const pagCont = document.getElementById('paginacion-productos');
-  const pagInfo = document.getElementById('paginacion-info-texto');
-  const pagNum = document.getElementById('paginacion-numero');
-  const btnPrev = document.getElementById('btn-pag-prev');
-  const btnNext = document.getElementById('btn-pag-next');
+  var pagCont = document.getElementById('paginacion-productos');
+  var pagInfo = document.getElementById('paginacion-info-texto');
+  var pagNum = document.getElementById('paginacion-numero');
+  var btnPrev = document.getElementById('btn-pag-prev');
+  var btnNext = document.getElementById('btn-pag-next');
 
   if (pagCont) pagCont.classList.remove('hidden');
-  if (pagInfo) pagInfo.textContent = 'Mostrando ' + (inicio + 1) + '-' + fin + ' de ' + totalItems + ' productos';
+  if (pagInfo) pagInfo.textContent = 'Mostrando ' + (inicio + 1) + '-' + fin + ' de ' + totalItems + ' familias';
   if (pagNum) pagNum.textContent = 'Página ' + paginaActualProductos + ' de ' + totalPaginas;
   if (btnPrev) btnPrev.disabled = (paginaActualProductos <= 1);
   if (btnNext) btnNext.disabled = (paginaActualProductos >= totalPaginas);
 
-  contenedor.innerHTML = itemsPagina.map(p => {
-    const esAbierto = !!productosSubmenusAbiertos[p.id];
-    const preciosStr = p.preciosUnitarios.length > 0
-      ? p.preciosUnitarios.map(pr => '$' + pr.toFixed(2)).join(' / ') + ' USD'
-      : '—';
-    const avatarLetra = p.nombreNorm.charAt(0).toUpperCase();
+  // Render family cards
+  contenedor.innerHTML = itemsPagina.map(function(fam) {
+    var esAbierto = !!familiasSubmenusAbiertos[fam.id];
+    var pctMercado = catalogoFamiliasAgrupadas.reduce(function(s,f){return s+f.totalCantidad;}, 0);
+    var pctFam = pctMercado > 0 ? ((fam.totalCantidad / pctMercado) * 100).toFixed(1) : '0';
 
-    let valesRowsHtml = '';
-    if (p.vales.length === 0) {
-      valesRowsHtml = '<div class="p-4 text-center text-slate-500 text-xs">Sin vales de venta registrados.</div>';
-    } else {
-      valesRowsHtml = '<div class="overflow-x-auto"><table class="w-full text-left text-xs">' +
-        '<thead class="bg-black/90 text-teal-300 uppercase font-semibold text-[10px] tracking-wider sticky top-0 border-b border-teal-500/20">' +
-          '<tr>' +
-            '<th class="p-2.5">Folio</th>' +
-            '<th class="p-2.5">Fecha</th>' +
-            '<th class="p-2.5">Gestor</th>' +
-            '<th class="p-2.5">Cliente</th>' +
-            '<th class="p-2.5 text-center">Cantidad</th>' +
-            '<th class="p-2.5 text-right">P. Venta</th>' +
-            '<th class="p-2.5 text-right">Total USD</th>' +
-          '</tr>' +
-        '</thead>' +
-        '<tbody class="divide-y divide-slate-800/80 bg-black/40 font-mono text-[11px]">' +
-          p.vales.map(v => {
-            return '<tr class="hover:bg-teal-950/20 transition-colors">' +
-              '<td class="p-2.5 font-bold text-amber-300">' + v.folio + '</td>' +
-              '<td class="p-2.5 text-slate-400">' + v.fecha + '</td>' +
-              '<td class="p-2.5 text-white font-sans">' + v.gestorNombre + '</td>' +
-              '<td class="p-2.5 text-slate-300 font-sans">' + v.clienteNombre + '</td>' +
-              '<td class="p-2.5 text-center font-bold text-teal-300">' + v.cantidad + 'x</td>' +
-              '<td class="p-2.5 text-right text-slate-300">$' + v.precioVenta.toFixed(2) + '</td>' +
-              '<td class="p-2.5 text-right font-bold text-emerald-400">$' + v.subtotalUSD.toFixed(2) + '</td>' +
+    // Build variants table
+    var variantesHtml = fam.variantes.map(function(v) {
+      var preciosStr = v.preciosUnitarios.length > 0
+        ? v.preciosUnitarios.map(function(p){return '$'+p;}).join(', ')
+        : '—';
+      var esVarAbierto = !!variantesSubmenusAbiertos[v.id];
+
+      var valesTabla = '';
+      if (esVarAbierto && v.vales.length > 0) {
+        valesTabla = '<div class="mt-2 overflow-x-auto border border-teal-500/15 rounded-lg"><table class="w-full text-left text-[11px]">' +
+          '<thead class="bg-black/80 text-teal-300 uppercase font-semibold text-[9px] tracking-wider">' +
+            '<tr><th class="p-2">Folio</th><th class="p-2">Fecha</th><th class="p-2">Gestor</th><th class="p-2">Cliente</th><th class="p-2 text-center">Cant</th><th class="p-2 text-right">P.Venta</th><th class="p-2 text-right">Total</th></tr>' +
+          '</thead><tbody class="divide-y divide-slate-800/60 font-mono">' +
+          v.vales.map(function(vl) {
+            return '<tr class="hover:bg-teal-950/15">' +
+              '<td class="p-2 font-bold text-amber-300">' + vl.folio + '</td>' +
+              '<td class="p-2 text-slate-400">' + vl.fecha + '</td>' +
+              '<td class="p-2 text-white font-sans">' + vl.gestorNombre + '</td>' +
+              '<td class="p-2 text-slate-300 font-sans">' + vl.clienteNombre + '</td>' +
+              '<td class="p-2 text-center font-bold text-teal-300">' + vl.cantidad + 'x</td>' +
+              '<td class="p-2 text-right text-slate-300">$' + vl.precioVenta.toFixed(2) + '</td>' +
+              '<td class="p-2 text-right font-bold text-emerald-400">$' + vl.subtotalUSD.toFixed(2) + '</td>' +
             '</tr>';
           }).join('') +
-        '</tbody>' +
-      '</table></div>';
-    }
+          '</tbody></table></div>';
+      }
+
+      return '<div class="border-b border-slate-800/60 last:border-b-0">' +
+        '<div class="flex items-center justify-between p-2.5 hover:bg-slate-900/50 cursor-pointer transition-colors" onclick="toggleVarianteVales(\'' + v.id + '\')">' +
+          '<div class="flex items-center gap-2 min-w-0 flex-1">' +
+            '<span class="text-[11px] font-bold text-white truncate">' + v.nombreDisplay + '</span>' +
+          '</div>' +
+          '<div class="flex items-center gap-3 shrink-0 text-[11px] font-mono">' +
+            '<span class="text-teal-300 font-bold">' + v.totalCantidad + ' uds</span>' +
+            '<span class="text-slate-500">|</span>' +
+            '<span class="text-emerald-400">$' + v.totalUSD.toFixed(2) + '</span>' +
+            '<span class="text-slate-500">|</span>' +
+            '<span class="text-slate-400">' + preciosStr + '</span>' +
+            '<span class="text-slate-500">|</span>' +
+            '<span class="text-amber-300/80 text-[10px]">' + v.vales.length + ' vales</span>' +
+            '<i id="var-chevron-' + v.id + '" data-lucide="chevron-down" class="w-3 h-3 text-slate-500 transition-transform ' + (esVarAbierto ? 'rotate-180' : '') + '"></i>' +
+          '</div>' +
+        '</div>' +
+        '<div id="var-vales-' + v.id + '" class="' + (esVarAbierto ? '' : 'hidden') + ' px-3 pb-3">' + valesTabla + '</div>' +
+      '</div>';
+    }).join('');
 
     return '<div class="bg-zinc-950/90 border border-teal-500/20 hover:border-teal-500/40 rounded-2xl overflow-hidden shadow-lg transition-all">' +
       '<div class="p-4 sm:p-5 flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-zinc-950">' +
         '<div class="flex items-center gap-3.5 min-w-[280px]">' +
-          '<div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-teal-950 to-slate-900 border border-teal-500/30 flex items-center justify-center text-teal-300 font-black text-xl shrink-0 shadow-md">' +
-            avatarLetra +
+          '<div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-teal-950 to-slate-900 border border-teal-500/30 flex items-center justify-center text-3xl shrink-0 shadow-md">' +
+            fam.icon +
           '</div>' +
           '<div>' +
             '<div class="flex items-center gap-2 flex-wrap">' +
-              '<h4 class="text-base font-bold text-white tracking-tight">' + p.nombreNorm + '</h4>' +
-              '<span class="text-[10px] px-2 py-0.5 rounded-full bg-teal-500/10 text-teal-300 border border-teal-500/25 uppercase font-mono">' +
-                p.categoria.replace(/_/g, ' ') +
+              '<h4 class="text-base font-bold text-white tracking-tight">' + fam.nombre + '</h4>' +
+              '<span class="text-[10px] px-2 py-0.5 rounded-full bg-teal-500/10 text-teal-300 border border-teal-500/25 font-mono font-bold">' +
+                fam.totalVariantes + ' variantes' +
+              '</span>' +
+              '<span class="text-[10px] px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-300 border border-amber-500/25 font-mono font-bold">' +
+                pctFam + '% del total' +
               '</span>' +
             '</div>' +
             '<div class="text-[11px] text-slate-400 mt-0.5">' +
-              '<span>Precios: <strong class="text-teal-400 font-mono">' + preciosStr + '</strong></span>' +
-              (p.nombresOriginales.length > 1 ? '<span class="text-slate-600 mx-1.5">•</span><span class="text-slate-500 text-[10px]" title="' + p.nombresOriginales.join(', ') + '">' + p.nombresOriginales.length + ' variantes</span>' : '') +
+              '<span>Rango de precios: <strong class="text-teal-400 font-mono">' +
+                (function() {
+                  var allP = [];
+                  fam.variantes.forEach(function(v) { v.preciosUnitarios.forEach(function(p) { if (allP.indexOf(p) === -1) allP.push(p); }); });
+                  allP.sort(function(a,b){return a-b;});
+                  if (allP.length === 0) return '—';
+                  if (allP.length === 1) return '$' + allP[0] + ' USD';
+                  return '$' + allP[0] + ' — $' + allP[allP.length-1] + ' USD';
+                })() +
+              '</strong></span>' +
             '</div>' +
           '</div>' +
         '</div>' +
         '<div class="grid grid-cols-2 sm:grid-cols-4 gap-2 bg-black/70 p-3 rounded-xl border border-teal-500/20 text-center items-center flex-1">' +
           '<div>' +
             '<span class="text-[10px] text-teal-300/70 uppercase block font-semibold">Vendidos</span>' +
-            '<span class="text-sm font-black text-white font-mono">' + p.totalCantidad + ' uds</span>' +
+            '<span class="text-sm font-black text-white font-mono">' + fam.totalCantidad + ' uds</span>' +
           '</div>' +
           '<div>' +
             '<span class="text-[10px] text-teal-300/70 uppercase block font-semibold">Vales</span>' +
-            '<span class="text-sm font-black text-amber-300 font-mono">' + p.vales.length + ' vales</span>' +
+            '<span class="text-sm font-black text-amber-300 font-mono">' + fam.totalVales + '</span>' +
           '</div>' +
           '<div>' +
             '<span class="text-[10px] text-teal-300/70 uppercase block font-semibold">Total Facturado</span>' +
-            '<span class="text-sm font-bold text-emerald-400 font-mono block">$' + p.totalUSD.toFixed(2) + ' USD</span>' +
+            '<span class="text-sm font-bold text-emerald-400 font-mono block">$' + fam.totalUSD.toFixed(2) + '</span>' +
           '</div>' +
           '<div>' +
             '<span class="text-[10px] text-teal-300/70 uppercase block font-semibold">Stock Tienda</span>' +
-            '<span class="text-sm font-black font-mono ' + (p.stockRestante > 0 ? 'text-indigo-300' : 'text-slate-500') + '">' +
-              (p.stockEntradas > 0 ? p.stockRestante + ' de ' + p.stockEntradas + ' uds' : 'Sin lote entrada') +
+            '<span class="text-sm font-black font-mono ' + (fam.stockRestante > 0 ? 'text-indigo-300' : 'text-slate-500') + '">' +
+              (fam.stockEntradas > 0 ? fam.stockRestante + ' de ' + fam.stockEntradas : 'Sin lote') +
             '</span>' +
           '</div>' +
         '</div>' +
         '<div class="flex items-center gap-2 justify-end shrink-0">' +
-          '<button onclick="toggleSubmenuProducto(\'' + p.id + '\')" class="px-3.5 py-2 rounded-xl bg-teal-500/15 hover:bg-teal-500/30 text-teal-300 border border-teal-500/30 text-xs font-bold flex items-center gap-1.5 transition-all">' +
-            '<i data-lucide="receipt" class="w-4 h-4"></i>' +
-            '<span>Ver Vales (' + p.vales.length + ')</span>' +
-            '<i id="prod-chevron-' + p.id + '" data-lucide="chevron-down" class="w-3.5 h-3.5 transition-transform ' + (esAbierto ? 'rotate-180' : '') + '"></i>' +
+          '<button onclick="toggleFamiliaSubmenu(\'' + fam.id + '\')" class="px-3.5 py-2 rounded-xl bg-teal-500/15 hover:bg-teal-500/30 text-teal-300 border border-teal-500/30 text-xs font-bold flex items-center gap-1.5 transition-all">' +
+            '<i data-lucide="layers" class="w-4 h-4"></i>' +
+            '<span>Desglose (' + fam.totalVariantes + ')</span>' +
+            '<i id="fam-chevron-' + fam.id + '" data-lucide="chevron-down" class="w-3.5 h-3.5 transition-transform ' + (esAbierto ? 'rotate-180' : '') + '"></i>' +
           '</button>' +
         '</div>' +
       '</div>' +
-      '<div id="prod-submenu-' + p.id + '" class="' + (esAbierto ? '' : 'hidden') + ' border-t border-teal-500/20 bg-black/60 p-3 sm:p-4">' +
-        '<div class="flex items-center justify-between gap-2 mb-2 px-1">' +
+      '<div id="fam-submenu-' + fam.id + '" class="' + (esAbierto ? '' : 'hidden') + ' border-t border-teal-500/20 bg-black/60">' +
+        '<div class="flex items-center justify-between gap-2 p-3 px-4 bg-black/80 border-b border-slate-800/50">' +
           '<span class="text-[11px] font-bold text-teal-300 uppercase tracking-wider flex items-center gap-1.5">' +
-            '<i data-lucide="list" class="w-3.5 h-3.5"></i> Vales donde se vendió este producto (' + p.vales.length + ' registros)' +
+            '<i data-lucide="list" class="w-3.5 h-3.5"></i> Variantes de ' + fam.nombre + ' (' + fam.totalVariantes + ' productos distintos)' +
           '</span>' +
-          '<span class="text-[11px] font-mono text-emerald-400 font-bold">Total: ' + p.totalCantidad + ' unidades vendidas</span>' +
+          '<span class="text-[11px] font-mono text-emerald-400 font-bold">Total: ' + fam.totalCantidad + ' unidades | $' + fam.totalUSD.toFixed(2) + ' USD</span>' +
         '</div>' +
-        valesRowsHtml +
+        '<div class="divide-y divide-slate-800/40">' + variantesHtml + '</div>' +
       '</div>' +
     '</div>';
   }).join('');
