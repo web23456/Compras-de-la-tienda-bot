@@ -1,6 +1,6 @@
 // Soporte 100% Offline Garantizado, Cache Robusto de CDNs y Sincronización Automática
 
-const CACHE_NAME = 'compras-tienda-v22-alfabetico-optimizada';
+const CACHE_NAME = 'compras-tienda-v23-familias-inteligentes';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
