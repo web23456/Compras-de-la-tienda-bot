@@ -191,6 +191,11 @@
           <i data-lucide="receipt" class="w-4 h-4 text-cyan-400"></i>
           <span>Historial Vales</span>
         </button>
+        <button onclick="cambiarPestanaPrincipal('cuadre')" id="nav-btn-cuadre" class="pestana-nav-btn px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-purple-300 border border-purple-500/30 transition-all">
+          <i data-lucide="check-check" class="w-4 h-4 text-purple-400"></i>
+          <span>Cuadre & Vales Finales</span>
+          <span id="badge-cuadre-count" class="bg-purple-500/20 text-purple-300 px-1.5 py-0.2 rounded-full text-[10px] font-mono">0</span>
+        </button>
       </div>
 
       <div class="flex items-center gap-2 flex-wrap">
@@ -894,6 +899,208 @@
         </table>
       </div>
     </div>
+
+
+    <!-- ======================================================== -->
+    <!-- SECCIÓN VISTA CUADRE Y VALES FINALES (100% CREDIBILIDAD MANUAL) -->
+    <!-- ======================================================== -->
+    <div id="seccion-vista-cuadre" class="hidden space-y-6">
+      <!-- Encabezado Cuadre -->
+      <div class="bg-slate-950 border border-purple-500/40 rounded-2xl p-5 shadow-xl space-y-4">
+        <div class="flex flex-wrap items-center justify-between gap-3 border-b border-purple-500/20 pb-3">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center font-bold text-black shadow-lg shadow-purple-500/20">
+              <i data-lucide="clipboard-check" class="w-5 h-5 text-black"></i>
+            </div>
+            <div>
+              <h2 class="text-base font-bold text-white flex items-center gap-2">
+                Sistema de Cuadre de Inventario con Vales Finales
+                <span class="text-[10px] font-black text-purple-300 bg-purple-500/10 px-2.5 py-0.5 rounded-full border border-purple-500/30">100% Credibilidad Manual</span>
+              </h2>
+              <p class="text-xs text-slate-400">Cuadra el inventario desde una Fecha X hasta la fecha del Vale Final. El conteo físico manual manda y prevalece sobre cualquier cálculo teórico.</p>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-2">
+            <button onclick="limpiarFormularioValeFinal()" class="px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-700 rounded-xl text-xs font-semibold flex items-center gap-1 transition">
+              <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i> Nuevo Vale Final
+            </button>
+          </div>
+        </div>
+
+        <!-- EXTRACTOR DE VALES FINALES (TEXTO O FORMULARIO) -->
+        <div class="bg-black/60 p-4 rounded-xl border border-purple-500/30 space-y-3">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold text-purple-300 uppercase tracking-wider flex items-center gap-1.5">
+              <i data-lucide="sparkles" class="w-4 h-4 text-purple-400"></i> Bot Extractor de Vale Final (Pega tu Conteo Físico)
+            </span>
+            <span class="text-[11px] text-slate-400">Formato: Cantidad + Producto + Precio (opcional)</span>
+          </div>
+
+          <div class="flex flex-col md:flex-row gap-3">
+            <textarea id="input-texto-vale-final" rows="3" placeholder="Pega aquí el conteo físico del vale final... Ejemplo:&#10;Folio: FINAL-22NOV&#10;Fecha: 2026-11-22&#10;Responsable: Karel&#10;12 Olla arrocera 1.8 estelectric&#10;8 Cocina infrarroja 3500w&#10;15 Ventilador de pared dawang&#10;6 Olla reina houselux" class="flex-1 bg-black border border-purple-500/40 text-white rounded-xl p-3 text-xs font-mono focus:border-purple-400 focus:outline-none"></textarea>
+            
+            <div class="flex md:flex-col justify-end gap-2 shrink-0">
+              <button onclick="procesarTextoValeFinal()" class="px-5 py-2.5 rounded-xl text-xs font-black bg-gradient-to-r from-purple-500 to-indigo-600 text-black shadow-lg shadow-purple-500/20 hover:brightness-110 transition flex items-center justify-center gap-1.5">
+                <i data-lucide="sparkles" class="w-4 h-4"></i>
+                <span>Extraer Conteo ✨</span>
+              </button>
+              <button onclick="document.getElementById('input-texto-vale-final').value=''" class="px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-slate-400 hover:text-white rounded-xl text-xs transition">
+                Limpiar
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- FORMULARIO EDITABLE DEL VALE FINAL -->
+        <div class="space-y-3 bg-black/40 p-4 rounded-xl border border-slate-800">
+          <div class="grid grid-cols-1 sm:grid-cols-4 gap-3 text-xs">
+            <div>
+              <label class="block font-medium text-slate-400 mb-1">Folio Vale Final</label>
+              <input type="text" id="vale-final-folio" value="FINAL-01" class="w-full bg-slate-950 border border-purple-500/40 rounded-lg px-2.5 py-1.5 text-purple-300 font-mono font-bold">
+            </div>
+            <div>
+              <label class="block font-medium text-slate-400 mb-1">Fecha del Vale Final (Cierre)</label>
+              <input type="date" id="vale-final-fecha" class="w-full bg-slate-950 border border-purple-500/40 rounded-lg px-2.5 py-1.5 text-white font-mono font-bold">
+            </div>
+            <div>
+              <label class="block font-medium text-slate-400 mb-1">Responsable del Conteo Físico</label>
+              <input type="text" id="vale-final-responsable" placeholder="Karel / Administrador" value="Karel" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1.5 text-white">
+            </div>
+            <div>
+              <label class="block font-medium text-slate-400 mb-1">Notas / Observaciones</label>
+              <input type="text" id="vale-final-notas" placeholder="Ej: Cuadre general de cierre mensual" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1.5 text-white">
+            </div>
+          </div>
+
+          <!-- Tabla de Artículos Contados en el Vale Final -->
+          <div class="overflow-x-auto border border-purple-500/30 rounded-xl mt-3">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-black text-purple-300 font-bold uppercase tracking-wider border-b border-purple-500/30">
+                <tr>
+                  <th class="p-2.5">Producto Contado Físicamente</th>
+                  <th class="p-2.5 w-28 text-center text-amber-300 font-mono">Stock Físico (100% Real)</th>
+                  <th class="p-2.5 w-32">Precio Ref. ($ USD)</th>
+                  <th class="p-2.5 w-36">Familia Resuelta</th>
+                  <th class="p-2.5 w-16 text-center">Acción</th>
+                </tr>
+              </thead>
+              <tbody id="vale-final-items-tbody" class="divide-y divide-slate-800 bg-slate-950 font-mono">
+                <!-- Filas dinámicas -->
+              </tbody>
+            </table>
+          </div>
+
+          <div class="flex flex-wrap items-center justify-between gap-3 pt-2">
+            <button onclick="agregarFilaValeFinalManual()" class="px-3.5 py-1.5 bg-slate-900 hover:bg-slate-800 text-purple-300 border border-purple-500/40 rounded-lg text-xs font-bold flex items-center gap-1.5 transition">
+              <i data-lucide="plus" class="w-4 h-4"></i> + Añadir Producto Físico
+            </button>
+
+            <button onclick="guardarValeFinalEnSistema()" class="px-5 py-2 bg-gradient-to-r from-purple-500 to-indigo-600 hover:brightness-110 text-black font-black rounded-xl text-xs flex items-center gap-2 shadow-lg shadow-purple-500/20 transition">
+              <i data-lucide="save" class="w-4 h-4 text-black"></i>
+              <span>Guardar Vale Final & Habilitar Cuadre</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- PANEL DE CUADRE POR RANGO DE FECHAS (FECHA X HASTA FECHA VALE FINAL) -->
+      <div class="bg-slate-950 border border-purple-500/40 rounded-2xl p-5 shadow-xl space-y-4">
+        <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 pb-3">
+          <div>
+            <h3 class="text-sm font-bold text-white flex items-center gap-2">
+              <i data-lucide="scale" class="w-4 h-4 text-purple-400"></i>
+              Cuadre de Inventario: Entradas vs Ventas vs Stock Físico (Vale Final)
+            </h3>
+            <p class="text-xs text-slate-400">Selecciona el Vale Final y la Fecha Inicial (X) para calcular el balance exacto y determinar si hay sobrantes o faltantes.</p>
+          </div>
+
+          <!-- Selector de Vale Final Guardado y Rango de Fechas -->
+          <div class="flex items-center gap-2.5 flex-wrap">
+            <div class="flex items-center gap-1.5 bg-black border border-purple-500/40 rounded-xl px-2.5 py-1.5 text-xs">
+              <span class="text-slate-400 font-bold">Vale Final:</span>
+              <select id="select-cuadre-vale-final" onchange="seleccionarValeFinalParaCuadre(this.value)" class="bg-transparent text-purple-300 font-bold focus:outline-none">
+                <option value="">Selecciona un Vale Final</option>
+              </select>
+            </div>
+
+            <div class="flex items-center gap-1.5 bg-black border border-cyan-500/40 rounded-xl px-2.5 py-1.5 text-xs">
+              <span class="text-slate-400 font-bold">Desde Fecha X:</span>
+              <input type="date" id="cuadre-fecha-desde" onchange="ejecutarCuadreInventario()" class="bg-transparent text-white font-mono focus:outline-none">
+            </div>
+
+            <button onclick="ejecutarCuadreInventario()" class="px-4 py-1.5 bg-purple-600/30 hover:bg-purple-600/50 text-purple-300 border border-purple-500/40 rounded-xl text-xs font-black transition">
+              Calcular Cuadre ⚡
+            </button>
+          </div>
+        </div>
+
+        <!-- KPIs Resumen del Cuadre -->
+        <div class="grid grid-cols-2 sm:grid-cols-5 gap-3" id="kpis-cuadre-container">
+          <div class="bg-black border border-slate-800 rounded-xl p-3">
+            <span class="text-[10px] text-slate-400 uppercase font-bold block">Entradas en Rango</span>
+            <span class="text-base font-black text-teal-300 font-mono block mt-1" id="cuadre-kpi-entradas">0 uds</span>
+            <span class="text-[10px] text-slate-500" id="cuadre-kpi-entradas-vales">0 vales entrada</span>
+          </div>
+          <div class="bg-black border border-slate-800 rounded-xl p-3">
+            <span class="text-[10px] text-slate-400 uppercase font-bold block">Ventas Gestores</span>
+            <span class="text-base font-black text-amber-300 font-mono block mt-1" id="cuadre-kpi-ventas">0 uds</span>
+            <span class="text-[10px] text-slate-500" id="cuadre-kpi-ventas-vales">0 vales gestores</span>
+          </div>
+          <div class="bg-black border border-slate-800 rounded-xl p-3">
+            <span class="text-[10px] text-slate-400 uppercase font-bold block">Stock Teórico Esperado</span>
+            <span class="text-base font-black text-indigo-300 font-mono block mt-1" id="cuadre-kpi-teorico">0 uds</span>
+            <span class="text-[10px] text-slate-500">Entradas - Ventas</span>
+          </div>
+          <div class="bg-black border border-purple-500/30 rounded-xl p-3 bg-purple-950/10">
+            <span class="text-[10px] text-purple-300 uppercase font-bold block">Conteo Físico Real</span>
+            <span class="text-base font-black text-purple-300 font-mono block mt-1" id="cuadre-kpi-real">0 uds</span>
+            <span class="text-[10px] text-purple-400/80">Vale Final (100% Real)</span>
+          </div>
+          <div class="bg-black border border-slate-800 rounded-xl p-3" id="cuadre-box-balance">
+            <span class="text-[10px] text-slate-400 uppercase font-bold block">Balance / Diferencia</span>
+            <span class="text-base font-black text-emerald-400 font-mono block mt-1" id="cuadre-kpi-diferencia">0 uds</span>
+            <span class="text-[10px] text-slate-400" id="cuadre-kpi-estado-texto">Sin calcular</span>
+          </div>
+        </div>
+
+        <!-- Tabla Detallada del Cuadre Producto por Producto -->
+        <div class="overflow-x-auto border border-slate-800 rounded-xl">
+          <table class="w-full text-left text-xs">
+            <thead class="bg-black text-slate-300 uppercase font-bold text-[10px] tracking-wider border-b border-slate-800">
+              <tr>
+                <th class="p-3">Producto / Tipo Consolidado</th>
+                <th class="p-3 text-center">Entradas (+)</th>
+                <th class="p-3 text-center">Ventas Gestores (-)</th>
+                <th class="p-3 text-center bg-slate-900/50">Stock Teórico</th>
+                <th class="p-3 text-center bg-purple-950/20 text-purple-300 font-black">Conteo Físico Real</th>
+                <th class="p-3 text-center">Diferencia</th>
+                <th class="p-3 text-center">Estado del Cuadre</th>
+              </tr>
+            </thead>
+            <tbody id="cuadre-detalle-tbody" class="divide-y divide-slate-800/80 bg-slate-950 font-mono">
+              <tr>
+                <td colspan="7" class="p-6 text-center text-slate-500">Selecciona o extrae un Vale Final para ejecutar el cuadre físico.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- HISTORIAL DE VALES FINALES GUARDADOS -->
+      <div class="bg-slate-950 border border-purple-500/30 rounded-2xl p-4 space-y-3">
+        <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+          <h3 class="text-xs font-bold text-purple-300 uppercase tracking-wider flex items-center gap-1.5">
+            <i data-lucide="archive" class="w-4 h-4"></i> Vales Finales Guardados en Memoria
+          </h3>
+          <span class="text-xs text-slate-400 font-mono" id="cuadre-vales-finales-count">0 vales finales</span>
+        </div>
+        <div id="lista-vales-finales-guardados" class="space-y-2">
+          <!-- Renderizado dinámico -->
+        </div>
+      </div>
+    </div>
+
 
     <!-- Datalist para autocompletado de productos -->
     <datalist id="datalist-productos"></datalist>
@@ -2425,13 +2632,15 @@ function cambiarPestanaPrincipal(pestana) {
   const secInv = document.getElementById('seccion-vista-inventario');
   const secGastos = document.getElementById('seccion-vista-gastos');
   const secVales = document.getElementById('seccion-vista-historial-vales');
+  const secCuadre = document.getElementById('seccion-vista-cuadre');
 
   const btns = {
     dashboard: document.getElementById('nav-btn-dashboard'),
     productos: document.getElementById('nav-btn-productos'),
     fifo: document.getElementById('nav-btn-fifo'),
     inventario: document.getElementById('nav-btn-inventario'),
-    vales: document.getElementById('nav-btn-vales')
+    vales: document.getElementById('nav-btn-vales'),
+    cuadre: document.getElementById('nav-btn-cuadre')
   };
 
   Object.keys(btns).forEach(key => {
@@ -2444,6 +2653,8 @@ function cambiarPestanaPrincipal(pestana) {
   if (btns[pestana]) {
     if (pestana === 'productos') {
       btns[pestana].className = 'pestana-nav-btn px-4 py-2 rounded-xl text-xs font-black flex items-center gap-2 bg-gradient-to-r from-teal-500 to-emerald-600 text-black shadow-lg shadow-teal-500/20 transition-all';
+    } else if (pestana === 'cuadre') {
+      btns[pestana].className = 'pestana-nav-btn px-4 py-2 rounded-xl text-xs font-black flex items-center gap-2 bg-gradient-to-r from-purple-500 to-indigo-600 text-black shadow-lg shadow-purple-500/20 transition-all';
     } else {
       btns[pestana].className = 'pestana-nav-btn px-4 py-2 rounded-xl text-xs font-black flex items-center gap-2 bg-gradient-to-r from-amber-500 to-yellow-600 text-black shadow-lg shadow-amber-500/20 transition-all';
     }
@@ -2458,6 +2669,7 @@ function cambiarPestanaPrincipal(pestana) {
     if (secInv) secInv.classList.remove('hidden');
     if (secGastos) secGastos.classList.remove('hidden');
     if (secVales) secVales.classList.remove('hidden');
+    if (secCuadre) secCuadre.classList.add('hidden');
   } else if (pestana === 'productos') {
     if (secRecibos) secRecibos.classList.add('hidden');
     if (secKpis) secKpis.classList.add('hidden');
@@ -2467,6 +2679,7 @@ function cambiarPestanaPrincipal(pestana) {
     if (secInv) secInv.classList.add('hidden');
     if (secGastos) secGastos.classList.add('hidden');
     if (secVales) secVales.classList.add('hidden');
+    if (secCuadre) secCuadre.classList.add('hidden');
     // Pre-cargar y pintar inmediatamente sin demora
     if (!catalogoFamiliasAgrupadas || catalogoFamiliasAgrupadas.length === 0) {
       renderizarCatalogoProductos();
@@ -2482,6 +2695,7 @@ function cambiarPestanaPrincipal(pestana) {
     if (secInv) secInv.classList.add('hidden');
     if (secGastos) secGastos.classList.add('hidden');
     if (secVales) secVales.classList.add('hidden');
+    if (secCuadre) secCuadre.classList.add('hidden');
   } else if (pestana === 'inventario') {
     if (secRecibos) secRecibos.classList.add('hidden');
     if (secKpis) secKpis.classList.remove('hidden');
@@ -2491,6 +2705,7 @@ function cambiarPestanaPrincipal(pestana) {
     if (secInv) secInv.classList.remove('hidden');
     if (secGastos) secGastos.classList.add('hidden');
     if (secVales) secVales.classList.add('hidden');
+    if (secCuadre) secCuadre.classList.add('hidden');
   } else if (pestana === 'vales') {
     if (secRecibos) secRecibos.classList.add('hidden');
     if (secKpis) secKpis.classList.add('hidden');
@@ -2500,6 +2715,18 @@ function cambiarPestanaPrincipal(pestana) {
     if (secInv) secInv.classList.add('hidden');
     if (secGastos) secGastos.classList.add('hidden');
     if (secVales) secVales.classList.remove('hidden');
+    if (secCuadre) secCuadre.classList.add('hidden');
+  } else if (pestana === 'cuadre') {
+    if (secRecibos) secRecibos.classList.add('hidden');
+    if (secKpis) secKpis.classList.add('hidden');
+    if (secProd) secProd.classList.add('hidden');
+    if (secFifo) secFifo.classList.add('hidden');
+    if (secExtractor) secExtractor.classList.add('hidden');
+    if (secInv) secInv.classList.add('hidden');
+    if (secGastos) secGastos.classList.add('hidden');
+    if (secVales) secVales.classList.add('hidden');
+    if (secCuadre) secCuadre.classList.remove('hidden');
+    renderizarSeccionCuadre();
   }
 
   if (window.lucide && typeof lucide.createIcons === 'function') { lucide.createIcons(); }
@@ -3088,6 +3315,511 @@ function filtrarCatalogoProductos() {
 
   if (window.lucide && typeof lucide.createIcons === 'function') { lucide.createIcons(); }
 }
+
+// =========================================================================
+// SISTEMA DE VALES FINALES Y CUADRE FÍSICO DE INVENTARIO (100% CREDIBILIDAD)
+// =========================================================================
+let itemsValeFinalEnEdicion = [];
+let valeFinalSeleccionadoId = null;
+
+function inicializarFormularioValeFinal() {
+  const elFolio = document.getElementById('vale-final-folio');
+  if (elFolio) elFolio.value = 'FINAL-' + new Date().toISOString().split('T')[0].replace(/-/g, '');
+  const elFecha = document.getElementById('vale-final-fecha');
+  if (elFecha) elFecha.value = new Date().toISOString().split('T')[0];
+  const elResp = document.getElementById('vale-final-responsable');
+  if (elResp && !elResp.value) elResp.value = 'Karel';
+  const elDesde = document.getElementById('cuadre-fecha-desde');
+  if (elDesde && !elDesde.value) elDesde.value = '2026-10-01'; // Inicio por defecto de operaciones
+
+  if (itemsValeFinalEnEdicion.length === 0) {
+    // Si está vacío, precargar productos frecuentes de la tienda para facilitar el conteo rápido
+    const sData = getSemanaData();
+    const prodsInv = Array.from(new Set((sData.lotesInventario || []).map(l => l.producto).filter(Boolean)));
+    if (prodsInv.length > 0) {
+      itemsValeFinalEnEdicion = prodsInv.slice(0, 10).map(p => ({
+        id: 'vfi-' + Math.random().toString(36).substring(2, 7),
+        producto: p,
+        cantidadFisica: 0,
+        precioRef: 0
+      }));
+    } else {
+      itemsValeFinalEnEdicion = [
+        { id: 'vfi-1', producto: 'Olla arrocera 1.8L estelectric', cantidadFisica: 0, precioRef: 28 },
+        { id: 'vfi-2', producto: 'Cocina infrarroja 3500w', cantidadFisica: 0, precioRef: 35 },
+        { id: 'vfi-3', producto: 'Ventilador de pared Dawang', cantidadFisica: 0, precioRef: 30 },
+        { id: 'vfi-4', producto: 'Olla reina Houselux 5L', cantidadFisica: 0, precioRef: 47 }
+      ];
+    }
+  }
+  renderizarFilasValeFinalEdicion();
+}
+
+function limpiarFormularioValeFinal() {
+  document.getElementById('input-texto-vale-final').value = '';
+  itemsValeFinalEnEdicion = [];
+  inicializarFormularioValeFinal();
+}
+
+function agregarFilaValeFinalManual() {
+  itemsValeFinalEnEdicion.push({
+    id: 'vfi-' + Date.now() + Math.random().toString(36).substring(2, 5),
+    producto: '',
+    cantidadFisica: 0,
+    precioRef: 0
+  });
+  renderizarFilasValeFinalEdicion();
+}
+
+function eliminarFilaValeFinal(id) {
+  itemsValeFinalEnEdicion = itemsValeFinalEnEdicion.filter(it => it.id !== id);
+  renderizarFilasValeFinalEdicion();
+}
+
+function actualizarFilaValeFinal(id, campo, valor) {
+  const item = itemsValeFinalEnEdicion.find(it => it.id === id);
+  if (!item) return;
+  if (campo === 'cantidadFisica') item.cantidadFisica = Math.max(0, parseInt(valor, 10) || 0);
+  else if (campo === 'precioRef') item.precioRef = Math.max(0, parseFloat(valor) || 0);
+  else if (campo === 'producto') item.producto = valor;
+  
+  // Actualizar indicador visual de familia resuelta
+  const badgeEl = document.getElementById('vf-fam-' + id);
+  if (badgeEl && campo === 'producto') {
+    const res = resolverProductoHiperInteligente(item.producto, item.precioRef);
+    badgeEl.textContent = res.icon + ' ' + res.variante;
+  }
+}
+
+function renderizarFilasValeFinalEdicion() {
+  const tbody = document.getElementById('vale-final-items-tbody');
+  if (!tbody) return;
+
+  if (itemsValeFinalEnEdicion.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="5" class="p-4 text-center text-slate-500">Sin productos contados. Haz clic en "+ Añadir Producto Físico" o pega el texto del vale arriba.</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = itemsValeFinalEnEdicion.map(it => {
+    const res = resolverProductoHiperInteligente(it.producto, it.precioRef);
+    return '<tr class="hover:bg-slate-900 transition-colors">' +
+      '<td class="p-2">' +
+        '<input type="text" value="' + (it.producto || '').replace(/"/g, '&quot;') + '" oninput="actualizarFilaValeFinal(\'' + it.id + '\', \'producto\', this.value)" placeholder="Nombre del producto..." class="w-full bg-black border border-slate-700 focus:border-purple-400 rounded px-2.5 py-1 text-white text-xs font-sans">' +
+      '</td>' +
+      '<td class="p-2 text-center">' +
+        '<input type="number" min="0" value="' + it.cantidadFisica + '" oninput="actualizarFilaValeFinal(\'' + it.id + '\', \'cantidadFisica\', this.value)" class="w-24 text-center bg-black border border-amber-500/50 focus:border-amber-400 rounded px-2 py-1 text-amber-300 font-bold font-mono text-xs">' +
+      '</td>' +
+      '<td class="p-2">' +
+        '<input type="number" step="0.01" min="0" value="' + (it.precioRef || 0) + '" oninput="actualizarFilaValeFinal(\'' + it.id + '\', \'precioRef\', this.value)" class="w-24 bg-black border border-slate-700 focus:border-purple-400 rounded px-2 py-1 text-slate-300 font-mono text-xs">' +
+      '</td>' +
+      '<td class="p-2">' +
+        '<span id="vf-fam-' + it.id + '" class="text-[11px] text-purple-300 bg-purple-950/40 border border-purple-500/30 px-2 py-0.5 rounded font-sans truncate block" title="' + res.variante + '">' +
+          res.icon + ' ' + res.variante +
+        '</span>' +
+      '</td>' +
+      '<td class="p-2 text-center">' +
+        '<button onclick="eliminarFilaValeFinal(\'' + it.id + '\')" class="text-slate-500 hover:text-rose-400 transition" title="Eliminar producto">' +
+          '<i data-lucide="trash-2" class="w-4 h-4 inline"></i>' +
+        '</button>' +
+      '</td>' +
+    '</tr>';
+  }).join('');
+
+  if (window.lucide && typeof lucide.createIcons === 'function') { lucide.createIcons(); }
+}
+
+// Extractor inteligente del texto pegado para Vale Final
+function procesarTextoValeFinal() {
+  const raw = (document.getElementById('input-texto-vale-final') ? document.getElementById('input-texto-vale-final').value : '').trim();
+  if (!raw) {
+    alert('Pega primero el texto del vale final en el cuadro.');
+    return;
+  }
+
+  // Detectar folio, fecha y responsable si están presentes
+  const lineas = raw.split(/\r?\n/);
+  const itemsExtraidos = [];
+
+  lineas.forEach(linea => {
+    let l = linea.trim();
+    if (!l) return;
+
+    // Detectar campos de cabecera
+    const mFolio = l.match(/^folio\s*[:=]\s*(.+)$/i);
+    if (mFolio) {
+      document.getElementById('vale-final-folio').value = mFolio[1].trim();
+      return;
+    }
+    const mFecha = l.match(/^fecha\s*[:=]\s*([0-9]{4}[-/][0-9]{1,2}[-/][0-9]{1,2})/i);
+    if (mFecha) {
+      document.getElementById('vale-final-fecha').value = mFecha[1].replace(/\//g, '-');
+      return;
+    }
+    const mResp = l.match(/^responsable\s*[:=]\s*(.+)$/i);
+    if (mResp) {
+      document.getElementById('vale-final-responsable').value = mResp[1].trim();
+      return;
+    }
+    if (/^(notas|cuadre|proveedor|moneda)\s*[:=]/i.test(l)) return;
+
+    // Patrón 1: Cantidad al inicio (ej: "12 Olla arrocera 1.8L" o "12x Olla...")
+    let m = l.match(/^([0-9]+)\s*(?:x|uds|u|unidades)?\s+([^0-9$]+)(?:.*(?:[$]?\s*([0-9]+(?:\.[0-9]+)?)\s*(?:usd|cup|venta|compra)?))?/i);
+    if (m && m[2].trim().length > 1) {
+      itemsExtraidos.push({
+        id: 'vfi-' + Math.random().toString(36).substring(2, 7),
+        producto: m[2].trim(),
+        cantidadFisica: parseInt(m[1], 10),
+        precioRef: m[3] ? parseFloat(m[3]) : 0
+      });
+      return;
+    }
+
+    // Patrón 2: Cantidad al final (ej: "Olla arrocera 1.8: 12" o "Ventilador pared - 15")
+    m = l.match(/^([^0-9:]+)[:=-]?\s*([0-9]+)\s*(?:uds|u|unidades)?$/i);
+    if (m && m[1].trim().length > 1) {
+      itemsExtraidos.push({
+        id: 'vfi-' + Math.random().toString(36).substring(2, 7),
+        producto: m[1].trim(),
+        cantidadFisica: parseInt(m[2], 10),
+        precioRef: 0
+      });
+      return;
+    }
+  });
+
+  if (itemsExtraidos.length > 0) {
+    itemsValeFinalEnEdicion = itemsExtraidos;
+    renderizarFilasValeFinalEdicion();
+    alert('¡Éxito! Se extrajeron ' + itemsExtraidos.length + ' productos del vale final. Revisa y presiona "Guardar Vale Final & Habilitar Cuadre".');
+  } else {
+    alert('No se detectaron cantidades y productos claros. Intenta escribir una línea por producto, ejemplo: "12 Olla arrocera estelectric".');
+  }
+}
+
+// Guardar Vale Final en la estructura persistente del Almacén
+function guardarValeFinalEnSistema() {
+  const folio = (document.getElementById('vale-final-folio') ? document.getElementById('vale-final-folio').value.trim() : '') || 'FINAL-' + Date.now();
+  const fecha = (document.getElementById('vale-final-fecha') ? document.getElementById('vale-final-fecha').value : '') || new Date().toISOString().split('T')[0];
+  const responsable = (document.getElementById('vale-final-responsable') ? document.getElementById('vale-final-responsable').value.trim() : 'Karel');
+  const notas = (document.getElementById('vale-final-notas') ? document.getElementById('vale-final-notas').value.trim() : '');
+
+  const itemsValidos = itemsValeFinalEnEdicion.filter(it => it.producto && it.producto.trim() !== '');
+  if (itemsValidos.length === 0) {
+    alert('Agrega al menos un producto contado en el vale final.');
+    return;
+  }
+
+  const sData = getSemanaData();
+  if (!sData.valesFinales) sData.valesFinales = [];
+
+  const totalUnidadesContadas = itemsValidos.reduce((acc, it) => acc + (it.cantidadFisica || 0), 0);
+
+  const nuevoValeFinal = {
+    id: 'vfinal-' + Date.now(),
+    folio: folio,
+    fecha: fecha,
+    responsable: responsable,
+    notas: notas,
+    totalUnidades: totalUnidadesContadas,
+    items: itemsValidos.map(it => {
+      const res = resolverProductoHiperInteligente(it.producto, it.precioRef);
+      return {
+        producto: it.producto.trim(),
+        varianteConsolidada: res.variante,
+        familiaId: res.familiaId,
+        cantidadFisica: it.cantidadFisica || 0,
+        precioRef: it.precioRef || 0
+      };
+    }),
+    createdAt: Date.now()
+  };
+
+  // Reemplazar si ya existe un vale final con el mismo folio o agregar nuevo
+  const idxExist = sData.valesFinales.findIndex(vf => vf.folio === folio);
+  if (idxExist >= 0) {
+    sData.valesFinales[idxExist] = nuevoValeFinal;
+  } else {
+    sData.valesFinales.unshift(nuevoValeFinal);
+  }
+
+  persistirEstado();
+  actualizarListaValesFinalesGuardados();
+  
+  // Seleccionarlo automáticamente para cuadre
+  valeFinalSeleccionadoId = nuevoValeFinal.id;
+  const sel = document.getElementById('select-cuadre-vale-final');
+  if (sel) sel.value = nuevoValeFinal.id;
+
+  // Ejecutar cuadre de inmediato
+  ejecutarCuadreInventario();
+
+  alert('¡Vale Final ' + folio + ' guardado con éxito con ' + totalUnidadesContadas + ' unidades contadas! Cuadre calculado.');
+}
+
+function eliminarValeFinal(id) {
+  if (!confirm('¿Eliminar este vale final del sistema?')) return;
+  const sData = getSemanaData();
+  if (sData.valesFinales) {
+    sData.valesFinales = sData.valesFinales.filter(vf => vf.id !== id);
+  }
+  persistirEstado();
+  actualizarListaValesFinalesGuardados();
+  if (valeFinalSeleccionadoId === id) {
+    valeFinalSeleccionadoId = null;
+    ejecutarCuadreInventario();
+  }
+}
+
+function actualizarListaValesFinalesGuardados() {
+  const sData = getSemanaData();
+  const valesFinales = sData.valesFinales || [];
+
+  const badgeNav = document.getElementById('badge-cuadre-count');
+  if (badgeNav) badgeNav.textContent = valesFinales.length;
+
+  const countEl = document.getElementById('cuadre-vales-finales-count');
+  if (countEl) countEl.textContent = valesFinales.length + ' vales finales guardados';
+
+  const selectEl = document.getElementById('select-cuadre-vale-final');
+  if (selectEl) {
+    const valActual = selectEl.value;
+    selectEl.innerHTML = '<option value="">-- Selecciona Vale Final --</option>' +
+      valesFinales.map(vf => '<option value="' + vf.id + '">' + vf.folio + ' (' + vf.fecha + ') - ' + vf.totalUnidades + ' uds contadas</option>').join('');
+    if (valActual && valesFinales.some(vf => vf.id === valActual)) {
+      selectEl.value = valActual;
+    } else if (valesFinales.length > 0 && !valActual) {
+      selectEl.value = valesFinales[0].id;
+      valeFinalSeleccionadoId = valesFinales[0].id;
+    }
+  }
+
+  const contenedorLista = document.getElementById('lista-vales-finales-guardados');
+  if (!contenedorLista) return;
+
+  if (valesFinales.length === 0) {
+    contenedorLista.innerHTML = '<div class="text-slate-500 text-xs text-center py-3">No hay vales finales guardados aún. Pega tu conteo manual arriba.</div>';
+    return;
+  }
+
+  contenedorLista.innerHTML = valesFinales.map(vf => {
+    return '<div class="flex items-center justify-between p-3 rounded-xl bg-black/60 border border-purple-500/20 hover:border-purple-500/40 text-xs transition">' +
+      '<div class="flex items-center gap-3">' +
+        '<div class="w-8 h-8 rounded-lg bg-purple-950/60 border border-purple-500/30 flex items-center justify-center font-bold text-purple-300 font-mono">' +
+          '<i data-lucide="check-check" class="w-4 h-4"></i>' +
+        '</div>' +
+        '<div>' +
+          '<span class="font-bold text-white font-mono">' + vf.folio + '</span>' +
+          '<span class="text-slate-400 mx-1.5">•</span>' +
+          '<span class="text-purple-300 font-mono">' + vf.fecha + '</span>' +
+          '<span class="text-slate-400 mx-1.5">•</span>' +
+          '<span class="text-slate-300 font-semibold">' + vf.items.length + ' productos (' + vf.totalUnidades + ' unidades físicas)</span>' +
+          (vf.responsable ? '<span class="text-slate-500 text-[10px] ml-2 font-mono">Por: ' + vf.responsable + '</span>' : '') +
+        '</div>' +
+      '</div>' +
+      '<div class="flex items-center gap-2">' +
+        '<button onclick="seleccionarValeFinalParaCuadre(\'' + vf.id + '\')" class="px-3 py-1 bg-purple-950/40 hover:bg-purple-900 text-purple-300 border border-purple-500/30 rounded-lg text-[11px] font-bold transition">' +
+          'Usar en Cuadre ⚡' +
+        '</button>' +
+        '<button onclick="eliminarValeFinal(\'' + vf.id + '\')" class="text-slate-500 hover:text-rose-400 transition p-1" title="Eliminar vale final">' +
+          '<i data-lucide="trash-2" class="w-4 h-4"></i>' +
+        '</button>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+
+  if (window.lucide && typeof lucide.createIcons === 'function') { lucide.createIcons(); }
+}
+
+function seleccionarValeFinalParaCuadre(vfId) {
+  valeFinalSeleccionadoId = vfId;
+  const selectEl = document.getElementById('select-cuadre-vale-final');
+  if (selectEl && vfId) selectEl.value = vfId;
+  ejecutarCuadreInventario();
+}
+
+// ================= MOTOR DE CÁLCULO DE CUADRE DE INVENTARIO =================
+// Entradas (Fecha X hasta Fecha Vale Final) - Ventas Gestores (Fecha X hasta Fecha Vale Final) = Teórico
+// Comparación: Teórico vs Conteo Físico Real (Vale Final con 100% credibilidad)
+function ejecutarCuadreInventario() {
+  const sData = getSemanaData();
+  const valesFinales = sData.valesFinales || [];
+
+  if (!valeFinalSeleccionadoId && valesFinales.length > 0) {
+    valeFinalSeleccionadoId = valesFinales[0].id;
+  }
+
+  const vf = valesFinales.find(v => v.id === valeFinalSeleccionadoId);
+  const tbody = document.getElementById('cuadre-detalle-tbody');
+  if (!tbody) return;
+
+  if (!vf) {
+    tbody.innerHTML = '<tr><td colspan="7" class="p-6 text-center text-slate-500">Selecciona o guarda un Vale Final para ejecutar el cuadre.</td></tr>';
+    document.getElementById('cuadre-kpi-entradas').textContent = '0 uds';
+    document.getElementById('cuadre-kpi-ventas').textContent = '0 uds';
+    document.getElementById('cuadre-kpi-teorico').textContent = '0 uds';
+    document.getElementById('cuadre-kpi-real').textContent = '0 uds';
+    document.getElementById('cuadre-kpi-diferencia').textContent = '0 uds';
+    return;
+  }
+
+  // Rango de fechas: Desde Fecha X hasta Fecha del Vale Final
+  const fechaDesde = (document.getElementById('cuadre-fecha-desde') ? document.getElementById('cuadre-fecha-desde').value : '') || '2026-10-01';
+  const fechaHasta = vf.fecha || new Date().toISOString().split('T')[0];
+
+  // 1. Sumar Entradas al Almacén por Variante Consolidada en el rango
+  const entradasMap = new Map();
+  let totalEntradasRango = 0;
+  let valesEntradaContados = new Set();
+
+  (sData.valesEntrada || []).forEach(ve => {
+    const fv = (ve.fecha || '').trim();
+    if (fv && (fv < fechaDesde || fv > fechaHasta)) return;
+    valesEntradaContados.add(ve.folio);
+
+    (ve.items || []).forEach(it => {
+      const cant = Number(it.cantidad || 0);
+      const resol = resolverProductoHiperInteligente(it.nombre, it.precioVenta || it.precioCompra || 0);
+      const key = resol.variante;
+      entradasMap.set(key, (entradasMap.get(key) || 0) + cant);
+      totalEntradasRango += cant;
+    });
+  });
+
+  // Si no hay vales de entrada fechados, usar lotesInventario como stock base inicial
+  if (totalEntradasRango === 0 && (sData.lotesInventario || []).length > 0) {
+    sData.lotesInventario.forEach(l => {
+      const fL = (l.fechaEntrada || '').trim();
+      if (fL && (fL < fechaDesde || fL > fechaHasta)) return;
+      const cant = Number(l.entradas || l.inicio || 0);
+      const resol = resolverProductoHiperInteligente(l.producto, l.precioVenta || 0);
+      const key = resol.variante;
+      entradasMap.set(key, (entradasMap.get(key) || 0) + cant);
+      totalEntradasRango += cant;
+      valesEntradaContados.add(l.folioVale || 'LOTE');
+    });
+  }
+
+  // 2. Sumar Ventas de Gestores por Variante Consolidada en el rango
+  const ventasMap = new Map();
+  let totalVentasRango = 0;
+  let valesGestoresContados = new Set();
+
+  if (datosGestores && datosGestores.vales) {
+    datosGestores.vales.forEach(vg => {
+      const fv = (vg.fecha || '').trim();
+      if (fv) {
+        const partes = fv.split('-');
+        if (partes.length === 3 && Number(partes[1]) > 12) return; // Excluir fecha inválida
+        if (fv < fechaDesde || fv > fechaHasta) return;
+      }
+      valesGestoresContados.add(vg.folio || vg.id);
+
+      (vg.items || []).forEach(it => {
+        const cant = Number(it.cantidad || 1);
+        const pV = Number(it.precioVenta || 0);
+        const resol = resolverProductoHiperInteligente(it.producto, pV);
+        const key = resol.variante;
+        ventasMap.set(key, (ventasMap.get(key) || 0) + cant);
+        totalVentasRango += cant;
+      });
+    });
+  }
+
+  // 3. Obtener Conteo Físico Real del Vale Final (100% Credibilidad)
+  const fisicoMap = new Map();
+  let totalFisicoReal = 0;
+
+  (vf.items || []).forEach(it => {
+    const key = it.varianteConsolidada || resolverProductoHiperInteligente(it.producto, it.precioRef || 0).variante;
+    const cant = Number(it.cantidadFisica || 0);
+    fisicoMap.set(key, (fisicoMap.get(key) || 0) + cant);
+    totalFisicoReal += cant;
+  });
+
+  // 4. Consolidar todas las variantes involucradas en el cuadre
+  const todasVariantes = Array.from(new Set([
+    ...Array.from(entradasMap.keys()),
+    ...Array.from(ventasMap.keys()),
+    ...Array.from(fisicoMap.keys())
+  ])).sort();
+
+  let totalTeoricoRango = 0;
+  let totalDiferenciaRango = 0;
+
+  const filasHtml = todasVariantes.map(variante => {
+    const entradas = entradasMap.get(variante) || 0;
+    const ventas = ventasMap.get(variante) || 0;
+    const teorico = entradas - ventas;
+    const fisicoReal = fisicoMap.has(variante) ? fisicoMap.get(variante) : 0;
+    const diferencia = fisicoReal - teorico; // (+) Sobrante | (-) Faltante
+
+    totalTeoricoRango += teorico;
+    totalDiferenciaRango += diferencia;
+
+    let estadoBadge = '';
+    if (diferencia === 0) {
+      estadoBadge = '<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/40">✓ CUADRADO EXACTO</span>';
+    } else if (diferencia > 0) {
+      estadoBadge = '<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-cyan-500/20 text-cyan-300 border border-cyan-500/40">+' + diferencia + ' SOBRANTE FÍSICO</span>';
+    } else {
+      estadoBadge = '<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-rose-500/20 text-rose-400 border border-rose-500/40">' + diferencia + ' FALTANTE FÍSICO</span>';
+    }
+
+    const difColor = diferencia === 0 ? 'text-emerald-400' : (diferencia > 0 ? 'text-cyan-300' : 'text-rose-400');
+    const difSigno = diferencia > 0 ? '+' : '';
+
+    return '<tr class="hover:bg-slate-900 transition-colors">' +
+      '<td class="p-3 font-sans font-bold text-white text-xs">' + variante + '</td>' +
+      '<td class="p-3 text-center text-teal-300 font-bold">' + entradas + '</td>' +
+      '<td class="p-3 text-center text-amber-300 font-bold">' + ventas + '</td>' +
+      '<td class="p-3 text-center text-slate-300 bg-slate-900/40 font-bold">' + teorico + '</td>' +
+      '<td class="p-3 text-center text-purple-300 bg-purple-950/20 font-black text-sm">' + fisicoReal + '</td>' +
+      '<td class="p-3 text-center font-black text-sm ' + difColor + '">' + difSigno + diferencia + '</td>' +
+      '<td class="p-3 text-center">' + estadoBadge + '</td>' +
+    '</tr>';
+  }).join('');
+
+  tbody.innerHTML = filasHtml || '<tr><td colspan="7" class="p-6 text-center text-slate-500">Sin datos para cuadrar en este rango.</td></tr>';
+
+  // 5. Actualizar KPIs del Cuadre
+  document.getElementById('cuadre-kpi-entradas').textContent = totalEntradasRango.toLocaleString('es-ES') + ' uds';
+  document.getElementById('cuadre-kpi-entradas-vales').textContent = valesEntradaContados.size + ' vales en rango';
+
+  document.getElementById('cuadre-kpi-ventas').textContent = totalVentasRango.toLocaleString('es-ES') + ' uds';
+  document.getElementById('cuadre-kpi-ventas-vales').textContent = valesGestoresContados.size + ' vales gestores';
+
+  document.getElementById('cuadre-kpi-teorico').textContent = totalTeoricoRango.toLocaleString('es-ES') + ' uds';
+
+  document.getElementById('cuadre-kpi-real').textContent = totalFisicoReal.toLocaleString('es-ES') + ' uds';
+
+  const difEl = document.getElementById('cuadre-kpi-diferencia');
+  const txtEstado = document.getElementById('cuadre-kpi-estado-texto');
+  const boxBal = document.getElementById('cuadre-box-balance');
+
+  if (totalDiferenciaRango === 0) {
+    difEl.textContent = '0 uds (Cuadrado)';
+    difEl.className = 'text-base font-black text-emerald-400 font-mono block mt-1';
+    txtEstado.textContent = 'Inventario Físico Coincide 100%';
+    if (boxBal) boxBal.className = 'bg-black border border-emerald-500/40 rounded-xl p-3 bg-emerald-950/10';
+  } else if (totalDiferenciaRango > 0) {
+    difEl.textContent = '+' + totalDiferenciaRango + ' uds (Sobrante)';
+    difEl.className = 'text-base font-black text-cyan-300 font-mono block mt-1';
+    txtEstado.textContent = 'Hay más mercancía física que la esperada';
+    if (boxBal) boxBal.className = 'bg-black border border-cyan-500/40 rounded-xl p-3 bg-cyan-950/10';
+  } else {
+    difEl.textContent = totalDiferenciaRango + ' uds (Faltante)';
+    difEl.className = 'text-base font-black text-rose-400 font-mono block mt-1';
+    txtEstado.textContent = 'Faltante respecto al cálculo teórico';
+    if (boxBal) boxBal.className = 'bg-black border border-rose-500/40 rounded-xl p-3 bg-rose-950/10';
+  }
+}
+
+function renderizarSeccionCuadre() {
+  inicializarFormularioValeFinal();
+  actualizarListaValesFinalesGuardados();
+  ejecutarCuadreInventario();
+}
+
 // ================= RENDERIZADO GENERAL =================
     function renderizarTodo() {
       renderizarSelectorSemanas();
@@ -3101,6 +3833,7 @@ function filtrarCatalogoProductos() {
       renderizarHistorialVales();
       poblarSelectBajas();
       actualizarDatalistProductos();
+      actualizarListaValesFinalesGuardados();
       if (window.lucide && typeof lucide.createIcons === 'function') { lucide.createIcons(); }
     }
 
