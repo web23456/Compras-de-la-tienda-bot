@@ -1,6 +1,6 @@
 // Soporte 100% Offline Garantizado, Cache Robusto de CDNs y Sincronización Automática
 
-const CACHE_NAME = 'compras-tienda-v25-vales-finales-cuadre';
+const CACHE_NAME = 'compras-tienda-v26-vales-finales-separados';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
