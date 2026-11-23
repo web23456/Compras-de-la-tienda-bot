@@ -2509,88 +2509,160 @@ let catalogoFamiliasAgrupadas = [];
 let familiasSubmenusAbiertos = {};
 let variantesSubmenusAbiertos = {};
 
-// ================= DICCIONARIO INTELIGENTE DE FAMILIAS DE PRODUCTOS =================
-const FAMILIAS_PRODUCTOS = [
-  { id: 'OLLA_REINA', nombre: 'Olla Reina (Presión)', icon: '🍲',
-    test: function(n) { return /(reina|reyna|\bolla\b)/.test(n) && !/(arrocera|micro|calabaz)/.test(n); }
-  },
-  { id: 'OLLA_ARROCERA', nombre: 'Olla Arrocera', icon: '🍚',
-    test: function(n) { return /arrocera/.test(n); }
-  },
-  { id: 'OLLA_MICROPRESION', nombre: 'Set Ollas Micropresión / Calabaza', icon: '🫕',
-    test: function(n) { return /(micropresion|micro presion|micro presión|calabaz)/.test(n); }
-  },
-  { id: 'VENTILADOR_PARED', nombre: 'Ventilador de Pared', icon: '💨',
-    test: function(n) { return /(ventilador|vetilador)/.test(n) && /(pared|paret|denpared)/.test(n); }
-  },
-  { id: 'VENTILADOR_PEDESTAL', nombre: 'Ventilador de Pedestal', icon: '🌀',
-    test: function(n) { return /(ventilador|ventiladores)/.test(n) && /pedestal/.test(n); }
-  },
-  { id: 'VENTILADOR_RECARGABLE', nombre: 'Ventilador Recargable / F6', icon: '🔋',
-    test: function(n) { return /(ventilador|ventiladores)/.test(n) && /(recargable|regable|\bf6\b)/.test(n); }
-  },
-  { id: 'VENTILADOR_OTRO', nombre: 'Ventilador (Otros / Combo)', icon: '🌬️',
-    test: function(n) { return /(ventilador|ventiladores|vetilador)/.test(n); }
-  },
-  { id: 'COCINA_INFRARROJA', nombre: 'Cocina Infrarroja', icon: '🔴',
-    test: function(n) { return /(infrarroj|inflaroj|infraroj|infrraroj|ornilla)/.test(n) || (/\b(cocina|fogon|fogón|fogones)\b/.test(n) && !/(gas|petroleo|petróleo|induccion|inducción)/.test(n) && !/(arrocera|reina|reyna|sarten|sartén)/.test(n)); }
-  },
-  { id: 'COCINA_INDUCCION', nombre: 'Cocina de Inducción', icon: '⚡',
-    test: function(n) { return /(induccion|inducción)/.test(n); }
-  },
-  { id: 'COCINA_PETROLEO', nombre: 'Fogón de Petróleo', icon: '🛢️',
-    test: function(n) { return /(petroleo|petróleo)/.test(n); }
-  },
-  { id: 'COCINA_GAS', nombre: 'Cocina de Gas', icon: '🔥',
-    test: function(n) { return /cocina.*gas|gas.*cocina/.test(n); }
-  },
-  { id: 'FREIDORA', nombre: 'Freidora de Aire', icon: '🍟',
-    test: function(n) { return /freidora/.test(n); }
-  },
-  { id: 'BATIDORA_LICUADORA', nombre: 'Batidora / Licuadora', icon: '🥤',
-    test: function(n) { return /(batidora|licuadora|vatidora)/.test(n); }
-  },
-  { id: 'CAFETERA', nombre: 'Cafetera Eléctrica', icon: '☕',
-    test: function(n) { return /cafetera/.test(n); }
-  },
-  { id: 'SARTEN_ELECTRICO', nombre: 'Sartén Eléctrico', icon: '🍳',
-    test: function(n) { return /(sarten|sartén)/.test(n) && /(electr|eléctric|800w)/.test(n); }
-  },
-  { id: 'SET_SARTENES', nombre: 'Set Sartenes / Calderos (Piezas)', icon: '🍳',
-    test: function(n) { return /(sarten|sartén|sartenes|caldero|juego.*sarten|set.*piezas|piezas.*sarten|calderito)/.test(n) && !/(electr|eléctric|800w)/.test(n); }
-  },
-  { id: 'CAJITA_DESCODIFICADOR', nombre: 'Cajita Descodificadora', icon: '📺',
-    test: function(n) { return /(cajita|descodificad|convertidor|convertidora)/.test(n); }
-  },
-  { id: 'POWER_BANK', nombre: 'Power Bank / Cargador', icon: '🔌',
-    test: function(n) { return /(power\s*bank|powerbank|cargador.*portatil|cargador.*portátil|\bmah\b|\bmha\b)/.test(n); }
-  },
-  { id: 'PLANCHA', nombre: 'Plancha de Ropa', icon: '👔',
-    test: function(n) { return /plancha/.test(n); }
-  },
-  { id: 'ALARMA', nombre: 'Alarma', icon: '🚨',
-    test: function(n) { return /alarma/.test(n); }
-  }
-];
+// ================= MOTOR HIPER-INTELIGENTE DE CLASIFICACIÓN Y CONSOLIDACIÓN =================
+// Cruza el nombre escrito por gestores con precios de venta, lotes de inventario y reglas de descarte
+function resolverProductoHiperInteligente(raw, pVenta) {
+  var norm = (raw || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim();
 
-function clasificarFamiliaProducto(nombreProducto) {
-  if (!nombreProducto) return null;
-  var n = String(nombreProducto).toLowerCase()
-    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
-    .replace(/[^a-z0-9\s]/g, ' ').replace(/\s+/g, ' ').trim();
-  for (var i = 0; i < FAMILIAS_PRODUCTOS.length; i++) {
-    if (FAMILIAS_PRODUCTOS[i].test(n)) return FAMILIAS_PRODUCTOS[i];
+  // 1. OLLA ARROCERA (Exactamente los 4 tipos del negocio)
+  if (/arrocera/i.test(norm)) {
+    if (/hamilton|habito/i.test(norm) || pVenta >= 31) {
+      return { familiaId: 'OLLA_ARROCERA', familiaNombre: 'Olla Arrocera', icon: '🍚', variante: 'Olla Arrocera Hamilton Beach (31 USD)' };
+    }
+    if (/marwa/i.test(norm)) {
+      return { familiaId: 'OLLA_ARROCERA', familiaNombre: 'Olla Arrocera', icon: '🍚', variante: 'Olla Arrocera Marwa (27 USD)' };
+    }
+    if (/1\.5\s*l/i.test(norm)) {
+      return { familiaId: 'OLLA_ARROCERA', familiaNombre: 'Olla Arrocera', icon: '🍚', variante: 'Olla Arrocera 1.5L Estelectric (27 USD)' };
+    }
+    if (/1\.8\s*l|estelectric|esteletric/i.test(norm) || pVenta === 28) {
+      return { familiaId: 'OLLA_ARROCERA', familiaNombre: 'Olla Arrocera', icon: '🍚', variante: 'Olla Arrocera 1.8L Estelectric (28 USD)' };
+    }
+    // Descarte inteligente por precio
+    if (pVenta <= 27) return { familiaId: 'OLLA_ARROCERA', familiaNombre: 'Olla Arrocera', icon: '🍚', variante: 'Olla Arrocera 1.5L Estelectric (27 USD)' };
+    return { familiaId: 'OLLA_ARROCERA', familiaNombre: 'Olla Arrocera', icon: '🍚', variante: 'Olla Arrocera 1.8L Estelectric (28 USD)' };
   }
-  return null;
+
+  // 2. OLLA REINA (Calificación aparte con variantes exactas por marcas)
+  if (/(reina|reyna)/i.test(norm) || (/\bolla\b/i.test(norm) && !/arrocera|micro|calabaz/i.test(norm))) {
+    if (/houselux|houslex/i.test(norm) || pVenta === 47) {
+      return { familiaId: 'OLLA_REINA', familiaNombre: 'Olla Reina (Presión)', icon: '🍲', variante: 'Olla Reina Houselux 5L (47 USD)' };
+    }
+    if (/bravoking|bravo king/i.test(norm) || pVenta === 46) {
+      return { familiaId: 'OLLA_REINA', familiaNombre: 'Olla Reina (Presión)', icon: '🍲', variante: 'Olla Reina Bravoking 5L (46 USD)' };
+    }
+    if (/\bjm\b/i.test(norm) || pVenta === 49) {
+      return { familiaId: 'OLLA_REINA', familiaNombre: 'Olla Reina (Presión)', icon: '🍲', variante: 'Olla Reina JM (49 USD)' };
+    }
+    if (/\brca\b|\brga\b/i.test(norm) || (pVenta === 52 && /rca/i.test(norm))) {
+      return { familiaId: 'OLLA_REINA', familiaNombre: 'Olla Reina (Presión)', icon: '🍲', variante: 'Olla Reina RCA (52 USD)' };
+    }
+    if (/milexus|milesus/i.test(norm) || pVenta === 50) {
+      return { familiaId: 'OLLA_REINA', familiaNombre: 'Olla Reina (Presión)', icon: '🍲', variante: 'Olla Reina Milexus 6L/7L (50-52 USD)' };
+    }
+    if (/\beko\b/i.test(norm)) {
+      return { familiaId: 'OLLA_REINA', familiaNombre: 'Olla Reina (Presión)', icon: '🍲', variante: 'Olla Reina Eko 6L (50 USD)' };
+    }
+    if (/7\s*l/i.test(norm) || pVenta >= 52) {
+      return { familiaId: 'OLLA_REINA', familiaNombre: 'Olla Reina (Presión)', icon: '🍲', variante: 'Olla Reina 7 Litros Especial (52 USD)' };
+    }
+    return { familiaId: 'OLLA_REINA', familiaNombre: 'Olla Reina (Presión)', icon: '🍲', variante: 'Olla Reina Houselux 5L (47 USD)' };
+  }
+
+  // 3. COCINA INFRARROJA (Exactamente las 2 pedidas: 2000W y 3500W/3000W)
+  if (/infrar|inflar|ornilla/i.test(norm) || (/cocina|fogon/i.test(norm) && !/petroleo|gas|induccion/i.test(norm) && !/sarten/i.test(norm))) {
+    if (/3500|3000|garuda/i.test(norm) || pVenta >= 35) {
+      return { familiaId: 'COCINA_INFRARROJA', familiaNombre: 'Cocina Infrarroja', icon: '🔴', variante: 'Cocina Infrarroja 3500W Garuda/Eko (35 USD)' };
+    }
+    return { familiaId: 'COCINA_INFRARROJA', familiaNombre: 'Cocina Infrarroja', icon: '🔴', variante: 'Cocina Infrarroja 2000W Eko/Estelectric (30-33 USD)' };
+  }
+
+  // 4. VENTILADOR DE PARED
+  if (/(ventilador|vetilador)/i.test(norm) && /(pared|paret|denpared)/i.test(norm)) {
+    return { familiaId: 'VENTILADOR_PARED', familiaNombre: 'Ventilador de Pared', icon: '💨', variante: 'Ventilador de Pared Dawang (30 USD)' };
+  }
+
+  // 5. VENTILADOR DE PEDESTAL
+  if (/(ventilador|ventiladores)/i.test(norm) && /pedestal/.test(norm)) {
+    if (/px/i.test(norm) || pVenta <= 25) {
+      return { familiaId: 'VENTILADOR_PEDESTAL', familiaNombre: 'Ventilador de Pedestal', icon: '🌀', variante: 'Ventilador de Pedestal Dawang/PX 18 pulg (25 USD)' };
+    }
+    return { familiaId: 'VENTILADOR_PEDESTAL', familiaNombre: 'Ventilador de Pedestal', icon: '🌀', variante: 'Ventilador de Pedestal 18 pulg Especial (30 USD)' };
+  }
+
+  // 6. VENTILADOR RECARGABLE / F6
+  if (/(ventilador|ventiladores)/i.test(norm) && /(recargable|regable|\bf6\b)/.test(norm)) {
+    return { familiaId: 'VENTILADOR_RECARGABLE', familiaNombre: 'Ventilador Recargable / F6', icon: '🔋', variante: 'Ventilador Recargable F6 (37 USD)' };
+  }
+
+  // 7. OTROS VENTILADORES
+  if (/(ventilador|ventiladores|vetilador)/i.test(norm)) {
+    if (/3\s*en\s*1/i.test(norm)) return { familiaId: 'VENTILADOR_OTRO', familiaNombre: 'Ventilador (Otros Modelos)', icon: '🌬️', variante: 'Ventilador 3 en 1 (35 USD)' };
+    if (/ciclon|ciclon/i.test(norm)) return { familiaId: 'VENTILADOR_OTRO', familiaNombre: 'Ventilador (Otros Modelos)', icon: '🌬️', variante: 'Mini Ciclón (22-25 USD)' };
+    return { familiaId: 'VENTILADOR_OTRO', familiaNombre: 'Ventilador (Otros Modelos)', icon: '🌬️', variante: 'Ventilador Especial/Familiar' };
+  }
+
+  // 8. FOGÓN DE PETRÓLEO
+  if (/petroleo|petroleo/i.test(norm)) {
+    return { familiaId: 'COCINA_PETROLEO', familiaNombre: 'Fogón de Petróleo', icon: '🛢️', variante: 'Fogón de Petróleo Estándar (15-16 USD)' };
+  }
+
+  // 9. SET OLLAS MICROPRESIÓN / CALABAZA
+  if (/(micropresion|micro presion|calabaz|naranja de 2 ollas)/i.test(norm)) {
+    return { familiaId: 'OLLA_MICROPRESION', familiaNombre: 'Set Ollas Micropresión / Calabaza', icon: '🫕', variante: 'Set 2 Ollas Micropresión Calabaza (25 USD)' };
+  }
+
+  // 10. BATIDORA / LICUADORA
+  if (/(batidora|licuadora|vatidora)/i.test(norm)) {
+    if (/hamilton/i.test(norm) || pVenta >= 35) return { familiaId: 'BATIDORA_LICUADORA', familiaNombre: 'Batidora / Licuadora', icon: '🥤', variante: 'Batidora Hamilton Beach / Midea (35-37 USD)' };
+    return { familiaId: 'BATIDORA_LICUADORA', familiaNombre: 'Batidora / Licuadora', icon: '🥤', variante: 'Batidora con Triturador Estándar (25 USD)' };
+  }
+
+  // 11. CAFETERA ELÉCTRICA
+  if (/cafetera/i.test(norm)) {
+    return { familiaId: 'CAFETERA', familiaNombre: 'Cafetera Eléctrica', icon: '☕', variante: 'Cafetera Eléctrica 6 Tazas (27-28 USD)' };
+  }
+
+  // 12. FREIDORA DE AIRE
+  if (/freidora/i.test(norm)) {
+    return { familiaId: 'FREIDORA', familiaNombre: 'Freidora de Aire', icon: '🍟', variante: 'Freidora de Aire 5L (48 USD)' };
+  }
+
+  // 13. SARTÉN ELÉCTRICO
+  if (/(sarten|sarten)/i.test(norm) && /(electr|electric|800w)/i.test(norm)) {
+    return { familiaId: 'SARTEN_ELECTRICO', familiaNombre: 'Sartén Eléctrico', icon: '🍳', variante: 'Sartén Eléctrico 800W (32 USD)' };
+  }
+
+  // 14. SET SARTENES / CALDEROS (4 piezas)
+  if (/(sarten|sarten|sartenes|caldero|juego.*sarten|set.*piezas|piezas.*sarten|calderito|salten|piezas)/i.test(norm)) {
+    return { familiaId: 'SET_SARTENES', familiaNombre: 'Set Sartenes / Calderos', icon: '🍳', variante: 'Juego de Sartenes 4 Piezas con Caldero (25 USD)' };
+  }
+
+  // 15. POWER BANK
+  if (/(power\s*bank|powerbank|cargador.*portatil|\bmah\b|\bmha\b)/i.test(norm)) {
+    if (/50/i.test(norm) || pVenta >= 40) return { familiaId: 'POWER_BANK', familiaNombre: 'Power Bank / Cargador', icon: '🔌', variante: 'Power Bank 50,000 mAh (40 USD)' };
+    return { familiaId: 'POWER_BANK', familiaNombre: 'Power Bank / Cargador', icon: '🔌', variante: 'Power Bank 20,000 mAh (22-23 USD)' };
+  }
+
+  // 16. CAJITA DESCODIFICADORA
+  if (/(cajita|descodificad|convertidor|convertidora)/i.test(norm)) {
+    return { familiaId: 'CAJITA_DESCODIFICADOR', familiaNombre: 'Cajita Descodificadora', icon: '📺', variante: 'Cajita Digital / Descodificadora HD (23 USD)' };
+  }
+
+  // 17. PLANCHA
+  if (/plancha/i.test(norm)) {
+    return { familiaId: 'PLANCHA', familiaNombre: 'Plancha de Ropa', icon: '👔', variante: 'Plancha de Ropa Vapor/Eléctrica (15 USD)' };
+  }
+
+  // 18. COCINA DE INDUCCIÓN
+  if (/induccion|induccion/i.test(norm)) {
+    return { familiaId: 'COCINA_INDUCCION', familiaNombre: 'Cocina de Inducción', icon: '⚡', variante: 'Cocina de Inducción con Sartén (35 USD)' };
+  }
+
+  // 19. COCINA DE GAS
+  if (/cocina.*gas|gas.*cocina/i.test(norm)) {
+    return { familiaId: 'COCINA_GAS', familiaNombre: 'Cocina de Gas', icon: '🔥', variante: 'Cocina de Gas (35 USD)' };
+  }
+
+  // 20. ALARMA
+  if (/alarma/i.test(norm)) {
+    return { familiaId: 'ALARMA', familiaNombre: 'Alarma', icon: '🚨', variante: 'Alarma (56 USD)' };
+  }
+
+  return { familiaId: 'OTROS', familiaNombre: 'Otros Productos / Accesorios', icon: '📦', variante: raw || 'Accesorio General' };
 }
 
-function formatearNombreVariante(nombre) {
-  if (!nombre) return 'Producto';
-  var s = String(nombre).trim();
-  return s.charAt(0).toUpperCase() + s.slice(1);
-}
-
-// ================= ANÁLISIS INTELIGENTE POR FAMILIAS CON VARIANTES =================
+// ================= ANÁLISIS INTELIGENTE POR FAMILIAS CON VARIANTES CONSOLIDADAS =================
 function analizarYAgruparPorFamilias(fechaDesde, fechaHasta) {
   if (!datosGestores || !datosGestores.vales) return [];
 
@@ -2615,16 +2687,19 @@ function analizarYAgruparPorFamilias(fechaDesde, fechaHasta) {
       var rawNombre = (item.producto || '').trim();
       if (!rawNombre) return;
 
-      var familia = clasificarFamiliaProducto(rawNombre);
-      var famId = familia ? familia.id : 'OTROS';
-      var famNombre = familia ? familia.nombre : 'Otros Productos';
-      var famIcon = familia ? familia.icon : '📦';
+      var cant = Number(item.cantidad || 1);
+      var pUnit = Number(item.precioVenta || 0);
+      var subtotalUSD = cant * pUnit;
+      var comisionTot = Number(item.comisionTotalCUP || ((item.comisionUnitCUP || 1500) * cant));
 
-      if (!familiasMapa.has(famId)) {
-        familiasMapa.set(famId, {
-          id: famId,
-          nombre: famNombre,
-          icon: famIcon,
+      // Resolución hiper-inteligente
+      var resol = resolverProductoHiperInteligente(rawNombre, pUnit);
+
+      if (!familiasMapa.has(resol.familiaId)) {
+        familiasMapa.set(resol.familiaId, {
+          id: resol.familiaId,
+          nombre: resol.familiaNombre,
+          icon: resol.icon,
           totalCantidad: 0,
           totalUSD: 0,
           comisionesCUP: 0,
@@ -2633,23 +2708,18 @@ function analizarYAgruparPorFamilias(fechaDesde, fechaHasta) {
         });
       }
 
-      var fam = familiasMapa.get(famId);
-      var cant = Number(item.cantidad || 1);
-      var pUnit = Number(item.precioVenta || 0);
-      var subtotalUSD = cant * pUnit;
-      var comisionTot = Number(item.comisionTotalCUP || ((item.comisionUnitCUP || 1500) * cant));
-
+      var fam = familiasMapa.get(resol.familiaId);
       fam.totalCantidad += cant;
       fam.totalUSD += subtotalUSD;
       fam.comisionesCUP += comisionTot;
       fam.valesSet.add(vale.folio || vale.id);
 
-      // Agrupar variantes dentro de cada familia
-      var varKey = rawNombre.toLowerCase().replace(/\s+/g, ' ');
+      // Agrupar en la variante consolidada limpia
+      var varKey = resol.variante;
       if (!fam.variantes.has(varKey)) {
         fam.variantes.set(varKey, {
           id: 'var_' + Math.abs(varKey.split('').reduce(function(a,b){a=((a<<5)-a)+b.charCodeAt(0);return a&a;},0)),
-          nombreDisplay: formatearNombreVariante(rawNombre),
+          nombreDisplay: resol.variante,
           totalCantidad: 0,
           totalUSD: 0,
           preciosUnitarios: new Set(),
@@ -2668,6 +2738,7 @@ function analizarYAgruparPorFamilias(fechaDesde, fechaHasta) {
         fecha: vale.fecha || '—',
         gestorNombre: vale.gestorNombre || 'Sin gestor',
         clienteNombre: vale.clienteNombre || 'Cliente',
+        productoOriginal: rawNombre,
         cantidad: cant,
         precioVenta: pUnit,
         subtotalUSD: subtotalUSD,
@@ -2676,15 +2747,13 @@ function analizarYAgruparPorFamilias(fechaDesde, fechaHasta) {
     });
   });
 
-  // Convertir a array y calcular stock
+  // Convertir a array y calcular stock en base a lotes de entrada
   var familiasArray = Array.from(familiasMapa.values()).map(function(fam) {
     var stockEntradas = 0;
     lotesInv.forEach(function(l) {
-      if (clasificarFamiliaProducto(l.producto)) {
-        var loteFam = clasificarFamiliaProducto(l.producto);
-        if (loteFam && loteFam.id === fam.id) {
-          stockEntradas += (l.entradas || l.inicio || 0);
-        }
+      var rLote = resolverProductoHiperInteligente(l.producto, l.precioVenta || 0);
+      if (rLote.familiaId === fam.id) {
+        stockEntradas += (l.entradas || l.inicio || 0);
       }
     });
 
@@ -2700,7 +2769,7 @@ function analizarYAgruparPorFamilias(fechaDesde, fechaHasta) {
       return v;
     });
 
-    // Ordenar variantes por cantidad vendida desc
+    // Ordenar variantes por cantidad vendida descendente
     variantesArray.sort(function(a, b) { return b.totalCantidad - a.totalCantidad; });
 
     return {
@@ -2772,7 +2841,6 @@ function renderizarCatalogoProductos() {
 
   var badgeNav = document.getElementById('badge-total-productos-nav');
   if (badgeNav) {
-    var totalVariantes = catalogoFamiliasAgrupadas.reduce(function(s,f){return s+f.totalVariantes;}, 0);
     badgeNav.textContent = catalogoFamiliasAgrupadas.length + ' familias';
   }
 
@@ -2794,7 +2862,6 @@ function renderizarCatalogoProductos() {
   var totalVendidas = 0;
   var totalUSD = 0;
   var totalStock = 0;
-  var setVales = new Set();
   var totalVariantesGlobal = 0;
 
   catalogoFamiliasAgrupadas.forEach(function(f) {
@@ -2812,7 +2879,7 @@ function renderizarCatalogoProductos() {
   var kpiStock = document.getElementById('kpi-prod-stock-disponible');
 
   if (kpiTotalDist) kpiTotalDist.textContent = catalogoFamiliasAgrupadas.length + ' familias';
-  if (kpiCatCount) kpiCatCount.textContent = totalVariantesGlobal + ' variantes de productos';
+  if (kpiCatCount) kpiCatCount.textContent = totalVariantesGlobal + ' tipos consolidados';
   if (kpiTotalVend) kpiTotalVend.textContent = totalVendidas.toLocaleString('es-ES') + ' uds';
   if (kpiValesCount) kpiValesCount.textContent = 'En ' + catalogoFamiliasAgrupadas.reduce(function(s,f){return s+f.totalVales;}, 0) + ' vales de gestores';
   if (kpiTotalUsd) kpiTotalUsd.textContent = '$' + totalUSD.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' USD';
@@ -2895,13 +2962,13 @@ function filtrarCatalogoProductos() {
   if (btnPrev) btnPrev.disabled = (paginaActualProductos <= 1);
   if (btnNext) btnNext.disabled = (paginaActualProductos >= totalPaginas);
 
-  // Render family cards
+  // Renderizar tarjetas de familia
   contenedor.innerHTML = itemsPagina.map(function(fam) {
     var esAbierto = !!familiasSubmenusAbiertos[fam.id];
     var pctMercado = catalogoFamiliasAgrupadas.reduce(function(s,f){return s+f.totalCantidad;}, 0);
     var pctFam = pctMercado > 0 ? ((fam.totalCantidad / pctMercado) * 100).toFixed(1) : '0';
 
-    // Build variants table
+    // Desglose de tipos consolidados
     var variantesHtml = fam.variantes.map(function(v) {
       var preciosStr = v.preciosUnitarios.length > 0
         ? v.preciosUnitarios.map(function(p){return '$'+p;}).join(', ')
@@ -2912,14 +2979,14 @@ function filtrarCatalogoProductos() {
       if (esVarAbierto && v.vales.length > 0) {
         valesTabla = '<div class="mt-2 overflow-x-auto border border-teal-500/15 rounded-lg"><table class="w-full text-left text-[11px]">' +
           '<thead class="bg-black/80 text-teal-300 uppercase font-semibold text-[9px] tracking-wider">' +
-            '<tr><th class="p-2">Folio</th><th class="p-2">Fecha</th><th class="p-2">Gestor</th><th class="p-2">Cliente</th><th class="p-2 text-center">Cant</th><th class="p-2 text-right">P.Venta</th><th class="p-2 text-right">Total</th></tr>' +
+            '<tr><th class="p-2">Folio</th><th class="p-2">Fecha</th><th class="p-2">Gestor</th><th class="p-2">Texto Original</th><th class="p-2 text-center">Cant</th><th class="p-2 text-right">P.Venta</th><th class="p-2 text-right">Total</th></tr>' +
           '</thead><tbody class="divide-y divide-slate-800/60 font-mono">' +
           v.vales.map(function(vl) {
             return '<tr class="hover:bg-teal-950/15">' +
               '<td class="p-2 font-bold text-amber-300">' + vl.folio + '</td>' +
               '<td class="p-2 text-slate-400">' + vl.fecha + '</td>' +
               '<td class="p-2 text-white font-sans">' + vl.gestorNombre + '</td>' +
-              '<td class="p-2 text-slate-300 font-sans">' + vl.clienteNombre + '</td>' +
+              '<td class="p-2 text-slate-400 font-sans italic text-[10px]">' + (vl.productoOriginal || '—') + '</td>' +
               '<td class="p-2 text-center font-bold text-teal-300">' + vl.cantidad + 'x</td>' +
               '<td class="p-2 text-right text-slate-300">$' + vl.precioVenta.toFixed(2) + '</td>' +
               '<td class="p-2 text-right font-bold text-emerald-400">$' + vl.subtotalUSD.toFixed(2) + '</td>' +
@@ -2931,17 +2998,18 @@ function filtrarCatalogoProductos() {
       return '<div class="border-b border-slate-800/60 last:border-b-0">' +
         '<div class="flex items-center justify-between p-2.5 hover:bg-slate-900/50 cursor-pointer transition-colors" onclick="toggleVarianteVales(\'' + v.id + '\')">' +
           '<div class="flex items-center gap-2 min-w-0 flex-1">' +
-            '<span class="text-[11px] font-bold text-white truncate">' + v.nombreDisplay + '</span>' +
+            '<i data-lucide="check-circle" class="w-3.5 h-3.5 text-teal-400 shrink-0"></i>' +
+            '<span class="text-xs font-bold text-white truncate">' + v.nombreDisplay + '</span>' +
           '</div>' +
-          '<div class="flex items-center gap-3 shrink-0 text-[11px] font-mono">' +
-            '<span class="text-teal-300 font-bold">' + v.totalCantidad + ' uds</span>' +
-            '<span class="text-slate-500">|</span>' +
-            '<span class="text-emerald-400">$' + v.totalUSD.toFixed(2) + '</span>' +
-            '<span class="text-slate-500">|</span>' +
-            '<span class="text-slate-400">' + preciosStr + '</span>' +
-            '<span class="text-slate-500">|</span>' +
-            '<span class="text-amber-300/80 text-[10px]">' + v.vales.length + ' vales</span>' +
-            '<i id="var-chevron-' + v.id + '" data-lucide="chevron-down" class="w-3 h-3 text-slate-500 transition-transform ' + (esVarAbierto ? 'rotate-180' : '') + '"></i>' +
+          '<div class="flex items-center gap-3 shrink-0 text-xs font-mono">' +
+            '<span class="text-teal-300 font-bold bg-teal-950/40 px-2 py-0.5 rounded border border-teal-500/20">' + v.totalCantidad + ' uds</span>' +
+            '<span class="text-slate-600">|</span>' +
+            '<span class="text-emerald-400 font-bold">$' + v.totalUSD.toFixed(2) + '</span>' +
+            '<span class="text-slate-600">|</span>' +
+            '<span class="text-slate-400 font-semibold">' + preciosStr + '</span>' +
+            '<span class="text-slate-600">|</span>' +
+            '<span class="text-amber-300/90 text-[11px]">' + v.vales.length + ' vales</span>' +
+            '<i id="var-chevron-' + v.id + '" data-lucide="chevron-down" class="w-3.5 h-3.5 text-slate-500 transition-transform ' + (esVarAbierto ? 'rotate-180' : '') + '"></i>' +
           '</div>' +
         '</div>' +
         '<div id="var-vales-' + v.id + '" class="' + (esVarAbierto ? '' : 'hidden') + ' px-3 pb-3">' + valesTabla + '</div>' +
@@ -2958,7 +3026,7 @@ function filtrarCatalogoProductos() {
             '<div class="flex items-center gap-2 flex-wrap">' +
               '<h4 class="text-base font-bold text-white tracking-tight">' + fam.nombre + '</h4>' +
               '<span class="text-[10px] px-2 py-0.5 rounded-full bg-teal-500/10 text-teal-300 border border-teal-500/25 font-mono font-bold">' +
-                fam.totalVariantes + ' variantes' +
+                fam.totalVariantes + ' tipos' +
               '</span>' +
               '<span class="text-[10px] px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-300 border border-amber-500/25 font-mono font-bold">' +
                 pctFam + '% del total' +
@@ -3009,7 +3077,7 @@ function filtrarCatalogoProductos() {
       '<div id="fam-submenu-' + fam.id + '" class="' + (esAbierto ? '' : 'hidden') + ' border-t border-teal-500/20 bg-black/60">' +
         '<div class="flex items-center justify-between gap-2 p-3 px-4 bg-black/80 border-b border-slate-800/50">' +
           '<span class="text-[11px] font-bold text-teal-300 uppercase tracking-wider flex items-center gap-1.5">' +
-            '<i data-lucide="list" class="w-3.5 h-3.5"></i> Variantes de ' + fam.nombre + ' (' + fam.totalVariantes + ' productos distintos)' +
+            '<i data-lucide="list" class="w-3.5 h-3.5"></i> Tipos Consolidados de ' + fam.nombre + ' (' + fam.totalVariantes + ' tipos)' +
           '</span>' +
           '<span class="text-[11px] font-mono text-emerald-400 font-bold">Total: ' + fam.totalCantidad + ' unidades | $' + fam.totalUSD.toFixed(2) + ' USD</span>' +
         '</div>' +
@@ -3020,8 +3088,7 @@ function filtrarCatalogoProductos() {
 
   if (window.lucide && typeof lucide.createIcons === 'function') { lucide.createIcons(); }
 }
-
-    // ================= RENDERIZADO GENERAL =================
+// ================= RENDERIZADO GENERAL =================
     function renderizarTodo() {
       renderizarSelectorSemanas();
       renderizarKPIsBimoneda();
