@@ -1,6 +1,6 @@
 // Soporte 100% Offline Garantizado, Cache Robusto de CDNs y Sincronización Automática
 
-const CACHE_NAME = 'compras-tienda-v24-hiper-inteligente';
+const CACHE_NAME = 'compras-tienda-v25-vales-finales-cuadre';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
