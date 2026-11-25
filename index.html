@@ -1514,7 +1514,7 @@
         await cargarDatosGestores();
         const elValeFolio = document.getElementById('vale-folio');
         if (elValeFolio) elValeFolio.value = generarSiguienteFolio();
-        if (window.lucide && typeof lucide.createIcons === 'function') { lucide.createIcons(); }
+        try { if (window.lucide && typeof window.lucide.createIcons === 'function') { window.lucide.createIcons(); } } catch(e){}
       } catch (errInit) {
         console.error('Error durante la inicialización de la app:', errInit);
       }
@@ -2730,8 +2730,15 @@ function cambiarPestanaPrincipal(pestana) {
     if (secInv) secInv.classList.add('hidden');
     if (secGastos) secGastos.classList.add('hidden');
     if (secVales) secVales.classList.add('hidden');
-    if (secCuadre) secCuadre.classList.remove('hidden');
-    renderizarSeccionCuadre();
+    if (secCuadre) {
+      secCuadre.classList.remove('hidden');
+      secCuadre.style.display = 'block';
+    }
+    try {
+      renderizarSeccionCuadre();
+    } catch (errCuadre) {
+      console.error('Error al renderizar sección de cuadre:', errCuadre);
+    }
   }
 
   if (window.lucide && typeof lucide.createIcons === 'function') { lucide.createIcons(); }
@@ -3906,9 +3913,21 @@ function ejecutarCuadreInventario() {
 }
 
 function renderizarSeccionCuadre() {
-  inicializarFormularioValeFinal();
-  actualizarListaValesFinalesGuardados();
-  ejecutarCuadreInventario();
+  try {
+    if (typeof inicializarFormularioValeFinal === 'function') inicializarFormularioValeFinal();
+  } catch (e) {
+    console.warn('Advertencia inicializando formulario vale final:', e);
+  }
+  try {
+    if (typeof actualizarListaValesFinalesGuardados === 'function') actualizarListaValesFinalesGuardados();
+  } catch (e) {
+    console.warn('Advertencia actualizando lista vales finales:', e);
+  }
+  try {
+    if (typeof ejecutarCuadreInventario === 'function') ejecutarCuadreInventario();
+  } catch (e) {
+    console.error('Error calculando cuadre inventario:', e);
+  }
 }
 
 // ================= RENDERIZADO GENERAL =================
