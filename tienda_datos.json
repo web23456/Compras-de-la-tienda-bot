@@ -2535,7 +2535,139 @@
       "gastos": [],
       "inversiones": [],
       "bajas": [],
-      "valesFinales": []
+      "valesFinales": [
+        {
+          "id": "vale-1795571956777zgy",
+          "folio": "FINAL-8",
+          "fecha": "2026-11-24",
+          "responsable": "Karel",
+          "notas": "Vale final de almacén",
+          "totalUnidades": 297,
+          "items": [
+            {
+              "producto": "Ollas Reynas Milesus",
+              "cantidadFisica": 32,
+              "precioRef": 52,
+              "precioCompra": 45
+            },
+            {
+              "producto": "Batidora",
+              "cantidadFisica": 14,
+              "precioRef": 25,
+              "precioCompra": 15
+            },
+            {
+              "producto": "fogones de petroleo",
+              "cantidadFisica": 25,
+              "precioRef": 25,
+              "precioCompra": 11
+            },
+            {
+              "producto": "cocina de inducion",
+              "cantidadFisica": 9,
+              "precioRef": 35,
+              "precioCompra": 25
+            },
+            {
+              "producto": "Olla Arrocera 1,5",
+              "cantidadFisica": 1,
+              "precioRef": 27,
+              "precioCompra": 21
+            },
+            {
+              "producto": "Olla Arrocera 1,8",
+              "cantidadFisica": 12,
+              "precioRef": 28,
+              "precioCompra": 22
+            },
+            {
+              "producto": "Freidora de Aire",
+              "cantidadFisica": 19,
+              "precioRef": 48,
+              "precioCompra": 40
+            },
+            {
+              "producto": "cocinas infrarrojas 2000w",
+              "cantidadFisica": 4,
+              "precioRef": 33,
+              "precioCompra": 28
+            },
+            {
+              "producto": "Cafetera",
+              "cantidadFisica": 9,
+              "precioRef": 28,
+              "precioCompra": 23
+            },
+            {
+              "producto": "Juegos de sartenes",
+              "cantidadFisica": 12,
+              "precioRef": 25,
+              "precioCompra": 17
+            },
+            {
+              "producto": "cajitas descodificadora",
+              "cantidadFisica": 3,
+              "precioRef": 23,
+              "precioCompra": 17
+            },
+            {
+              "producto": "Power bank 20milAm",
+              "cantidadFisica": 11,
+              "precioRef": 23,
+              "precioCompra": 14
+            },
+            {
+              "producto": "Ollas de micropresion",
+              "cantidadFisica": 11,
+              "precioRef": 25,
+              "precioCompra": 12
+            },
+            {
+              "producto": "Mini ciclones",
+              "cantidadFisica": 9,
+              "precioRef": 22,
+              "precioCompra": 16
+            },
+            {
+              "producto": "Ventilador de 20 pulgadas",
+              "cantidadFisica": 3,
+              "precioRef": 35,
+              "precioCompra": 27
+            },
+            {
+              "producto": "Ventilador de Pedestar PX",
+              "cantidadFisica": 26,
+              "precioRef": 25,
+              "precioCompra": 17
+            },
+            {
+              "producto": "Ventilador de Pedestar Dawan",
+              "cantidadFisica": 1,
+              "precioRef": 25,
+              "precioCompra": 20
+            },
+            {
+              "producto": "Olla Reyna JM",
+              "cantidadFisica": 1,
+              "precioRef": 48,
+              "precioCompra": 42
+            },
+            {
+              "producto": "olla reina Rca",
+              "cantidadFisica": 1,
+              "precioRef": 52,
+              "precioCompra": 47
+            },
+            {
+              "producto": "Ventilador de Pared Dawan",
+              "cantidadFisica": 94,
+              "precioRef": 30,
+              "precioCompra": 22
+            }
+          ],
+          "createdAt": 1795573356211
+        }
+      ]
     }
   }
 }
