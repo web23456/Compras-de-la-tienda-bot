@@ -1037,30 +1037,30 @@
 
         <!-- KPIs Resumen del Cuadre -->
         <div class="grid grid-cols-2 sm:grid-cols-5 gap-3" id="kpis-cuadre-container">
-          <div class="bg-black border border-slate-800 rounded-xl p-3">
-            <span class="text-[10px] text-slate-400 uppercase font-bold block">Entradas en Rango</span>
+          <div class="bg-black border border-teal-500/30 rounded-xl p-3 bg-teal-950/10">
+            <span class="text-[10px] text-teal-400 uppercase font-bold block">1. Total Entradas Almacén</span>
             <span class="text-base font-black text-teal-300 font-mono block mt-1" id="cuadre-kpi-entradas">0 uds</span>
-            <span class="text-[10px] text-slate-500" id="cuadre-kpi-entradas-vales">0 vales entrada</span>
-          </div>
-          <div class="bg-black border border-slate-800 rounded-xl p-3">
-            <span class="text-[10px] text-slate-400 uppercase font-bold block">Ventas Gestores</span>
-            <span class="text-base font-black text-amber-300 font-mono block mt-1" id="cuadre-kpi-ventas">0 uds</span>
-            <span class="text-[10px] text-slate-500" id="cuadre-kpi-ventas-vales">0 vales gestores</span>
-          </div>
-          <div class="bg-black border border-slate-800 rounded-xl p-3">
-            <span class="text-[10px] text-slate-400 uppercase font-bold block">Stock Teórico Esperado</span>
-            <span class="text-base font-black text-indigo-300 font-mono block mt-1" id="cuadre-kpi-teorico">0 uds</span>
-            <span class="text-[10px] text-slate-500">Entradas - Ventas</span>
+            <span class="text-[10px] text-slate-400" id="cuadre-kpi-entradas-vales">7 vales de entrada</span>
           </div>
           <div class="bg-black border border-purple-500/30 rounded-xl p-3 bg-purple-950/10">
-            <span class="text-[10px] text-purple-300 uppercase font-bold block">Conteo Físico Real</span>
+            <span class="text-[10px] text-purple-300 uppercase font-bold block">2. Quedaron en Almacén</span>
             <span class="text-base font-black text-purple-300 font-mono block mt-1" id="cuadre-kpi-real">0 uds</span>
             <span class="text-[10px] text-purple-400/80">Vale Final (100% Real)</span>
           </div>
-          <div class="bg-black border border-slate-800 rounded-xl p-3" id="cuadre-box-balance">
-            <span class="text-[10px] text-slate-400 uppercase font-bold block">Balance / Diferencia</span>
-            <span class="text-base font-black text-emerald-400 font-mono block mt-1" id="cuadre-kpi-diferencia">0 uds</span>
-            <span class="text-[10px] text-slate-400" id="cuadre-kpi-estado-texto">Sin calcular</span>
+          <div class="bg-black border border-amber-500/30 rounded-xl p-3 bg-amber-950/10">
+            <span class="text-[10px] text-amber-400 uppercase font-bold block">3. Total Equipos Vendidos</span>
+            <span class="text-base font-black text-amber-300 font-mono block mt-1" id="cuadre-kpi-ventas">0 uds</span>
+            <span class="text-[10px] text-slate-400">Entradas menos Vale Final</span>
+          </div>
+          <div class="bg-black border border-emerald-500/40 rounded-xl p-3 bg-emerald-950/20" id="cuadre-box-balance">
+            <span class="text-[10px] text-emerald-400 uppercase font-bold block">4. Ganancia Total Generada</span>
+            <span class="text-base font-black text-emerald-400 font-mono block mt-1" id="cuadre-kpi-diferencia">$0.00 USD</span>
+            <span class="text-[10px] text-emerald-500/80 font-bold" id="cuadre-kpi-estado-texto">Margen neto de ventas</span>
+          </div>
+          <div class="bg-black border border-cyan-500/30 rounded-xl p-3 bg-cyan-950/10">
+            <span class="text-[10px] text-cyan-400 uppercase font-bold block">5. Venta Total Facturada</span>
+            <span class="text-base font-black text-cyan-300 font-mono block mt-1" id="cuadre-kpi-teorico">$0.00 USD</span>
+            <span class="text-[10px] text-slate-400">Ingreso bruto de equipos</span>
           </div>
         </div>
 
@@ -1069,13 +1069,14 @@
           <table class="w-full text-left text-xs">
             <thead class="bg-black text-slate-300 uppercase font-bold text-[10px] tracking-wider border-b border-slate-800">
               <tr>
-                <th class="p-3">Producto / Tipo Consolidado</th>
-                <th class="p-3 text-center">Entradas (+)</th>
-                <th class="p-3 text-center">Ventas Gestores (-)</th>
-                <th class="p-3 text-center bg-slate-900/50">Stock Teórico</th>
-                <th class="p-3 text-center bg-purple-950/20 text-purple-300 font-black">Conteo Físico Real</th>
-                <th class="p-3 text-center">Diferencia</th>
-                <th class="p-3 text-center">Estado del Cuadre</th>
+                <th class="p-3">Producto</th>
+                <th class="p-3 text-center text-teal-400">Entradas</th>
+                <th class="p-3 text-center text-purple-400 bg-purple-950/20">Quedaron (Final)</th>
+                <th class="p-3 text-center text-amber-400 font-black">Vendidos</th>
+                <th class="p-3 text-right">P. Compra</th>
+                <th class="p-3 text-right">P. Venta</th>
+                <th class="p-3 text-right text-emerald-400">Ganancia / Ud</th>
+                <th class="p-3 text-right text-emerald-400 font-black bg-emerald-950/20">Ganancia Total</th>
               </tr>
             </thead>
             <tbody id="cuadre-detalle-tbody" class="divide-y divide-slate-800/80 bg-slate-950 font-mono">
@@ -3643,178 +3644,203 @@ function seleccionarValeFinalParaCuadre(vfId) {
 // ================= MOTOR DE CÁLCULO DE CUADRE DE INVENTARIO =================
 // Entradas (Fecha X hasta Fecha Vale Final) - Ventas Gestores (Fecha X hasta Fecha Vale Final) = Teórico
 // Comparación: Teórico vs Conteo Físico Real (Vale Final con 100% credibilidad)
+function normalizarNombreParaCuadre(n) {
+  var s = (n || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim();
+  if (/milesus|milexus/i.test(s)) return 'Olla Reina Milesus (6L/7L)';
+  if (/bravoking/i.test(s) || (s === 'olla reyna' || s === 'ollas reynas')) return 'Olla Reina Bravoking 5L';
+  if (/houselux/i.test(s)) return 'Olla Reina Houselux 5L';
+  if (/\bjm\b/i.test(s)) return 'Olla Reina JM';
+  if (/eco/i.test(s) && /reina|reyna/i.test(s)) return 'Olla Reina Eco 6L';
+  if (/rca/i.test(s)) return 'Olla Reina RCA';
+  if (/micro.*pres|mircro.*pres/i.test(s)) return 'Ollas de micropresión';
+  if (/1[,\.]5/i.test(s)) return 'Olla Arrocera 1.5L Estelectric';
+  if (/hamilton/i.test(s) && /arrocera/i.test(s)) return 'Olla Arrocera Hamilton Beach';
+  if (/marwa/i.test(s)) return 'Olla Arrocera Marwa';
+  if (/arrocera/i.test(s)) return 'Olla Arrocera 1.8L Estelectric';
+  if (/batidora/i.test(s) && !/hamilton|mano/i.test(s)) return 'Batidora con triturador estándar';
+  if (/batidora.*hamilton|hamilton.*bich/i.test(s)) return 'Batidora Hamilton Beach';
+  if (/batidora.*mano/i.test(s)) return 'Batidora de mano';
+  if (/petroleo/i.test(s)) return 'Fogón / Cocina de petróleo';
+  if (/induc/i.test(s)) return 'Cocinas / Juegos de inducción';
+  if (/freidora/i.test(s)) return 'Freidora de Aire';
+  if (/infrar/i.test(s)) return 'Cocina Infrarroja 2000W';
+  if (/cafetera/i.test(s)) return 'Cafetera eléctrica';
+  if (/sarten/i.test(s)) return 'Juegos de sartenes (4 piezas)';
+  if (/cajita/i.test(s)) return 'Cajitas descodificadoras HD';
+  if (/power.*20/i.test(s)) return 'Power bank 20,000 mAh';
+  if (/power.*50/i.test(s)) return 'Power bank 50,000 mAh';
+  if (/ciclon/i.test(s)) return 'Mini ciclones';
+  if (/pared/i.test(s)) return 'Ventilador de Pared Dawang';
+  if (/pedest/i.test(s) && /px/i.test(s)) return 'Ventilador de Pedestal PX';
+  if (/pedest/i.test(s) && /dawan/i.test(s)) return 'Ventilador de Pedestal Dawang';
+  if (/20 pulg/i.test(s)) return 'Ventilador de 20 pulgadas';
+  if (/3 pos/i.test(s)) return 'Ventilador de 3 posiciones';
+  if (/gas/i.test(s)) return 'Cocina de gas';
+  if (/plancha/i.test(s)) return 'Planchas de ropa';
+  return (n || '').trim();
+}
+
 function ejecutarCuadreInventario() {
-  const sData = getSemanaData();
-  const valesFinales = sData.valesFinales || [];
+  var sData = getSemanaData();
+  var valesFinales = sData.valesFinales || [];
+
+  // Buscar si hay vale final registrado en valesEntrada con folio FINAL-8 o en valesFinales
+  if (valesFinales.length === 0 && (sData.valesEntrada || []).length > 0) {
+    var vFAuto = sData.valesEntrada.find(function(v){ return v.folio && v.folio.toUpperCase().includes('FINAL'); });
+    if (vFAuto) {
+      valesFinales = [{
+        id: vFAuto.id,
+        folio: vFAuto.folio,
+        fecha: vFAuto.fecha,
+        responsable: 'Karel',
+        totalUnidades: (vFAuto.items || []).reduce(function(a,b){ return a + (b.cantidad || 0); }, 0),
+        items: (vFAuto.items || []).map(function(it){
+          return {
+            producto: it.nombre,
+            cantidadFisica: it.cantidad || 0,
+            precioRef: it.precioVenta || 0,
+            precioCompra: it.precioCompra || 0
+          };
+        })
+      }];
+    }
+  }
 
   if (!valeFinalSeleccionadoId && valesFinales.length > 0) {
     valeFinalSeleccionadoId = valesFinales[0].id;
   }
 
-  const vf = valesFinales.find(v => v.id === valeFinalSeleccionadoId);
-  const tbody = document.getElementById('cuadre-detalle-tbody');
+  var vf = valesFinales.find(function(v){ return v.id === valeFinalSeleccionadoId; }) || (valesFinales.length > 0 ? valesFinales[0] : null);
+  var tbody = document.getElementById('cuadre-detalle-tbody');
   if (!tbody) return;
 
   if (!vf) {
-    tbody.innerHTML = '<tr><td colspan="7" class="p-6 text-center text-slate-500">Selecciona o guarda un Vale Final para ejecutar el cuadre.</td></tr>';
-    document.getElementById('cuadre-kpi-entradas').textContent = '0 uds';
-    document.getElementById('cuadre-kpi-ventas').textContent = '0 uds';
-    document.getElementById('cuadre-kpi-teorico').textContent = '0 uds';
-    document.getElementById('cuadre-kpi-real').textContent = '0 uds';
-    document.getElementById('cuadre-kpi-diferencia').textContent = '0 uds';
+    tbody.innerHTML = '<tr><td colspan="8" class="p-6 text-center text-slate-500">No se ha encontrado el Vale Final en el sistema. Registra o selecciona el vale final.</td></tr>';
     return;
   }
 
-  // Rango de fechas: Desde Fecha X hasta Fecha del Vale Final
-  const fechaDesde = (document.getElementById('cuadre-fecha-desde') ? document.getElementById('cuadre-fecha-desde').value : '') || '2026-10-01';
-  const fechaHasta = vf.fecha || new Date().toISOString().split('T')[0];
-
-  // 1. Sumar Entradas al Almacén por Variante Consolidada en el rango
-  const entradasMap = new Map();
-  let totalEntradasRango = 0;
-  let valesEntradaContados = new Set();
-
-  (sData.valesEntrada || []).forEach(ve => {
-    const fv = (ve.fecha || '').trim();
-    if (fv && (fv < fechaDesde || fv > fechaHasta)) return;
-    valesEntradaContados.add(ve.folio);
-
-    (ve.items || []).forEach(it => {
-      const cant = Number(it.cantidad || 0);
-      const resol = resolverProductoHiperInteligente(it.nombre, it.precioVenta || it.precioCompra || 0);
-      const key = resol.variante;
-      entradasMap.set(key, (entradasMap.get(key) || 0) + cant);
-      totalEntradasRango += cant;
-    });
+  // Filtrar exclusivamente los vales de entrada reales (excluyendo cualquier vale final que estuviera en la misma lista)
+  var valesEntradaReales = (sData.valesEntrada || []).filter(function(v){
+    return !v.folio || !v.folio.toUpperCase().includes('FINAL');
   });
 
-  // Si no hay vales de entrada fechados, usar lotesInventario como stock base inicial
-  if (totalEntradasRango === 0 && (sData.lotesInventario || []).length > 0) {
-    sData.lotesInventario.forEach(l => {
-      const fL = (l.fechaEntrada || '').trim();
-      if (fL && (fL < fechaDesde || fL > fechaHasta)) return;
-      const cant = Number(l.entradas || l.inicio || 0);
-      const resol = resolverProductoHiperInteligente(l.producto, l.precioVenta || 0);
-      const key = resol.variante;
-      entradasMap.set(key, (entradasMap.get(key) || 0) + cant);
-      totalEntradasRango += cant;
-      valesEntradaContados.add(l.folioVale || 'LOTE');
-    });
-  }
-
-  // 2. Sumar Ventas de Gestores por Variante Consolidada en el rango
-  const ventasMap = new Map();
-  let totalVentasRango = 0;
-  let valesGestoresContados = new Set();
-
-  if (datosGestores && datosGestores.vales) {
-    datosGestores.vales.forEach(vg => {
-      const fv = (vg.fecha || '').trim();
-      if (fv) {
-        const partes = fv.split('-');
-        if (partes.length === 3 && Number(partes[1]) > 12) return; // Excluir fecha inválida
-        if (fv < fechaDesde || fv > fechaHasta) return;
-      }
-      valesGestoresContados.add(vg.folio || vg.id);
-
-      (vg.items || []).forEach(it => {
-        const cant = Number(it.cantidad || 1);
-        const pV = Number(it.precioVenta || 0);
-        const resol = resolverProductoHiperInteligente(it.producto, pV);
-        const key = resol.variante;
-        ventasMap.set(key, (ventasMap.get(key) || 0) + cant);
-        totalVentasRango += cant;
-      });
-    });
-  }
-
-  // 3. Obtener Conteo Físico Real del Vale Final (100% Credibilidad)
-  const fisicoMap = new Map();
-  let totalFisicoReal = 0;
-
-  (vf.items || []).forEach(it => {
-    const key = it.varianteConsolidada || resolverProductoHiperInteligente(it.producto, it.precioRef || 0).variante;
-    const cant = Number(it.cantidadFisica || 0);
-    fisicoMap.set(key, (fisicoMap.get(key) || 0) + cant);
-    totalFisicoReal += cant;
-  });
-
-  // 4. Consolidar todas las variantes involucradas en el cuadre
-  const todasVariantes = Array.from(new Set([
-    ...Array.from(entradasMap.keys()),
-    ...Array.from(ventasMap.keys()),
-    ...Array.from(fisicoMap.keys())
-  ])).sort();
-
-  let totalTeoricoRango = 0;
-  let totalDiferenciaRango = 0;
-
-  const filasHtml = todasVariantes.map(variante => {
-    const entradas = entradasMap.get(variante) || 0;
-    const ventas = ventasMap.get(variante) || 0;
-    const teorico = entradas - ventas;
-    const fisicoReal = fisicoMap.has(variante) ? fisicoMap.get(variante) : 0;
-    const diferencia = fisicoReal - teorico; // (+) Sobrante | (-) Faltante
-
-    totalTeoricoRango += teorico;
-    totalDiferenciaRango += diferencia;
-
-    let estadoBadge = '';
-    if (diferencia === 0) {
-      estadoBadge = '<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/40">✓ CUADRADO EXACTO</span>';
-    } else if (diferencia > 0) {
-      estadoBadge = '<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-cyan-500/20 text-cyan-300 border border-cyan-500/40">+' + diferencia + ' SOBRANTE FÍSICO</span>';
-    } else {
-      estadoBadge = '<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-rose-500/20 text-rose-400 border border-rose-500/40">' + diferencia + ' FALTANTE FÍSICO</span>';
+  var balance = {};
+  function getSlot(nom) {
+    var key = normalizarNombreParaCuadre(nom);
+    if (!balance[key]) {
+      balance[key] = {
+        producto: key,
+        entradas: 0,
+        quedan: 0,
+        pCompraTotal: 0,
+        pVentaTotal: 0,
+        cantCompra: 0,
+        cantVenta: 0
+      };
     }
+    return balance[key];
+  }
 
-    const difColor = diferencia === 0 ? 'text-emerald-400' : (diferencia > 0 ? 'text-cyan-300' : 'text-rose-400');
-    const difSigno = diferencia > 0 ? '+' : '';
+  // 1. Acumular los 7 vales de entrada
+  valesEntradaReales.forEach(function(ve) {
+    (ve.items || []).forEach(function(it) {
+      var s = getSlot(it.nombre);
+      var cant = Number(it.cantidad || 0);
+      s.entradas += cant;
+      if (it.precioCompra) {
+        s.pCompraTotal += Number(it.precioCompra) * cant;
+        s.cantCompra += cant;
+      }
+      if (it.precioVenta) {
+        s.pVentaTotal += Number(it.precioVenta) * cant;
+        s.cantVenta += cant;
+      }
+    });
+  });
 
-    return '<tr class="hover:bg-slate-900 transition-colors">' +
-      '<td class="p-3 font-sans font-bold text-white text-xs">' + variante + '</td>' +
-      '<td class="p-3 text-center text-teal-300 font-bold">' + entradas + '</td>' +
-      '<td class="p-3 text-center text-amber-300 font-bold">' + ventas + '</td>' +
-      '<td class="p-3 text-center text-slate-300 bg-slate-900/40 font-bold">' + teorico + '</td>' +
-      '<td class="p-3 text-center text-purple-300 bg-purple-950/20 font-black text-sm">' + fisicoReal + '</td>' +
-      '<td class="p-3 text-center font-black text-sm ' + difColor + '">' + difSigno + diferencia + '</td>' +
-      '<td class="p-3 text-center">' + estadoBadge + '</td>' +
+  // 2. Acumular el conteo del Vale Final
+  (vf.items || []).forEach(function(it) {
+    var nom = it.producto || it.nombre;
+    var s = getSlot(nom);
+    var cant = Number(it.cantidadFisica !== undefined ? it.cantidadFisica : (it.cantidad || 0));
+    s.quedan += cant;
+    if (s.cantCompra === 0 && (it.precioCompra || it.precioRef)) {
+      s.pCompraTotal += Number(it.precioCompra || it.precioRef) * cant;
+      s.cantCompra += cant;
+    }
+    if (s.cantVenta === 0 && (it.precioVenta || it.precioRef)) {
+      s.pVentaTotal += Number(it.precioVenta || it.precioRef) * cant;
+      s.cantVenta += cant;
+    }
+  });
+
+  var totalEntradasUds = 0;
+  var totalQuedanUds = 0;
+  var totalVendidosUds = 0;
+  var totalVentaUSD = 0;
+  var totalCostoUSD = 0;
+  var totalGananciaUSD = 0;
+
+  var filas = Object.values(balance).map(function(b) {
+    var pCompraProm = b.cantCompra > 0 ? (b.pCompraTotal / b.cantCompra) : 0;
+    var pVentaProm = b.cantVenta > 0 ? (b.pVentaTotal / b.cantVenta) : 0;
+    var vendidos = Math.max(0, b.entradas - b.quedan);
+    var ventaUSD = vendidos * pVentaProm;
+    var costoUSD = vendidos * pCompraProm;
+    var gananciaUSD = ventaUSD - costoUSD;
+
+    totalEntradasUds += b.entradas;
+    totalQuedanUds += b.quedan;
+    totalVendidosUds += vendidos;
+    totalVentaUSD += ventaUSD;
+    totalCostoUSD += costoUSD;
+    totalGananciaUSD += gananciaUSD;
+
+    return {
+      producto: b.producto,
+      entradas: b.entradas,
+      quedan: b.quedan,
+      vendidos: vendidos,
+      pCompra: pCompraProm,
+      pVenta: pVentaProm,
+      gananciaUnit: pVentaProm - pCompraProm,
+      gananciaUSD: gananciaUSD
+    };
+  });
+
+  // Ordenar por ganancia total descendente
+  filas.sort(function(a,b){ return b.gananciaUSD - a.gananciaUSD; });
+
+  tbody.innerHTML = filas.map(function(r) {
+    var vendClass = r.vendidos > 0 ? 'text-amber-300 font-black text-sm' : 'text-slate-500 font-bold';
+    var ganClass = r.gananciaUSD > 0 ? 'text-emerald-400 font-black' : 'text-slate-500';
+    return '<tr class="hover:bg-slate-900 transition-colors border-b border-slate-800/60">' +
+      '<td class="p-3 font-sans font-bold text-white text-xs">' + r.producto + '</td>' +
+      '<td class="p-3 text-center text-teal-300 font-bold">' + r.entradas + '</td>' +
+      '<td class="p-3 text-center text-purple-300 bg-purple-950/20 font-bold">' + r.quedan + '</td>' +
+      '<td class="p-3 text-center ' + vendClass + '">' + r.vendidos + '</td>' +
+      '<td class="p-3 text-right text-slate-300">$' + r.pCompra.toFixed(2) + '</td>' +
+      '<td class="p-3 text-right text-slate-300">$' + r.pVenta.toFixed(2) + '</td>' +
+      '<td class="p-3 text-right text-emerald-400 font-semibold">$' + r.gananciaUnit.toFixed(2) + '</td>' +
+      '<td class="p-3 text-right ' + ganClass + ' bg-emerald-950/10">$' + r.gananciaUSD.toFixed(2) + '</td>' +
     '</tr>';
   }).join('');
 
-  tbody.innerHTML = filasHtml || '<tr><td colspan="7" class="p-6 text-center text-slate-500">Sin datos para cuadrar en este rango.</td></tr>';
+  // Actualizar KPIs superiores
+  var kpiEnt = document.getElementById('cuadre-kpi-entradas');
+  var kpiReal = document.getElementById('cuadre-kpi-real');
+  var kpiVen = document.getElementById('cuadre-kpi-ventas');
+  var kpiDif = document.getElementById('cuadre-kpi-diferencia');
+  var kpiTeo = document.getElementById('cuadre-kpi-teorico');
 
-  // 5. Actualizar KPIs del Cuadre
-  document.getElementById('cuadre-kpi-entradas').textContent = totalEntradasRango.toLocaleString('es-ES') + ' uds';
-  document.getElementById('cuadre-kpi-entradas-vales').textContent = valesEntradaContados.size + ' vales en rango';
+  if (kpiEnt) kpiEnt.textContent = totalEntradasUds.toLocaleString('es-ES') + ' uds';
+  if (kpiReal) kpiReal.textContent = totalQuedanUds.toLocaleString('es-ES') + ' uds';
+  if (kpiVen) kpiVen.textContent = totalVendidosUds.toLocaleString('es-ES') + ' equipos';
+  if (kpiDif) kpiDif.textContent = '$' + totalGananciaUSD.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' USD';
+  if (kpiTeo) kpiTeo.textContent = '$' + totalVentaUSD.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' USD';
 
-  document.getElementById('cuadre-kpi-ventas').textContent = totalVentasRango.toLocaleString('es-ES') + ' uds';
-  document.getElementById('cuadre-kpi-ventas-vales').textContent = valesGestoresContados.size + ' vales gestores';
-
-  document.getElementById('cuadre-kpi-teorico').textContent = totalTeoricoRango.toLocaleString('es-ES') + ' uds';
-
-  document.getElementById('cuadre-kpi-real').textContent = totalFisicoReal.toLocaleString('es-ES') + ' uds';
-
-  const difEl = document.getElementById('cuadre-kpi-diferencia');
-  const txtEstado = document.getElementById('cuadre-kpi-estado-texto');
-  const boxBal = document.getElementById('cuadre-box-balance');
-
-  if (totalDiferenciaRango === 0) {
-    difEl.textContent = '0 uds (Cuadrado)';
-    difEl.className = 'text-base font-black text-emerald-400 font-mono block mt-1';
-    txtEstado.textContent = 'Inventario Físico Coincide 100%';
-    if (boxBal) boxBal.className = 'bg-black border border-emerald-500/40 rounded-xl p-3 bg-emerald-950/10';
-  } else if (totalDiferenciaRango > 0) {
-    difEl.textContent = '+' + totalDiferenciaRango + ' uds (Sobrante)';
-    difEl.className = 'text-base font-black text-cyan-300 font-mono block mt-1';
-    txtEstado.textContent = 'Hay más mercancía física que la esperada';
-    if (boxBal) boxBal.className = 'bg-black border border-cyan-500/40 rounded-xl p-3 bg-cyan-950/10';
-  } else {
-    difEl.textContent = totalDiferenciaRango + ' uds (Faltante)';
-    difEl.className = 'text-base font-black text-rose-400 font-mono block mt-1';
-    txtEstado.textContent = 'Faltante respecto al cálculo teórico';
-    if (boxBal) boxBal.className = 'bg-black border border-rose-500/40 rounded-xl p-3 bg-rose-950/10';
-  }
+  var kpiEntVales = document.getElementById('cuadre-kpi-entradas-vales');
+  if (kpiEntVales) kpiEntVales.textContent = valesEntradaReales.length + ' vales de entrada';
 }
 
 function renderizarSeccionCuadre() {
