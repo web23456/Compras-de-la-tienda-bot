@@ -1,5 +1,5 @@
 {
-  "timestamp": 1795537078694,
+  "timestamp": 1795566811648,
   "gestores": [
     {
       "id": "G-1",
@@ -492,6 +492,151 @@
   ],
   "vales": [
     {
+      "id": "V-1795566298599-8jxlro",
+      "folio": "VAL-191997",
+      "fecha": "2026-11-24",
+      "semana": "2026-W47",
+      "moneda": "USD",
+      "gestorNombre": "Modesta Hernández",
+      "gestorTelefono": "56698547",
+      "clienteNombre": "0rlando",
+      "clienteCI": "",
+      "clienteTelefono": "",
+      "direccion": "𝐆𝐞𝐨𝐫𝐠𝐢𝐚 𝟏𝟎𝟏, 𝐞𝐧𝐭𝐫𝐞 𝐂𝐨𝐧𝐬𝐭𝐢𝐭𝐮𝐜𝐢ó𝐧 𝐲 𝐂𝐨𝐥𝐢𝐬𝐞𝐨, 𝐋𝐚 𝐏𝐚𝐥𝐦𝐚, 𝐀𝐫𝐫𝐨𝐲𝐨 𝐍𝐚𝐫𝐚𝐧𝐣𝐨.",
+      "rawTextoWhatsApp": "[24/11 10:01 a. m.] +53 5 6698547: 📝𝐅𝐚𝐜𝐭𝐮𝐫𝐚 𝐚 𝐥𝐥𝐞𝐧𝐚𝐫 𝐩𝐨𝐫 𝐥𝐨𝐬 𝐜𝐨𝐦𝐞𝐫𝐜𝐢𝐚𝐥𝐞𝐬 (𝐑𝐄𝐂𝐎𝐆𝐄𝐑 𝐄𝐍 𝐄𝐋 𝐋𝐎𝐂𝐀𝐋)\n\n🏪𝐅𝐞cha: 24/11\n🏪𝐍𝐨𝐦𝐛𝐫𝐞 𝐝𝐞𝐥 𝐂𝐥𝐢𝐞𝐧𝐭𝐞: 0rlando\n🏪#𝐃𝐞 𝐭𝐞𝐥é𝐟𝐨𝐧𝐨 𝐝𝐞𝐥 𝐂𝐥𝐢𝐞𝐧𝐭𝐞: 52909246\n🏪𝐏𝐞𝐝𝐢𝐝𝐨 juego de ollas de micropresión \n🏪𝐂𝐚𝐧𝐭𝐢𝐝𝐚𝐝:1\n🏪𝐏𝐫𝐞𝐜𝐢𝐨 𝐝𝐞𝐥 𝐚𝐫𝐭í𝐜𝐮𝐥𝐨:25 usd\n🏪𝐌é𝐭𝐨𝐝𝐨 𝐝𝐞 𝐩𝐚𝐠𝐨:usd\n🏪𝐓𝐨𝐭𝐚𝐥 𝐚 𝐑𝐞𝐜𝐨𝐠𝐞𝐫:25 usd\n🏪𝐕𝐚𝐥𝐨𝐫 𝐝𝐞𝐥 𝐝ó𝐥𝐚𝐫:\n🏪𝐍𝐨𝐦𝐛𝐫𝐞 𝐝𝐞𝐥 𝐜𝐨𝐦𝐞𝐫𝐜𝐢𝐚𝐥: Modesta Hernández \n🏪#𝐃𝐞 𝐭𝐞𝐥é𝐟𝐨𝐧𝐨 𝐝𝐞𝐥 𝐜𝐨𝐦𝐞𝐫𝐜𝐢𝐚𝐥:56698547\n🏪𝐃𝐞𝐬𝐜𝐨𝐧𝐭𝐚𝐫 𝐚𝐥 𝐠𝐞𝐬𝐭𝐨𝐫:\n\n📍𝐃𝐢𝐫𝐞𝐜𝐜𝐢ó𝐧 𝐝𝐞𝐥 𝐥𝐨𝐜𝐚𝐥:\n\n𝐆𝐞𝐨𝐫𝐠𝐢𝐚 𝟏𝟎𝟏, 𝐞𝐧𝐭𝐫𝐞 𝐂𝐨𝐧𝐬𝐭𝐢𝐭𝐮𝐜𝐢ó𝐧 𝐲 𝐂𝐨𝐥𝐢𝐬𝐞𝐨, 𝐋𝐚 𝐏𝐚𝐥𝐦𝐚, 𝐀𝐫𝐫𝐨𝐲𝐨 𝐍𝐚𝐫𝐚𝐧𝐣𝐨.\n\n📍𝐂ó𝐦𝐨 𝐥𝐥𝐞𝐠𝐚𝐫:\n\n𝐄𝐧 𝐞𝐥 𝐬𝐞𝐦á𝐟𝐨𝐫𝐨 𝐝𝐞 𝐋𝐚 𝐏𝐚𝐥𝐦𝐚 𝐜𝐨𝐠𝐞𝐬 𝐥𝐚 𝐂𝐚𝐥𝐳𝐚𝐝𝐚 𝐏𝐨𝐫𝐯𝐞𝐧𝐢𝐫 𝐲 𝐬𝐮𝐛𝐞𝐬 𝟐 𝐜𝐮𝐚𝐝𝐫𝐚𝐬 𝐡𝐚𝐬𝐭𝐚 𝐥𝐥𝐞𝐠𝐚𝐫 𝐚 𝐥𝐚 𝐭𝐢𝐞𝐧𝐝𝐚 𝐪𝐮𝐞 𝐡𝐚𝐜𝐞 𝐞𝐬𝐪𝐮𝐢𝐧𝐚. 𝐃𝐨𝐛𝐥𝐚𝐬 𝐚 𝐦𝐚𝐧𝐨 𝐝𝐞𝐫𝐞𝐜𝐡𝐚 (𝐞𝐧 𝐝𝐢𝐫𝐞𝐜𝐜𝐢ó𝐧 𝐚 𝐌𝐚𝐧𝐭𝐢𝐥𝐥𝐚) 𝐲 𝐬𝐮𝐛𝐞𝐬 𝟐 𝐜𝐮𝐚𝐝𝐫𝐚𝐬 𝐦á𝐬. 𝐄𝐬𝐭𝐚𝐦𝐨𝐬 𝐚𝐥 𝐟𝐫𝐞𝐧𝐭𝐞 𝐝𝐞 𝐮𝐧 𝐩𝐥𝐚𝐭𝐚𝐧𝐚𝐥, 𝐞𝐧 𝐮𝐧𝐚 𝐜𝐚𝐬𝐚 𝐞𝐧 𝐚𝐥𝐭𝐨.",
+      "items": [
+        {
+          "id": "it-tkhqvfs9n",
+          "producto": "Olla Reina Houslux",
+          "tipoEquipo": "Pequeño",
+          "cantidad": 1,
+          "precioVenta": 47,
+          "comisionUnitCUP": 1500,
+          "comisionTotalCUP": 1500
+        }
+      ],
+      "totalVenta": 47,
+      "granComisionCUP": 1500,
+      "estadoComision": "PENDIENTE",
+      "createdAt": 1795566298599
+    },
+    {
+      "id": "V-1795566298599-m99dq8",
+      "folio": "VAL-254902",
+      "fecha": "2026-11-24",
+      "semana": "2026-W47",
+      "moneda": "USD",
+      "gestorNombre": "Odelvis Rodríguez Ginarte",
+      "gestorTelefono": "50174223",
+      "clienteNombre": "Marisleidys",
+      "clienteCI": "",
+      "clienteTelefono": "54102704",
+      "direccion": "San Quintín 514 entre Cerezo y Macedonia (Cerro)",
+      "rawTextoWhatsApp": "[23/11 6:17 p. m.] +53 5 0174223: 📝𝐅𝐚𝐜𝐭𝐮𝐫𝐚 𝐚 𝐥𝐥𝐞𝐧𝐚𝐫 𝐩𝐨𝐫 𝐥𝐨𝐬 𝐠𝐞𝐬𝐭𝐨𝐫𝐞𝐬 (𝐌𝐞𝐧𝐬𝐚𝐣𝐞𝐫í𝐚)\n\n🪀𝐅𝐞𝐜𝐡𝐚:24/11\n🪀𝐍𝐨𝐦𝐛𝐫𝐞 𝐝𝐞𝐥 𝐂𝐥𝐢𝐞𝐧𝐭𝐞:Marisleidys\n🪀𝐂𝐈:\n🪀𝐓𝐞𝐥é𝐟𝐨𝐧𝐨 𝐝𝐞𝐥 𝐂𝐥𝐢𝐞𝐧𝐭𝐞:54102704\n🪀𝐃𝐢𝐫𝐞𝐜𝐜𝐢ó𝐧 𝐝𝐞𝐥 𝐂𝐥𝐢𝐞𝐧𝐭𝐞: San Quintín 514 entre Cerezo y Macedonia (*Cerro*)\n🪀𝐏𝐞𝐝𝐢𝐝𝐨:  Olla de presión 6L\n🪀𝐂𝐚𝐧𝐭𝐢𝐝𝐚𝐝:1\n🪀𝐏𝐫𝐞𝐜𝐢𝐨 𝐝𝐞𝐥 𝐚𝐫𝐭í𝐜𝐮𝐥𝐨: 28USD\n🪀𝐌é𝐭𝐨𝐝𝐨 𝐝𝐞 𝐩𝐚𝐠𝐨: USD\n🪀𝐏𝐫𝐞𝐜𝐢𝐨 𝐝𝐞 𝐥𝐚 𝐦𝐞𝐧𝐬𝐚𝐣𝐞𝐫í𝐚: 1900\n🪀𝐓𝐨𝐭𝐚𝐥 𝐚 𝐑𝐞𝐜𝐨𝐠𝐞𝐫: 30USD + 1900\n🪀𝐃𝐢𝐧𝐞𝐫𝐨 𝐚 𝐝𝐞𝐯𝐨𝐥𝐯𝐞𝐫: 2USD\n🪀𝐕𝐚𝐥𝐨𝐫 𝐝𝐞𝐥 𝐝ó𝐥𝐚𝐫:\n🪀𝐍𝐨𝐦𝐛𝐫𝐞 𝐝𝐞𝐥 𝐠𝐞𝐬𝐭𝐨𝐫: Odelvis Rodríguez Ginarte \n🪀#𝐃𝐞 𝐭𝐞𝐥é𝐟𝐨𝐧𝐨 𝐝𝐞𝐥 𝐠𝐞𝐬𝐭𝐨𝐫:50174223\n🪀𝐃𝐞𝐬𝐜𝐨𝐧𝐭𝐚𝐫 𝐚𝐥 𝐠𝐞𝐬𝐭𝐨𝐫: 𝐍𝐨",
+      "items": [
+        {
+          "id": "it-as371ora",
+          "producto": "Olla de presión 6L",
+          "cantidad": 1,
+          "tipoEquipo": "Pequeño",
+          "precioVenta": 28,
+          "comisionUnitCUP": 1500,
+          "comisionTotalCUP": 1500
+        }
+      ],
+      "totalVenta": 28,
+      "granComisionCUP": 1500,
+      "estadoComision": "PENDIENTE",
+      "createdAt": 1795566298599
+    },
+    {
+      "id": "V-1795555632583-8pmkj4",
+      "folio": "VAL-574761",
+      "fecha": "2026-11-13",
+      "semana": "2026-W45",
+      "moneda": "USD",
+      "gestorNombre": "Adriana",
+      "gestorTelefono": "53475847",
+      "clienteNombre": "Liliana",
+      "clienteCI": "",
+      "clienteTelefono": "",
+      "direccion": "",
+      "rawTextoWhatsApp": "[24/11 4:21 p. m.] Mi Amor: 📝*𝐅𝐚𝐜𝐭𝐮𝐫𝐚 𝐚 𝐥𝐥𝐞𝐧𝐚𝐫 𝐩𝐨𝐫 𝐥𝐨𝐬 comercial* *(RECOGER EN EL LOCAL)*\n🩵 *𝐅𝐞𝐜𝐡𝐚*: 13/11/2026\n🩵 *Nombre del Cliente*: Liliana \n🩵 *#De teléfono del Cliente* 50750697\n🩵 *𝐏𝐞𝐝𝐢𝐝𝐨*: Plancha\n🩵 *𝐂𝐚𝐧𝐭𝐢𝐝𝐚𝐝*: 1\n🩵 *𝐏𝐫𝐞𝐜𝐢𝐨 𝐝𝐞𝐥 𝐚𝐫𝐭í𝐜𝐮𝐥𝐨*: $ 15 USD\n🩵 *𝐌é𝐭𝐨𝐝𝐨 𝐝𝐞 𝐩𝐚𝐠𝐨*: Efectivo en USD\n🩵 *𝐓𝐨𝐭𝐚𝐥 𝐚 𝐑𝐞𝐜𝐨𝐣𝐞𝐫*: $ 1.500 cup\n🩵 *𝐍𝐨𝐦𝐛𝐫𝐞 𝐝𝐞𝐥 comercial*:Adriana \n🩵 *# De teléfono del comercial: 53475847",
+      "items": [
+        {
+          "id": "it-wsbe14gm",
+          "producto": "plancha",
+          "cantidad": 1,
+          "tipoEquipo": "Pequeño",
+          "precioVenta": 15,
+          "comisionUnitCUP": 1500,
+          "comisionTotalCUP": 1500
+        }
+      ],
+      "totalVenta": 15,
+      "granComisionCUP": 1500,
+      "estadoComision": "PAGADA",
+      "createdAt": 1795555632583
+    },
+    {
+      "id": "V-1795555632583-ydd83o",
+      "folio": "VAL-840826",
+      "fecha": "2026-11-22",
+      "semana": "2026-W46",
+      "moneda": "USD",
+      "gestorNombre": "Adriana",
+      "gestorTelefono": "53475847",
+      "clienteNombre": "Hairon",
+      "clienteCI": "",
+      "clienteTelefono": "",
+      "direccion": "",
+      "rawTextoWhatsApp": "[24/11 4:21 p. m.] Mi Amor: 📝*𝐅𝐚𝐜𝐭𝐮𝐫𝐚 𝐚 𝐥𝐥𝐞𝐧𝐚𝐫 𝐩𝐨𝐫 𝐥𝐨𝐬 comercial* *(RECOGER EN EL LOCAL)*\n🩵 *𝐅𝐞𝐜𝐡𝐚*: 22/11/2026\n🩵 *Nombre del Cliente*: Hairon \n🩵 *#De teléfono del Cliente* 53507838\n🩵 *𝐏𝐞𝐝𝐢𝐝𝐨*: ventilador f6\n🩵 *𝐂𝐚𝐧𝐭𝐢𝐝𝐚𝐝*: 1\n🩵 *𝐏𝐫𝐞𝐜𝐢𝐨 𝐝𝐞𝐥 𝐚𝐫𝐭í𝐜𝐮𝐥𝐨*: $ 37 USD\n🩵 *𝐌é𝐭𝐨𝐝𝐨 𝐝𝐞 𝐩𝐚𝐠𝐨*: Efectivo en USD\n🩵 *𝐓𝐨𝐭𝐚𝐥 𝐚 𝐑𝐞𝐜𝐨𝐣𝐞𝐫*: $ 1.500 cup\n🩵 *𝐍𝐨𝐦𝐛𝐫𝐞 𝐝𝐞𝐥 comercial*:Adriana \n🩵 *# De teléfono del comercial: 53475847",
+      "items": [
+        {
+          "id": "it-iav8ci3p",
+          "producto": "ventilador f6",
+          "cantidad": 1,
+          "tipoEquipo": "Pequeño",
+          "precioVenta": 37,
+          "comisionUnitCUP": 1500,
+          "comisionTotalCUP": 1500
+        }
+      ],
+      "totalVenta": 37,
+      "granComisionCUP": 1500,
+      "estadoComision": "PENDIENTE",
+      "createdAt": 1795555632583
+    },
+    {
+      "id": "V-1795553827078-vbwigr",
+      "folio": "VAL-819461",
+      "fecha": "2026-11-17",
+      "semana": "2026-W46",
+      "moneda": "USD",
+      "gestorNombre": "Adriana",
+      "gestorTelefono": "53475847",
+      "clienteNombre": "Zaida",
+      "clienteCI": "",
+      "clienteTelefono": "",
+      "direccion": "",
+      "rawTextoWhatsApp": "📝*𝐅𝐚𝐜𝐭𝐮𝐫𝐚 𝐚 𝐥𝐥𝐞𝐧𝐚𝐫 𝐩𝐨𝐫 𝐥𝐨𝐬 comercial* *(RECOGER EN EL LOCAL)*\n🩵 *𝐅𝐞𝐜𝐡𝐚*: 17/11/2026\n🩵 *Nombre del Cliente*: Zaida\n🩵 *#De teléfono del Cliente* 50100284\n🩵 *𝐏𝐞𝐝𝐢𝐝𝐨*: Plancha\n🩵 *𝐂𝐚𝐧𝐭𝐢𝐝𝐚𝐝*: 1\n🩵 *𝐏𝐫𝐞𝐜𝐢𝐨 𝐝𝐞𝐥 𝐚𝐫𝐭í𝐜𝐮𝐥𝐨*: $ 15 USD\n🩵 *𝐌é𝐭𝐨𝐝𝐨 𝐝𝐞 𝐩𝐚𝐠𝐨*: Efectivo en USD\n🩵 *𝐓𝐨𝐭𝐚𝐥 𝐚 𝐑𝐞𝐜𝐨𝐣𝐞𝐫*: $ 1.500 cup\n🩵 *𝐍𝐨𝐦𝐛𝐫𝐞 𝐝𝐞𝐥 comercial*:Adriana \n🩵 *# De teléfono del comercial: 53475847",
+      "items": [
+        {
+          "id": "it-bf23ea39",
+          "producto": "plancha",
+          "cantidad": 1,
+          "tipoEquipo": "Pequeño",
+          "precioVenta": 15,
+          "comisionUnitCUP": 1500,
+          "comisionTotalCUP": 1500
+        }
+      ],
+      "totalVenta": 15,
+      "granComisionCUP": 1500,
+      "estadoComision": "PAGADA",
+      "createdAt": 1795553827078
+    },
+    {
       "id": "V-1795496128069-xteu8c",
       "folio": "VAL-399875",
       "fecha": "2026-11-23",
@@ -643,7 +788,7 @@
       ],
       "totalVenta": 37,
       "granComisionCUP": 1500,
-      "estadoComision": "PENDIENTE",
+      "estadoComision": "PAGADA",
       "createdAt": 1795496128069
     },
     {
@@ -893,7 +1038,7 @@
       ],
       "totalVenta": 80,
       "granComisionCUP": 3000,
-      "estadoComision": "PENDIENTE",
+      "estadoComision": "PAGADA",
       "createdAt": 1795496128067
     },
     {
@@ -1330,7 +1475,7 @@
       ],
       "totalVenta": 111,
       "granComisionCUP": 4500,
-      "estadoComision": "PENDIENTE",
+      "estadoComision": "PAGADA",
       "createdAt": 1795408295686
     },
     {
@@ -1658,7 +1803,7 @@
       ],
       "totalVenta": 33,
       "granComisionCUP": 1500,
-      "estadoComision": "PENDIENTE",
+      "estadoComision": "PAGADA",
       "createdAt": 1795408295680
     },
     {
@@ -1687,7 +1832,7 @@
       ],
       "totalVenta": 240,
       "granComisionCUP": 12000,
-      "estadoComision": "PENDIENTE",
+      "estadoComision": "PAGADA",
       "createdAt": 1795294802957
     },
     {
@@ -1841,7 +1986,7 @@
       ],
       "totalVenta": 190,
       "granComisionCUP": 9000,
-      "estadoComision": "PENDIENTE",
+      "estadoComision": "PAGADA",
       "createdAt": 1795194138009
     },
     {
@@ -2031,7 +2176,7 @@
       ],
       "totalVenta": 31,
       "granComisionCUP": 1500,
-      "estadoComision": "PENDIENTE",
+      "estadoComision": "PAGADA",
       "createdAt": 1795194138008
     },
     {
@@ -2200,7 +2345,7 @@
       ],
       "totalVenta": 25,
       "granComisionCUP": 1500,
-      "estadoComision": "PENDIENTE",
+      "estadoComision": "PAGADA",
       "createdAt": 1795194138007
     },
     {
@@ -2691,7 +2836,7 @@
       ],
       "totalVenta": 25,
       "granComisionCUP": 1500,
-      "estadoComision": "PENDIENTE",
+      "estadoComision": "PAGADA",
       "createdAt": 1795065492124
     },
     {
@@ -3113,7 +3258,7 @@
       ],
       "totalVenta": 37,
       "granComisionCUP": 0,
-      "estadoComision": "PENDIENTE",
+      "estadoComision": "PAGADA",
       "createdAt": 1794979007122,
       "descuentoGestor": {
         "monto": 1500,
@@ -3992,7 +4137,7 @@
       ],
       "totalVenta": 35,
       "granComisionCUP": 1500,
-      "estadoComision": "PENDIENTE",
+      "estadoComision": "PAGADA",
       "createdAt": 1794803596297
     },
     {
@@ -5053,35 +5198,6 @@
       "createdAt": 1794675515163
     },
     {
-      "id": "V-1794675515162-gc7vum",
-      "folio": "VAL-693111",
-      "fecha": "2026-11-13",
-      "semana": "2026-W45",
-      "moneda": "USD",
-      "gestorNombre": "Adriana",
-      "gestorTelefono": "53475847",
-      "clienteNombre": "Liliana",
-      "clienteCI": "",
-      "clienteTelefono": "",
-      "direccion": "",
-      "rawTextoWhatsApp": "[13/11 1:29 p. m.] Mi Amor: 📝*𝐅𝐚𝐜𝐭𝐮𝐫𝐚 𝐚 𝐥𝐥𝐞𝐧𝐚𝐫 𝐩𝐨𝐫 𝐥𝐨𝐬 comercial* *(RECOGER EN EL LOCAL)*\n🩵 *𝐅𝐞𝐜𝐡𝐚*: 13/11/2026\n🩵 *Nombre del Cliente*: Liliana \n🩵 *#De teléfono del Cliente* 50750697\n🩵 *𝐏𝐞𝐝𝐢𝐝𝐨*: Plancha\n🩵 *𝐂𝐚𝐧𝐭𝐢𝐝𝐚𝐝*: 1\n🩵 *𝐏𝐫𝐞𝐜𝐢𝐨 𝐝𝐞𝐥 𝐚𝐫𝐭í𝐜𝐮𝐥𝐨*: $ 15 USD\n🩵 *𝐌é𝐭𝐨𝐝𝐨 𝐝𝐞 𝐩𝐚𝐠𝐨*: Efectivo en USD\n🩵 *𝐓𝐨𝐭𝐚𝐥 𝐚 𝐑𝐞𝐜𝐨𝐣𝐞𝐫*: $ 1.500 cup\n🩵 *𝐍𝐨𝐦𝐛𝐫𝐞 𝐝𝐞𝐥 comercial*:Adriana \n🩵 *# De teléfono del comercial: 53475847",
-      "items": [
-        {
-          "id": "it-xs7urgc7",
-          "producto": "Plancha",
-          "cantidad": 1,
-          "tipoEquipo": "Pequeño",
-          "precioVenta": 15,
-          "comisionUnitCUP": 1500,
-          "comisionTotalCUP": 1500
-        }
-      ],
-      "totalVenta": 15,
-      "granComisionCUP": 1500,
-      "estadoComision": "PENDIENTE",
-      "createdAt": 1794675515162
-    },
-    {
       "id": "V-1794675515162-7tsi1x",
       "folio": "VAL-736502",
       "fecha": "2026-11-13",
@@ -5192,7 +5308,7 @@
       ],
       "totalVenta": 35,
       "granComisionCUP": 1500,
-      "estadoComision": "PENDIENTE",
+      "estadoComision": "PAGADA",
       "createdAt": 1794675515162
     },
     {
@@ -5456,62 +5572,6 @@
       "createdAt": 1794675515162
     },
     {
-      "id": "V-1794675515162-2mmab7",
-      "folio": "VAL-340252",
-      "fecha": "2026-11-10",
-      "semana": "2026-W45",
-      "moneda": "USD",
-      "gestorNombre": "Adriana",
-      "gestorTelefono": "53475847",
-      "clienteNombre": "Amigos de Rosy",
-      "clienteCI": "",
-      "clienteTelefono": "54100518",
-      "direccion": "Georgia 101 entre constitución y coliseo la palma arroyó naranjo",
-      "rawTextoWhatsApp": "[10/11 2:41 p. m.] Mi Amor: 📝*𝐅𝐚𝐜𝐭𝐮𝐫𝐚 𝐚 𝐥𝐥𝐞𝐧𝐚𝐫 𝐩𝐨𝐫 𝐥𝐨𝐬 comercial* *(RECOGER EN EL LOCAL)*\n🩵 *𝐅𝐞𝐜𝐡𝐚*: 10/11/2026\n🩵 *Nombre del Cliente*: Amigos de Rosy\n🩵 *#De teléfono del Cliente*: 54100518\n🩵 *𝐏𝐞𝐝𝐢𝐝𝐨*: Ventiladores de pared \n🩵 *𝐂𝐚𝐧𝐭𝐢𝐝𝐚𝐝*: 1\n🩵 *𝐏𝐫𝐞𝐜𝐢𝐨 𝐝𝐞𝐥 𝐚𝐫𝐭í𝐜𝐮𝐥𝐨*: $ 30USD \n🩵 *𝐌é𝐭𝐨𝐝𝐨 𝐝𝐞 𝐩𝐚𝐠𝐨*: Efectivo en USD\n🩵 *𝐓𝐨𝐭𝐚𝐥 𝐚 𝐑𝐞𝐜𝐨𝐣𝐞𝐫*: $ 1.500 cup\n🩵 *𝐍𝐨𝐦𝐛𝐫𝐞 𝐝𝐞𝐥 comercial*:Adriana \n🩵 *# De teléfono del comercial: 53475847\n[10/11 2:48 p. m.] Mi Amor: 📝*𝐅𝐚𝐜𝐭𝐮𝐫𝐚  *(RECOGER EN EL LOCAL)*\n🩵 *𝐅𝐞𝐜𝐡𝐚*: 10/11/26\n🩵 *Nombre del Cliente*: Odet Castro\n🩵 *#De teléfono del Cliente*: 55002268\n🩵 *𝐏𝐞𝐝𝐢𝐝𝐨*: Olla arrocera y olla Reina RCA y freidora de aire\n🩵 *𝐂𝐚𝐧𝐭𝐢𝐝𝐚𝐝*: 1 , 1 y 1\n🩵 *𝐏𝐫𝐞𝐜𝐢𝐨 𝐝𝐞𝐥 𝐚𝐫𝐭í𝐜𝐮𝐥𝐨*: 27 ,52 y 48usd\n🩵 *𝐌é𝐭𝐨𝐝𝐨 𝐝𝐞 𝐩𝐚𝐠𝐨*: usd\n🩵 *𝐓𝐨𝐭𝐚𝐥 𝐚 𝐑𝐞𝐜𝐨g𝐞𝐫*: 127 usd\n🩵 *𝐍𝐨𝐦𝐛𝐫𝐞 𝐝𝐞𝐥 comercial*: Rosa Beatriz \n🩵 *# De teléfono del comercial: 58943741\n\nLa direcciones Georgia 101 entre constitución y coliseo la palma arroyó naranjo\n\nEn el semaforo de la palma cojes la calzada porvenir y subes 2 cuadras hasta llegar a la tienda que hace esquina y dobla mano derecha (en dirección a mantilla) y subes dos cuadras para arriba al frente de un platanar casa en alto",
-      "items": [
-        {
-          "id": "it-xhco503m",
-          "producto": "Ventiladores de pared",
-          "cantidad": 1,
-          "tipoEquipo": "Pequeño",
-          "precioVenta": 30,
-          "comisionUnitCUP": 1500,
-          "comisionTotalCUP": 1500
-        },
-        {
-          "id": "it-5z60cman",
-          "producto": "Olla arrocera",
-          "cantidad": 1,
-          "tipoEquipo": "Pequeño",
-          "precioVenta": 27,
-          "comisionUnitCUP": 1500,
-          "comisionTotalCUP": 1500
-        },
-        {
-          "id": "it-ew88mjyx",
-          "producto": "olla Reina RCA",
-          "cantidad": 1,
-          "tipoEquipo": "Pequeño",
-          "precioVenta": 52,
-          "comisionUnitCUP": 1500,
-          "comisionTotalCUP": 1500
-        },
-        {
-          "id": "it-vxpq8jgq",
-          "producto": "freidora de aire",
-          "cantidad": 1,
-          "tipoEquipo": "Pequeño",
-          "precioVenta": 48,
-          "comisionUnitCUP": 1500,
-          "comisionTotalCUP": 1500
-        }
-      ],
-      "totalVenta": 157,
-      "granComisionCUP": 6000,
-      "estadoComision": "PENDIENTE",
-      "createdAt": 1794675515162
-    },
-    {
       "id": "V-1794675515162-joy1rk",
       "folio": "VAL-497278",
       "fecha": "2026-11-10",
@@ -5537,7 +5597,7 @@
       ],
       "totalVenta": 90,
       "granComisionCUP": 4500,
-      "estadoComision": "PENDIENTE",
+      "estadoComision": "PAGADA",
       "createdAt": 1794675515162
     },
     {
@@ -5566,7 +5626,7 @@
       ],
       "totalVenta": 52,
       "granComisionCUP": 1500,
-      "estadoComision": "PENDIENTE",
+      "estadoComision": "PAGADA",
       "createdAt": 1794675515162
     },
     {
@@ -5840,35 +5900,6 @@
       "createdAt": 1794664591521
     },
     {
-      "id": "V-1794664591521-bnwq5v",
-      "folio": "VAL-832830",
-      "fecha": "2026-11-13",
-      "semana": "2026-W45",
-      "moneda": "USD",
-      "gestorNombre": "Adriana",
-      "gestorTelefono": "53475847",
-      "clienteNombre": "Cliente Sin Nombre",
-      "clienteCI": "",
-      "clienteTelefono": "",
-      "direccion": "",
-      "rawTextoWhatsApp": "[13/11 1:29 p. m.] Mi Amor: 📝*𝐅𝐚𝐜𝐭𝐮𝐫𝐚 𝐚 𝐥𝐥𝐞𝐧𝐚𝐫 𝐩𝐨𝐫 𝐥𝐨𝐬 comercial* *(RECOGER EN EL LOCAL)*\n🩵 *𝐅𝐞𝐜𝐡𝐚*: 13/11/2026\n🩵 *Nombre del Cliente*: Liliana \n🩵 *#De teléfono del Cliente* 50750697\n🩵 *𝐏𝐞𝐝𝐢𝐝𝐨*: Plancha\n🩵 *𝐂𝐚𝐧𝐭𝐢𝐝𝐚𝐝*: 1\n🩵 *𝐏𝐫𝐞𝐜𝐢𝐨 𝐝𝐞𝐥 𝐚𝐫𝐭í𝐜𝐮𝐥𝐨*: $ 15 USD\n🩵 *𝐌é𝐭𝐨𝐝𝐨 𝐝𝐞 𝐩𝐚𝐠𝐨*: Efectivo en USD\n🩵 *𝐓𝐨𝐭𝐚𝐥 𝐚 𝐑𝐞𝐜𝐨𝐣𝐞𝐫*: $ 1.500 cup\n🩵 *𝐍𝐨𝐦𝐛𝐫𝐞 𝐝𝐞𝐥 comercial*:Adriana \n🩵 *# De teléfono del comercial: 53475847",
-      "items": [
-        {
-          "id": "it-0141zr256",
-          "producto": "Olla Reina Houslux",
-          "tipoEquipo": "Pequeño",
-          "cantidad": 1,
-          "precioVenta": 47,
-          "comisionUnitCUP": 1500,
-          "comisionTotalCUP": 1500
-        }
-      ],
-      "totalVenta": 47,
-      "granComisionCUP": 1500,
-      "estadoComision": "PENDIENTE",
-      "createdAt": 1794664591521
-    },
-    {
       "id": "V-1794664591521-sytz22",
       "folio": "VAL-599748",
       "fecha": "2026-11-13",
@@ -6074,35 +6105,6 @@
       "totalVenta": 37,
       "granComisionCUP": 1500,
       "estadoComision": "PAGADA",
-      "createdAt": 1794664591520
-    },
-    {
-      "id": "V-1794664591520-p874p1",
-      "folio": "VAL-795711",
-      "fecha": "2026-11-12",
-      "semana": "2026-W45",
-      "moneda": "USD",
-      "gestorNombre": "Adriana",
-      "gestorTelefono": "53475847",
-      "clienteNombre": "Cliente Sin Nombre",
-      "clienteCI": "",
-      "clienteTelefono": "",
-      "direccion": "",
-      "rawTextoWhatsApp": "[12/11 7:49 p. m.] Mi Amor: 📝*𝐅𝐚𝐜𝐭𝐮𝐫𝐚 𝐚 𝐥𝐥𝐞𝐧𝐚𝐫 𝐩𝐨𝐫 𝐥𝐨𝐬 comercial* *(RECOGER EN EL LOCAL)*\n🩵 *𝐅𝐞𝐜𝐡𝐚*: 13/11/2026\n🩵 *Nombre del Cliente*: Catalina \n🩵 *#De teléfono del Cliente*:53743576\n🩵 *𝐏𝐞𝐝𝐢𝐝𝐨*: cocina infrarroja Garuda \n🩵 *𝐂𝐚𝐧𝐭𝐢𝐝𝐚𝐝*: 1\n🩵 *𝐏𝐫𝐞𝐜𝐢𝐨 𝐝𝐞𝐥 𝐚𝐫𝐭í𝐜𝐮𝐥𝐨*: $ 35 USD \n🩵 *𝐌é𝐭𝐨𝐝𝐨 𝐝𝐞 𝐩𝐚𝐠𝐨*: Efectivo en USD\n🩵 *𝐓𝐨𝐭𝐚𝐥 𝐚 𝐑𝐞𝐜𝐨𝐣𝐞𝐫*: $ 1.500 cup\n🩵 *𝐍𝐨𝐦𝐛𝐫𝐞 𝐝𝐞𝐥 comercial*:Adriana \n🩵 *# De teléfono del comercial: 53475847",
-      "items": [
-        {
-          "id": "it-fjzfnr60o",
-          "producto": "Olla Reina Houslux",
-          "tipoEquipo": "Pequeño",
-          "cantidad": 1,
-          "precioVenta": 47,
-          "comisionUnitCUP": 1500,
-          "comisionTotalCUP": 1500
-        }
-      ],
-      "totalVenta": 47,
-      "granComisionCUP": 1500,
-      "estadoComision": "PENDIENTE",
       "createdAt": 1794664591520
     },
     {
@@ -6953,35 +6955,6 @@
       "items": [
         {
           "id": "it-qre5ael1x",
-          "producto": "Olla Reina Houslux",
-          "tipoEquipo": "Pequeño",
-          "cantidad": 1,
-          "precioVenta": 47,
-          "comisionUnitCUP": 1500,
-          "comisionTotalCUP": 1500
-        }
-      ],
-      "totalVenta": 47,
-      "granComisionCUP": 1500,
-      "estadoComision": "PENDIENTE",
-      "createdAt": 1794664591517
-    },
-    {
-      "id": "V-1794664591517-gh7x4f",
-      "folio": "VAL-980730",
-      "fecha": "2026-11-10",
-      "semana": "2026-W45",
-      "moneda": "USD",
-      "gestorNombre": "Adriana",
-      "gestorTelefono": "53475847",
-      "clienteNombre": "Cliente Sin Nombre",
-      "clienteCI": "",
-      "clienteTelefono": "",
-      "direccion": "",
-      "rawTextoWhatsApp": "[10/11 2:41 p. m.] Mi Amor: 📝*𝐅𝐚𝐜𝐭𝐮𝐫𝐚 𝐚 𝐥𝐥𝐞𝐧𝐚𝐫 𝐩𝐨𝐫 𝐥𝐨𝐬 comercial* *(RECOGER EN EL LOCAL)*\n🩵 *𝐅𝐞𝐜𝐡𝐚*: 10/11/2026\n🩵 *Nombre del Cliente*: Amigos de Rosy\n🩵 *#De teléfono del Cliente*: 54100518\n🩵 *𝐏𝐞𝐝𝐢𝐝𝐨*: Ventiladores de pared \n🩵 *𝐂𝐚𝐧𝐭𝐢𝐝𝐚𝐝*: 1\n🩵 *𝐏𝐫𝐞𝐜𝐢𝐨 𝐝𝐞𝐥 𝐚𝐫𝐭í𝐜𝐮𝐥𝐨*: $ 30USD \n🩵 *𝐌é𝐭𝐨𝐝𝐨 𝐝𝐞 𝐩𝐚𝐠𝐨*: Efectivo en USD\n🩵 *𝐓𝐨𝐭𝐚𝐥 𝐚 𝐑𝐞𝐜𝐨𝐣𝐞𝐫*: $ 1.500 cup\n🩵 *𝐍𝐨𝐦𝐛𝐫𝐞 𝐝𝐞𝐥 comercial*:Adriana \n🩵 *# De teléfono del comercial: 53475847\n[10/11 2:48 p. m.] Mi Amor: 📝*𝐅𝐚𝐜𝐭𝐮𝐫𝐚  *(RECOGER EN EL LOCAL)*\n🩵 *𝐅𝐞𝐜𝐡𝐚*: 10/11/26\n🩵 *Nombre del Cliente*: Odet Castro\n🩵 *#De teléfono del Cliente*: 55002268\n🩵 *𝐏𝐞𝐝𝐢𝐝𝐨*: Olla arrocera y olla Reina RCA y freidora de aire\n🩵 *𝐂𝐚𝐧𝐭𝐢𝐝𝐚𝐝*: 1 , 1 y 1\n🩵 *𝐏𝐫𝐞𝐜𝐢𝐨 𝐝𝐞𝐥 𝐚𝐫𝐭í𝐜𝐮𝐥𝐨*: 27 ,52 y 48usd\n🩵 *𝐌é𝐭𝐨𝐝𝐨 𝐝𝐞 𝐩𝐚𝐠𝐨*: usd\n🩵 *𝐓𝐨𝐭𝐚𝐥 𝐚 𝐑𝐞𝐜𝐨g𝐞𝐫*: 127 usd\n🩵 *𝐍𝐨𝐦𝐛𝐫𝐞 𝐝𝐞𝐥 comercial*: Rosa Beatriz \n🩵 *# De teléfono del comercial: 58943741\n\nLa direcciones Georgia 101 entre constitución y coliseo la palma arroyó naranjo\n\nEn el semaforo de la palma cojes la calzada porvenir y subes 2 cuadras hasta llegar a la tienda que hace esquina y dobla mano derecha (en dirección a mantilla) y subes dos cuadras para arriba al frente de un platanar casa en alto",
-      "items": [
-        {
-          "id": "it-b8eoqrl6b",
           "producto": "Olla Reina Houslux",
           "tipoEquipo": "Pequeño",
           "cantidad": 1,
@@ -8248,7 +8221,7 @@
       ],
       "totalVenta": 25,
       "granComisionCUP": 1500,
-      "estadoComision": "PENDIENTE",
+      "estadoComision": "PAGADA",
       "createdAt": 1794277992137
     },
     {
@@ -8515,7 +8488,7 @@
       ],
       "totalVenta": 46,
       "granComisionCUP": 1500,
-      "estadoComision": "PENDIENTE",
+      "estadoComision": "PAGADA",
       "createdAt": 1794277992128
     },
     {
@@ -14547,7 +14520,7 @@
       "createdAt": 1792294625637
     }
   ],
-  "semanaActiva": "2026-W45",
+  "semanaActiva": "2026-W47",
   "config": {
     "comisionPequeno": 1500,
     "comisionGrande": 2500,
@@ -14717,6 +14690,90 @@
       "montoPagado": 4500,
       "estado": "PAGADA",
       "fechaPago": "2026-11-24T15:53:56.161Z"
+    },
+    "lisney daniela colas nelson__2026-W46": {
+      "gestorNombre": "Lisney Daniela Colas Nelson",
+      "semana": "2026-W46",
+      "montoPagado": 1500,
+      "estado": "PAGADA",
+      "fechaPago": "2026-11-24T20:47:01.627Z"
+    },
+    "odelvis rodríguez ginarte__2026-W44": {
+      "gestorNombre": "Odelvis Rodríguez Ginarte",
+      "semana": "2026-W44",
+      "montoPagado": 3000,
+      "estado": "PAGADA",
+      "fechaPago": "2026-11-24T20:47:41.614Z"
+    },
+    "odelvis rodríguez ginarte__2026-W46": {
+      "gestorNombre": "Odelvis Rodríguez Ginarte",
+      "semana": "2026-W46",
+      "montoPagado": 4500,
+      "estado": "PAGADA",
+      "fechaPago": "2026-11-24T20:48:19.573Z"
+    },
+    "saraí__2026-W46": {
+      "gestorNombre": "Saraí",
+      "semana": "2026-W46",
+      "montoPagado": 1500,
+      "estado": "PAGADA",
+      "fechaPago": "2026-11-24T20:48:47.312Z"
+    },
+    "alys garcía__2026-W46": {
+      "gestorNombre": "Alys García",
+      "semana": "2026-W46",
+      "montoPagado": 1500,
+      "estado": "PAGADA",
+      "fechaPago": "2026-11-24T20:49:30.990Z"
+    },
+    "hilda pileta__2026-W46": {
+      "gestorNombre": "Hilda Pileta",
+      "semana": "2026-W46",
+      "montoPagado": 12000,
+      "estado": "PAGADA",
+      "fechaPago": "2026-11-24T20:50:10.086Z"
+    },
+    "glenis reyes__2026-W46": {
+      "gestorNombre": "Glenis Reyes",
+      "semana": "2026-W46",
+      "montoPagado": 3000,
+      "estado": "PAGADA",
+      "fechaPago": "2026-11-24T20:50:52.679Z"
+    },
+    "olga m. ramos sánchez__2026-W46": {
+      "gestorNombre": "Olga M. Ramos Sánchez",
+      "semana": "2026-W46",
+      "montoPagado": 1500,
+      "estado": "PAGADA",
+      "fechaPago": "2026-11-24T20:54:24.943Z"
+    },
+    "eunice__2026-W45": {
+      "gestorNombre": "Eunice",
+      "semana": "2026-W45",
+      "montoPagado": 1500,
+      "estado": "PAGADA",
+      "fechaPago": "2026-11-24T20:59:46.518Z"
+    },
+    "adriana__2026-W46": {
+      "gestorNombre": "Adriana",
+      "semana": "2026-W46",
+      "montoPagado": 3000,
+      "estado": "PAGADA",
+      "fechaPago": "2026-11-24T21:09:17.818Z"
+    },
+    "adriana__2026-W45": {
+      "gestorNombre": "Adriana",
+      "semana": "2026-W45",
+      "montoPagado": 9000,
+      "estado": "PAGADA",
+      "fechaPago": "2026-11-24T21:52:10.018Z"
+    },
+    "adalis lopez__2026-W46": {
+      "gestorNombre": "adalis Lopez",
+      "semana": "2026-W46",
+      "montoPagado": 9000,
+      "estado": "PAGADA",
+      "fechaPago": "2026-11-24T21:53:10.892Z"
     }
   }
 }
