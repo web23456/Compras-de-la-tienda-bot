@@ -3000,8 +3000,8 @@ function analizarYAgruparPorFamilias(fechaDesde, fechaHasta) {
       return v;
     });
 
-    // Ordenar variantes por cantidad vendida descendente
-    variantesArray.sort(function(a, b) { return b.totalCantidad - a.totalCantidad; });
+    // Ordenar variantes por orden alfabético
+    variantesArray.sort(function(a, b) { return a.nombreDisplay.localeCompare(b.nombreDisplay); });
 
     return {
       id: fam.id,
@@ -3018,6 +3018,7 @@ function analizarYAgruparPorFamilias(fechaDesde, fechaHasta) {
     };
   });
 
+  familiasArray.sort(function(a, b) { return a.nombre.localeCompare(b.nombre); });
   return familiasArray;
 }
 
@@ -3849,8 +3850,8 @@ function ejecutarCuadreInventario() {
     };
   });
 
-  // Ordenar por ganancia total descendente
-  filas.sort(function(a,b){ return b.gananciaUSD - a.gananciaUSD; });
+  // Ordenar por orden alfabético estricto de producto
+  filas.sort(function(a,b){ return a.producto.localeCompare(b.producto); });
 
   tbody.innerHTML = filas.map(function(r) {
     var vendClass = r.vendidos > 0 ? 'text-amber-300 font-black text-sm' : 'text-slate-500 font-bold';
