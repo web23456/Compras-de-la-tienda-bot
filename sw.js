@@ -1,6 +1,6 @@
 // Soporte 100% Offline Garantizado, Cache Robusto de CDNs y Sincronización Automática
 
-const CACHE_NAME = 'compras-tienda-v31-cuadre-definitivo-automatico';
+const CACHE_NAME = 'compras-tienda-v32-cuadre-vista-principal';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
