@@ -170,31 +170,31 @@
     <!-- BARRA DE NAVEGACIÓN Y MENÚ PRINCIPAL -->
     <div class="bg-slate-950 border border-amber-500/30 rounded-2xl p-2.5 shadow-xl flex items-center justify-between flex-wrap gap-2 sticky top-2 z-30 backdrop-blur-md bg-opacity-90">
       <div class="flex items-center gap-1.5 flex-wrap">
-        <button onclick="cambiarPestanaPrincipal('dashboard')" id="nav-btn-dashboard" class="pestana-nav-btn px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 transition-all">
-          <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
+        <button onclick="cambiarPestanaPrincipal('cuadre')" id="nav-btn-cuadre" class="pestana-nav-btn px-4 py-2 rounded-xl text-xs font-black flex items-center gap-2 bg-gradient-to-r from-purple-500 to-indigo-600 text-black shadow-lg shadow-purple-500/25 transition-all">
+          <i data-lucide="clipboard-check" class="w-4 h-4 text-purple-200"></i>
+          <span>Cuadre Físico & Vales Finales</span>
+          <span id="badge-cuadre-count" class="bg-purple-950/80 text-purple-300 border border-purple-500/30 px-1.5 py-0.2 rounded-full text-[10px] font-mono">1</span>
+        </button>
+        <button onclick="cambiarPestanaPrincipal('dashboard')" id="nav-btn-dashboard" class="pestana-nav-btn px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 bg-slate-900/90 hover:bg-slate-800 text-slate-300 border border-slate-800 transition-all">
+          <i data-lucide="layout-dashboard" class="w-4 h-4 text-amber-400"></i>
           <span>Dashboard & KPIs</span>
         </button>
-        <button onclick="cambiarPestanaPrincipal('productos')" id="nav-btn-productos" class="pestana-nav-btn px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-teal-300 border border-teal-500/30 transition-all">
-          <i data-lucide="package" class="w-4 h-4 text-teal-400"></i>
-          <span>Productos</span>
-          <span id="badge-total-productos-nav" class="bg-teal-500/20 text-teal-300 px-1.5 py-0.2 rounded-full text-[10px] font-mono">0</span>
-        </button>
-        <button onclick="cambiarPestanaPrincipal('fifo')" id="nav-btn-fifo" class="pestana-nav-btn px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 transition-all">
+        <button onclick="cambiarPestanaPrincipal('fifo')" id="nav-btn-fifo" class="pestana-nav-btn px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 bg-slate-900/90 hover:bg-slate-800 text-slate-300 border border-slate-800 transition-all">
           <i data-lucide="calculator" class="w-4 h-4 text-emerald-400"></i>
-          <span>Lotes FIFO</span>
+          <span>Lotes FIFO & Ventas</span>
         </button>
-        <button onclick="cambiarPestanaPrincipal('inventario')" id="nav-btn-inventario" class="pestana-nav-btn px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 transition-all">
+        <button onclick="cambiarPestanaPrincipal('inventario')" id="nav-btn-inventario" class="pestana-nav-btn px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 bg-slate-900/90 hover:bg-slate-800 text-slate-300 border border-slate-800 transition-all">
           <i data-lucide="boxes" class="w-4 h-4 text-amber-400"></i>
-          <span>Inventario</span>
+          <span>Inventario Central</span>
         </button>
-        <button onclick="cambiarPestanaPrincipal('vales')" id="nav-btn-vales" class="pestana-nav-btn px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 transition-all">
+        <button onclick="cambiarPestanaPrincipal('vales')" id="nav-btn-vales" class="pestana-nav-btn px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 bg-slate-900/90 hover:bg-slate-800 text-slate-300 border border-slate-800 transition-all">
           <i data-lucide="receipt" class="w-4 h-4 text-cyan-400"></i>
-          <span>Historial Vales</span>
+          <span>Extractor & Vales Entrada</span>
         </button>
-        <button onclick="cambiarPestanaPrincipal('cuadre')" id="nav-btn-cuadre" class="pestana-nav-btn px-4 py-2 rounded-xl text-xs font-black flex items-center gap-2 bg-gradient-to-r from-purple-500 to-indigo-600 text-black shadow-lg shadow-purple-500/20 transition-all">
-          <i data-lucide="check-check" class="w-4 h-4 text-purple-400"></i>
-          <span>Cuadre & Vales Finales</span>
-          <span id="badge-cuadre-count" class="bg-purple-500/20 text-purple-300 px-1.5 py-0.2 rounded-full text-[10px] font-mono">0</span>
+        <button onclick="cambiarPestanaPrincipal('productos')" id="nav-btn-productos" class="pestana-nav-btn px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 bg-slate-900/90 hover:bg-slate-800 text-slate-300 border border-slate-800 transition-all">
+          <i data-lucide="package" class="w-4 h-4 text-teal-400"></i>
+          <span>Catálogo Productos</span>
+          <span id="badge-total-productos-nav" class="bg-teal-500/20 text-teal-300 px-1.5 py-0.2 rounded-full text-[10px] font-mono">0</span>
         </button>
       </div>
 
@@ -782,7 +782,7 @@
     </div>
 
     <!-- SECCIÓN 3: GASTOS TOTALES, INVERSIONES Y BAJAS -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+    <div id="seccion-vista-gastos" class="grid grid-cols-1 md:grid-cols-3 gap-5">
       <!-- GASTOS TOTALES -->
       <div class="bg-slate-950 border border-amber-500/30 rounded-2xl p-4 space-y-3">
         <div class="flex items-center justify-between border-b border-slate-800 pb-2">
@@ -856,7 +856,7 @@
     </div>
 
     <!-- SECCIÓN 4: HISTORIAL DE TODOS LOS VALES REGISTRADOS -->
-    <div class="bg-slate-950 border border-amber-500/30 rounded-2xl p-5 space-y-3 shadow-xl">
+    <div id="seccion-vista-historial-vales" class="bg-slate-950 border border-amber-500/30 rounded-2xl p-5 space-y-3 shadow-xl">
       <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 pb-3">
         <div class="flex items-center gap-2 cursor-pointer select-none" onclick="toggleSeccionHistorialVales()">
           <div class="w-8 h-8 rounded-lg bg-slate-900 border border-slate-700 flex items-center justify-center font-bold text-amber-400">
@@ -908,7 +908,7 @@
       <!-- Encabezado Cuadre -->
       <div class="bg-slate-950 border border-purple-500/40 rounded-2xl p-5 shadow-xl space-y-4">
         <div class="flex flex-wrap items-center justify-between gap-3 border-b border-purple-500/20 pb-3">
-          <div class="flex items-center gap-3">
+          <div class="flex items-center gap-3 cursor-pointer select-none" onclick="toggleFormularioValeFinal()">
             <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center font-bold text-black shadow-lg shadow-purple-500/20">
               <i data-lucide="clipboard-check" class="w-5 h-5 text-black"></i>
             </div>
@@ -922,12 +922,17 @@
           </div>
 
           <div class="flex items-center gap-2">
+            <button onclick="toggleFormularioValeFinal()" id="btn-toggle-form-vf" class="px-3 py-1.5 bg-purple-950/70 hover:bg-purple-900 text-purple-300 border border-purple-500/40 rounded-xl text-xs font-bold flex items-center gap-1.5 transition">
+              <i data-lucide="chevron-down" id="icon-toggle-form-vf" class="w-4 h-4 transition-transform duration-200 rotate-180"></i>
+              <span id="label-toggle-form-vf">Desplegar Registro (+ Vale Final)</span>
+            </button>
             <button onclick="limpiarFormularioValeFinal()" class="px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-700 rounded-xl text-xs font-semibold flex items-center gap-1 transition">
-              <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i> Nuevo Vale Final
+              <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i> Limpiar
             </button>
           </div>
         </div>
 
+        <div id="contenedor-formulario-vale-final" class="hidden space-y-4">
         <!-- EXTRACTOR DE VALES FINALES (TEXTO O FORMULARIO) -->
         <div class="bg-black/60 p-4 rounded-xl border border-purple-500/30 space-y-3">
           <div class="flex items-center justify-between">
@@ -1002,6 +1007,7 @@
             </button>
           </div>
         </div>
+        </div>
       </div>
 
       <!-- PANEL DE CUADRE POR RANGO DE FECHAS (FECHA X HASTA FECHA VALE FINAL) -->
@@ -1064,8 +1070,26 @@
           </div>
         </div>
 
-        <!-- Tabla Detallada del Cuadre Producto por Producto -->
-        <div class="overflow-x-auto border border-slate-800 rounded-xl">
+        <!-- Tabla Detallada del Cuadre Producto por Producto (Plegable) -->
+        <div class="flex items-center justify-between border-t border-slate-800/80 pt-3">
+          <div class="flex items-center gap-2 cursor-pointer select-none" onclick="toggleSeccionCuadreTabla()">
+            <div class="w-7 h-7 rounded-lg bg-purple-950/60 border border-purple-500/40 flex items-center justify-center text-purple-300">
+              <i data-lucide="table" class="w-4 h-4"></i>
+            </div>
+            <div>
+              <h4 class="text-xs font-bold text-white flex items-center gap-2">
+                Tabla Definitiva de Cuadre Físico (Entradas vs Vale Final)
+                <span id="badge-cuadre-prods-count" class="text-[10px] font-mono text-purple-300 bg-purple-950/80 border border-purple-500/30 px-2 py-0.5 rounded-full">35 productos</span>
+              </h4>
+            </div>
+          </div>
+          <button onclick="toggleSeccionCuadreTabla()" id="btn-toggle-cuadre" class="px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-purple-300 border border-purple-500/30 rounded-xl text-xs font-bold flex items-center gap-1.5 transition">
+            <i data-lucide="chevron-up" id="icon-toggle-cuadre" class="w-4 h-4 transition-transform duration-200"></i>
+            <span id="label-toggle-cuadre">Plegar Tabla</span>
+          </button>
+        </div>
+
+        <div id="contenedor-cuadre-detalle" class="overflow-x-auto border border-slate-800 rounded-xl">
           <table class="w-full text-left text-xs">
             <thead class="bg-black text-slate-300 uppercase font-bold text-[10px] tracking-wider border-b border-slate-800">
               <tr>
@@ -1081,9 +1105,12 @@
             </thead>
             <tbody id="cuadre-detalle-tbody" class="divide-y divide-slate-800/80 bg-slate-950 font-mono">
               <tr>
-                <td colspan="7" class="p-6 text-center text-slate-500">Selecciona o extrae un Vale Final para ejecutar el cuadre físico.</td>
+                <td colspan="8" class="p-6 text-center text-slate-500">Selecciona o extrae un Vale Final para ejecutar el cuadre físico.</td>
               </tr>
             </tbody>
+            <tfoot id="cuadre-detalle-tfoot" class="bg-black/90 border-t-2 border-purple-500/50 font-mono text-xs font-bold sticky bottom-0">
+              <!-- Totales renderizados dinámicamente -->
+            </tfoot>
           </table>
         </div>
       </div>
@@ -1112,7 +1139,16 @@
   <script src="memoryEngine.js"></script>
   <script>
     // ESTADO GENERAL CON SOPORTE DE MEMORIA MULTICAPA Y BIMONEDA
-    const DEFAULT_APP_STATE = {
+    
+function ejecutarLucideSafe() {
+  try {
+    if (typeof window !== 'undefined' && window.lucide && typeof window.lucide.createIcons === 'function') {
+      window.lucide.createIcons();
+    }
+  } catch(e) {}
+}
+
+const DEFAULT_APP_STATE = {
       semanaActivaId: 1,
       comisionDefault: 1500,
       monedaComisionDefault: 'CUP',
@@ -1959,7 +1995,7 @@ Transporte: 2500
         `;
         tbody.appendChild(tr);
       });
-      if (window.lucide && typeof lucide.createIcons === 'function') { lucide.createIcons(); }
+      if (typeof window !== 'undefined' && window.lucide && typeof window.lucide.createIcons === 'function') { window.lucide.createIcons(); }
     }
 
     function registrarValeDirectoAlAlmacen(valeParsed) {
@@ -2149,7 +2185,7 @@ Transporte: 2500
         `;
         tbody.appendChild(tr);
       });
-      if (window.lucide && typeof lucide.createIcons === 'function') { lucide.createIcons(); }
+      if (typeof window !== 'undefined' && window.lucide && typeof window.lucide.createIcons === 'function') { window.lucide.createIcons(); }
     }
 
     function refrescarFilaLoteVisual(loteId) {
@@ -2360,7 +2396,7 @@ Transporte: 2500
         if (icon) icon.setAttribute("data-lucide", "eye");
         if (btn) { btn.classList.remove("bg-amber-500/25"); btn.classList.add("bg-amber-500/10"); }
       }
-      if (window.lucide && typeof lucide.createIcons === "function") { lucide.createIcons(); }
+      if (typeof window !== 'undefined' && window.lucide && typeof window.lucide.createIcons === 'function') { window.lucide.createIcons(); }
     }
 
     function toggleSeccionHistorialVales() {
@@ -2380,7 +2416,7 @@ Transporte: 2500
         if (icon) icon.setAttribute("data-lucide", "eye");
         if (btn) { btn.classList.remove("bg-slate-800"); btn.classList.add("bg-slate-900"); }
       }
-      if (window.lucide && typeof lucide.createIcons === "function") { lucide.createIcons(); }
+      if (typeof window !== 'undefined' && window.lucide && typeof window.lucide.createIcons === 'function') { window.lucide.createIcons(); }
     }
 
     
@@ -2600,7 +2636,7 @@ Transporte: 2500
         "</tr>";
       }).join("");
 
-      if (window.lucide && typeof lucide.createIcons === "function") { lucide.createIcons(); }
+      if (typeof window !== 'undefined' && window.lucide && typeof window.lucide.createIcons === 'function') { window.lucide.createIcons(); }
     }
 // Funciones para catálogo de productos y navegación de compras
 let pestanaActiva = 'cuadre';
@@ -2623,12 +2659,13 @@ function toggleSeccionFIFO() {
     if (icon) icon.setAttribute("data-lucide", "eye");
     if (btn) { btn.classList.remove("bg-teal-500/20"); btn.classList.add("bg-teal-500/10"); }
   }
-  if (window.lucide && typeof lucide.createIcons === "function") { lucide.createIcons(); }
+  if (typeof window !== 'undefined' && window.lucide && typeof window.lucide.createIcons === 'function') { window.lucide.createIcons(); }
 }
 
 function cambiarPestanaPrincipal(pestana) {
   pestanaActiva = pestana;
   
+  // Elementos de secciones
   const secRecibos = document.getElementById('seccion-vista-recibos-filtro');
   const secKpis = document.getElementById('seccion-vista-kpis');
   const secProd = document.getElementById('seccion-vista-productos');
@@ -2639,109 +2676,86 @@ function cambiarPestanaPrincipal(pestana) {
   const secVales = document.getElementById('seccion-vista-historial-vales');
   const secCuadre = document.getElementById('seccion-vista-cuadre');
 
+  // Botones de navegación
   const btns = {
+    cuadre: document.getElementById('nav-btn-cuadre'),
     dashboard: document.getElementById('nav-btn-dashboard'),
     productos: document.getElementById('nav-btn-productos'),
     fifo: document.getElementById('nav-btn-fifo'),
     inventario: document.getElementById('nav-btn-inventario'),
-    vales: document.getElementById('nav-btn-vales'),
-    cuadre: document.getElementById('nav-btn-cuadre')
+    vales: document.getElementById('nav-btn-vales')
   };
 
+  // Resetear estilos de todos los botones
   Object.keys(btns).forEach(key => {
     const b = btns[key];
     if (b) {
-      b.className = 'pestana-nav-btn px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 transition-all';
+      b.className = 'pestana-nav-btn px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 bg-slate-900/90 hover:bg-slate-800 text-slate-300 border border-slate-800 transition-all';
     }
   });
 
+  // Resaltar botón activo con degradado temático
   if (btns[pestana]) {
-    if (pestana === 'productos') {
-      btns[pestana].className = 'pestana-nav-btn px-4 py-2 rounded-xl text-xs font-black flex items-center gap-2 bg-gradient-to-r from-teal-500 to-emerald-600 text-black shadow-lg shadow-teal-500/20 transition-all';
-    } else if (pestana === 'cuadre') {
-      btns[pestana].className = 'pestana-nav-btn px-4 py-2 rounded-xl text-xs font-black flex items-center gap-2 bg-gradient-to-r from-purple-500 to-indigo-600 text-black shadow-lg shadow-purple-500/20 transition-all';
-    } else {
-      btns[pestana].className = 'pestana-nav-btn px-4 py-2 rounded-xl text-xs font-black flex items-center gap-2 bg-gradient-to-r from-amber-500 to-yellow-600 text-black shadow-lg shadow-amber-500/20 transition-all';
+    if (pestana === 'cuadre') {
+      btns[pestana].className = 'pestana-nav-btn px-4 py-2 rounded-xl text-xs font-black flex items-center gap-2 bg-gradient-to-r from-purple-500 to-indigo-600 text-black shadow-lg shadow-purple-500/25 transition-all';
+    } else if (pestana === 'dashboard') {
+      btns[pestana].className = 'pestana-nav-btn px-4 py-2 rounded-xl text-xs font-black flex items-center gap-2 bg-gradient-to-r from-amber-500 to-yellow-600 text-black shadow-lg shadow-amber-500/25 transition-all';
+    } else if (pestana === 'productos') {
+      btns[pestana].className = 'pestana-nav-btn px-4 py-2 rounded-xl text-xs font-black flex items-center gap-2 bg-gradient-to-r from-teal-500 to-emerald-600 text-black shadow-lg shadow-teal-500/25 transition-all';
+    } else if (pestana === 'fifo') {
+      btns[pestana].className = 'pestana-nav-btn px-4 py-2 rounded-xl text-xs font-black flex items-center gap-2 bg-gradient-to-r from-emerald-500 to-teal-600 text-black shadow-lg shadow-emerald-500/25 transition-all';
+    } else if (pestana === 'inventario') {
+      btns[pestana].className = 'pestana-nav-btn px-4 py-2 rounded-xl text-xs font-black flex items-center gap-2 bg-gradient-to-r from-amber-500 to-orange-600 text-black shadow-lg shadow-amber-500/25 transition-all';
+    } else if (pestana === 'vales') {
+      btns[pestana].className = 'pestana-nav-btn px-4 py-2 rounded-xl text-xs font-black flex items-center gap-2 bg-gradient-to-r from-cyan-500 to-blue-600 text-black shadow-lg shadow-cyan-500/25 transition-all';
     }
   }
 
-  if (pestana === 'dashboard') {
-    if (secRecibos) secRecibos.classList.remove('hidden');
-    if (secKpis) secKpis.classList.remove('hidden');
-    if (secProd) secProd.classList.add('hidden');
-    if (secFifo) secFifo.classList.remove('hidden');
-    if (secExtractor) secExtractor.classList.remove('hidden');
-    if (secInv) secInv.classList.remove('hidden');
-    if (secGastos) secGastos.classList.remove('hidden');
-    if (secVales) secVales.classList.remove('hidden');
-    if (secCuadre) secCuadre.classList.add('hidden');
-  } else if (pestana === 'productos') {
-    if (secRecibos) secRecibos.classList.add('hidden');
-    if (secKpis) secKpis.classList.add('hidden');
-    if (secProd) secProd.classList.remove('hidden');
-    if (secFifo) secFifo.classList.add('hidden');
-    if (secExtractor) secExtractor.classList.add('hidden');
-    if (secInv) secInv.classList.add('hidden');
-    if (secGastos) secGastos.classList.add('hidden');
-    if (secVales) secVales.classList.add('hidden');
-    if (secCuadre) secCuadre.classList.add('hidden');
-    // Pre-cargar y pintar inmediatamente sin demora
-    if (!catalogoFamiliasAgrupadas || catalogoFamiliasAgrupadas.length === 0) {
-      renderizarCatalogoProductos();
-    } else {
-      filtrarCatalogoProductos();
+  // Ocultar todas las secciones primero de forma limpia
+  const allSections = [secRecibos, secKpis, secProd, secFifo, secExtractor, secInv, secGastos, secVales, secCuadre];
+  allSections.forEach(s => {
+    if (s) {
+      s.classList.add('hidden');
+      s.style.display = 'none';
     }
-  } else if (pestana === 'fifo') {
-    if (secRecibos) secRecibos.classList.add('hidden');
-    if (secKpis) secKpis.classList.remove('hidden');
-    if (secProd) secProd.classList.add('hidden');
-    if (secFifo) secFifo.classList.remove('hidden');
-    if (secExtractor) secExtractor.classList.add('hidden');
-    if (secInv) secInv.classList.add('hidden');
-    if (secGastos) secGastos.classList.add('hidden');
-    if (secVales) secVales.classList.add('hidden');
-    if (secCuadre) secCuadre.classList.add('hidden');
-  } else if (pestana === 'inventario') {
-    if (secRecibos) secRecibos.classList.add('hidden');
-    if (secKpis) secKpis.classList.remove('hidden');
-    if (secProd) secProd.classList.add('hidden');
-    if (secFifo) secFifo.classList.add('hidden');
-    if (secExtractor) secExtractor.classList.remove('hidden');
-    if (secInv) secInv.classList.remove('hidden');
-    if (secGastos) secGastos.classList.add('hidden');
-    if (secVales) secVales.classList.add('hidden');
-    if (secCuadre) secCuadre.classList.add('hidden');
-  } else if (pestana === 'vales') {
-    if (secRecibos) secRecibos.classList.add('hidden');
-    if (secKpis) secKpis.classList.add('hidden');
-    if (secProd) secProd.classList.add('hidden');
-    if (secFifo) secFifo.classList.add('hidden');
-    if (secExtractor) secExtractor.classList.add('hidden');
-    if (secInv) secInv.classList.add('hidden');
-    if (secGastos) secGastos.classList.add('hidden');
-    if (secVales) secVales.classList.remove('hidden');
-    if (secCuadre) secCuadre.classList.add('hidden');
-  } else if (pestana === 'cuadre') {
-    if (secRecibos) secRecibos.classList.add('hidden');
-    if (secKpis) secKpis.classList.add('hidden');
-    if (secProd) secProd.classList.add('hidden');
-    if (secFifo) secFifo.classList.add('hidden');
-    if (secExtractor) secExtractor.classList.add('hidden');
-    if (secInv) secInv.classList.add('hidden');
-    if (secGastos) secGastos.classList.add('hidden');
-    if (secVales) secVales.classList.add('hidden');
+  });
+
+  // Mostrar exclusivamente la sección solicitada
+  if (pestana === 'cuadre') {
     if (secCuadre) {
       secCuadre.classList.remove('hidden');
       secCuadre.style.display = 'block';
     }
     try {
       renderizarSeccionCuadre();
-    } catch (errCuadre) {
-      console.error('Error al renderizar sección de cuadre:', errCuadre);
+    } catch (e) {
+      console.error('Error al renderizar cuadre:', e);
     }
+  } else if (pestana === 'dashboard') {
+    if (secRecibos) { secRecibos.classList.remove('hidden'); secRecibos.style.display = 'block'; }
+    if (secKpis) { secKpis.classList.remove('hidden'); secKpis.style.display = 'grid'; }
+    if (secGastos) { secGastos.classList.remove('hidden'); secGastos.style.display = 'grid'; }
+  } else if (pestana === 'productos') {
+    if (secProd) { secProd.classList.remove('hidden'); secProd.style.display = 'block'; }
+    if (!catalogoFamiliasAgrupadas || catalogoFamiliasAgrupadas.length === 0) {
+      renderizarCatalogoProductos();
+    } else {
+      filtrarCatalogoProductos();
+    }
+  } else if (pestana === 'fifo') {
+    if (secKpis) { secKpis.classList.remove('hidden'); secKpis.style.display = 'grid'; }
+    if (secFifo) { secFifo.classList.remove('hidden'); secFifo.style.display = 'block'; }
+  } else if (pestana === 'inventario') {
+    if (secKpis) { secKpis.classList.remove('hidden'); secKpis.style.display = 'grid'; }
+    if (secExtractor) { secExtractor.classList.remove('hidden'); secExtractor.style.display = 'block'; }
+    if (secInv) { secInv.classList.remove('hidden'); secInv.style.display = 'block'; }
+    if (secGastos) { secGastos.classList.remove('hidden'); secGastos.style.display = 'grid'; }
+  } else if (pestana === 'vales') {
+    if (secExtractor) { secExtractor.classList.remove('hidden'); secExtractor.style.display = 'block'; }
+    if (secVales) { secVales.classList.remove('hidden'); secVales.style.display = 'block'; }
   }
 
-  if (window.lucide && typeof lucide.createIcons === 'function') { lucide.createIcons(); }
+  ejecutarLucideSafe();
 }
 
 let catalogoFamiliasAgrupadas = [];
@@ -3043,7 +3057,7 @@ function toggleFamiliaSubmenu(famId) {
       if (chevron) chevron.classList.remove('rotate-180');
     }
   }
-  if (window.lucide && typeof lucide.createIcons === 'function') { lucide.createIcons(); }
+  if (typeof window !== 'undefined' && window.lucide && typeof window.lucide.createIcons === 'function') { window.lucide.createIcons(); }
 }
 
 function toggleVarianteVales(varId) {
@@ -3326,7 +3340,7 @@ function filtrarCatalogoProductos() {
     '</div>';
   }).join('');
 
-  if (window.lucide && typeof lucide.createIcons === 'function') { lucide.createIcons(); }
+  if (typeof window !== 'undefined' && window.lucide && typeof window.lucide.createIcons === 'function') { window.lucide.createIcons(); }
 }
 
 // =========================================================================
@@ -3438,7 +3452,7 @@ function renderizarFilasValeFinalEdicion() {
     '</tr>';
   }).join('');
 
-  if (window.lucide && typeof lucide.createIcons === 'function') { lucide.createIcons(); }
+  if (typeof window !== 'undefined' && window.lucide && typeof window.lucide.createIcons === 'function') { window.lucide.createIcons(); }
 }
 
 // Extractor inteligente del texto pegado para Vale Final
@@ -3659,7 +3673,7 @@ function actualizarListaValesFinalesGuardados() {
     '</div>';
   }).join('');
 
-  if (window.lucide && typeof lucide.createIcons === 'function') { lucide.createIcons(); }
+  if (typeof window !== 'undefined' && window.lucide && typeof window.lucide.createIcons === 'function') { window.lucide.createIcons(); }
 }
 
 function seleccionarValeFinalParaCuadre(vfId) {
@@ -3749,6 +3763,44 @@ function normalizarNombreParaCuadre(nombreRaw) {
   return nombreRaw.trim();
 }
 
+
+
+let formularioValeFinalVisible = false;
+function toggleFormularioValeFinal() {
+  formularioValeFinalVisible = !formularioValeFinalVisible;
+  const cont = document.getElementById('contenedor-formulario-vale-final');
+  const icon = document.getElementById('icon-toggle-form-vf');
+  const label = document.getElementById('label-toggle-form-vf');
+  if (formularioValeFinalVisible) {
+    if (cont) cont.classList.remove('hidden');
+    if (icon) icon.className = 'w-4 h-4 transition-transform duration-200 rotate-0';
+    if (label) label.textContent = 'Plegar Formulario';
+  } else {
+    if (cont) cont.classList.add('hidden');
+    if (icon) icon.className = 'w-4 h-4 transition-transform duration-200 rotate-180';
+    if (label) label.textContent = 'Desplegar Registro (+ Vale Final)';
+  }
+  ejecutarLucideSafe();
+}
+
+let cuadreTablaVisible = true;
+function toggleSeccionCuadreTabla() {
+  cuadreTablaVisible = !cuadreTablaVisible;
+  const cont = document.getElementById('contenedor-cuadre-detalle');
+  const icon = document.getElementById('icon-toggle-cuadre');
+  const label = document.getElementById('label-toggle-cuadre');
+  if (cuadreTablaVisible) {
+    if (cont) cont.classList.remove('hidden');
+    if (icon) icon.className = 'w-4 h-4 transition-transform duration-200 rotate-0';
+    if (label) label.textContent = 'Plegar Tabla';
+  } else {
+    if (cont) cont.classList.add('hidden');
+    if (icon) icon.className = 'w-4 h-4 transition-transform duration-200 rotate-180';
+    if (label) label.textContent = 'Desplegar Tabla';
+  }
+  if (typeof window !== 'undefined' && window.lucide && typeof window.lucide.createIcons === 'function') { window.lucide.createIcons(); }
+}
+
 function ejecutarCuadreInventario() {
   var sData = getSemanaData();
   var valesFinales = sData.valesFinales || [];
@@ -3781,16 +3833,35 @@ function ejecutarCuadreInventario() {
 
   var vf = valesFinales.find(function(v){ return v.id === valeFinalSeleccionadoId; }) || (valesFinales.length > 0 ? valesFinales[0] : null);
   var tbody = document.getElementById('cuadre-detalle-tbody');
+  var tfoot = document.getElementById('cuadre-detalle-tfoot');
   if (!tbody) return;
 
   if (!vf) {
     tbody.innerHTML = '<tr><td colspan="8" class="p-6 text-center text-slate-500">No se ha encontrado el Vale Final en el sistema. Registra o selecciona el vale final.</td></tr>';
+    if (tfoot) tfoot.innerHTML = '';
     return;
   }
 
-  // Filtrar exclusivamente los 7 vales de entrada reales
-  var valesEntradaReales = (sData.valesEntrada || []).filter(function(v){
+  // Identificar la fecha del vale final seleccionado
+  var fechaValeFinal = vf.fecha || '9999-12-31';
+
+  // Separar los vales de entrada:
+  // 1. Vales de entrada ANTERIORES o IGUALES a la fecha del Vale Final (los que este vale final cuadra)
+  // 2. Vales de entrada POSTERIORES a la fecha del Vale Final (los que inician un nuevo ciclo a partir del stock contado)
+  var todosValesEntrada = (sData.valesEntrada || []).filter(function(v){
     return !v.folio || !v.folio.toUpperCase().includes('FINAL');
+  });
+
+  var valesHastaValeFinal = [];
+  var valesPosteriores = [];
+
+  todosValesEntrada.forEach(function(ve) {
+    var f = ve.fecha || '2000-01-01';
+    if (f <= fechaValeFinal) {
+      valesHastaValeFinal.push(ve);
+    } else {
+      valesPosteriores.push(ve);
+    }
   });
 
   var balance = {};
@@ -3799,8 +3870,9 @@ function ejecutarCuadreInventario() {
     if (!balance[key]) {
       balance[key] = {
         producto: key,
-        entradas: 0,
-        quedan: 0,
+        entradasHastaVF: 0,
+        quedanVF: 0,
+        entradasPostVF: 0,
         pCompraTotal: 0,
         pVentaTotal: 0,
         cantCompra: 0,
@@ -3810,12 +3882,12 @@ function ejecutarCuadreInventario() {
     return balance[key];
   }
 
-  // 1. Acumular los 7 vales de entrada
-  valesEntradaReales.forEach(function(ve) {
+  // 1. Acumular los vales de entrada del ciclo hasta la fecha del Vale Final
+  valesHastaValeFinal.forEach(function(ve) {
     (ve.items || []).forEach(function(it) {
       var s = getSlot(it.nombre);
       var cant = Number(it.cantidad || 0);
-      s.entradas += cant;
+      s.entradasHastaVF += cant;
       if (it.precioCompra) {
         s.pCompraTotal += Number(it.precioCompra) * cant;
         s.cantCompra += cant;
@@ -3827,12 +3899,12 @@ function ejecutarCuadreInventario() {
     });
   });
 
-  // 2. Acumular el conteo del Vale Final
+  // 2. Acumular el conteo físico del Vale Final
   (vf.items || []).forEach(function(it) {
     var nom = it.producto || it.nombre;
     var s = getSlot(nom);
     var cant = Number(it.cantidadFisica !== undefined ? it.cantidadFisica : (it.cantidad || 0));
-    s.quedan += cant;
+    s.quedanVF += cant;
     if (s.cantCompra === 0 && (it.precioCompra || it.precioRef)) {
       s.pCompraTotal += Number(it.precioCompra || it.precioRef) * cant;
       s.cantCompra += cant;
@@ -3843,6 +3915,23 @@ function ejecutarCuadreInventario() {
     }
   });
 
+  // 3. Acumular vales de entrada POSTERIORES al Vale Final (inician nuevo ciclo sobre la base del vale final)
+  valesPosteriores.forEach(function(ve) {
+    (ve.items || []).forEach(function(it) {
+      var s = getSlot(it.nombre);
+      var cant = Number(it.cantidad || 0);
+      s.entradasPostVF += cant;
+      if (it.precioCompra) {
+        s.pCompraTotal += Number(it.precioCompra) * cant;
+        s.cantCompra += cant;
+      }
+      if (it.precioVenta) {
+        s.pVentaTotal += Number(it.precioVenta) * cant;
+        s.cantVenta += cant;
+      }
+    });
+  });
+
   var totalEntradasUds = 0;
   var totalQuedanUds = 0;
   var totalVendidosUds = 0;
@@ -3850,16 +3939,22 @@ function ejecutarCuadreInventario() {
   var totalCostoUSD = 0;
   var totalGananciaUSD = 0;
 
+  var hayPosteriores = valesPosteriores.length > 0;
+
   var filas = Object.values(balance).map(function(b) {
     var pCompraProm = b.cantCompra > 0 ? (b.pCompraTotal / b.cantCompra) : 0;
     var pVentaProm = b.cantVenta > 0 ? (b.pVentaTotal / b.cantVenta) : 0;
-    var vendidos = Math.max(0, b.entradas - b.quedan);
+    
+    // Si no hay vales posteriores, es el cuadre del ciclo cerrado:
+    // Vendidos = Entradas - Vale Final
+    // Si hay vales posteriores, el stock inicial = quedanVF, entradas nuevas = entradasPostVF
+    var vendidos = Math.max(0, b.entradasHastaVF - b.quedanVF);
     var ventaUSD = vendidos * pVentaProm;
     var costoUSD = vendidos * pCompraProm;
     var gananciaUSD = ventaUSD - costoUSD;
 
-    totalEntradasUds += b.entradas;
-    totalQuedanUds += b.quedan;
+    totalEntradasUds += b.entradasHastaVF + b.entradasPostVF;
+    totalQuedanUds += b.quedanVF;
     totalVendidosUds += vendidos;
     totalVentaUSD += ventaUSD;
     totalCostoUSD += costoUSD;
@@ -3867,8 +3962,9 @@ function ejecutarCuadreInventario() {
 
     return {
       producto: b.producto,
-      entradas: b.entradas,
-      quedan: b.quedan,
+      entradas: b.entradasHastaVF + (b.entradasPostVF > 0 ? (' (+' + b.entradasPostVF + ')') : ''),
+      entradasNum: b.entradasHastaVF + b.entradasPostVF,
+      quedan: b.quedanVF,
       vendidos: vendidos,
       pCompra: pCompraProm,
       pVenta: pVentaProm,
@@ -3880,6 +3976,11 @@ function ejecutarCuadreInventario() {
   // Ordenar por orden alfabético estricto de producto
   filas.sort(function(a,b){ return a.producto.localeCompare(b.producto); });
 
+  // Actualizar badge de productos contados
+  var badgeCountProds = document.getElementById('badge-cuadre-prods-count');
+  if (badgeCountProds) badgeCountProds.textContent = filas.length + ' productos';
+
+  // Renderizar filas de la tabla
   tbody.innerHTML = filas.map(function(r) {
     var vendClass = r.vendidos > 0 ? 'text-amber-300 font-black text-sm' : 'text-slate-500 font-bold';
     var ganClass = r.gananciaUSD > 0 ? 'text-emerald-400 font-black' : 'text-slate-500';
@@ -3895,6 +3996,23 @@ function ejecutarCuadreInventario() {
     '</tr>';
   }).join('');
 
+  // Renderizar FILA TOTALES ABAJO (TFOOT)
+  if (tfoot) {
+    tfoot.innerHTML = '<tr class="bg-slate-950 text-white border-t-2 border-purple-500/60 shadow-lg">' +
+      '<td class="p-3.5 font-sans font-black text-xs uppercase tracking-wider text-purple-300 flex items-center gap-1.5">' +
+        '<span>TOTALES</span>' +
+        '<span class="text-[10px] text-slate-400 font-normal">(' + filas.length + ' prods)</span>' +
+      '</td>' +
+      '<td class="p-3.5 text-center text-teal-300 font-bold">' + totalEntradasUds.toLocaleString('es-ES') + '</td>' +
+      '<td class="p-3.5 text-center text-purple-300 bg-purple-950/40 font-bold">' + totalQuedanUds.toLocaleString('es-ES') + '</td>' +
+      '<td class="p-3.5 text-center text-amber-300 font-black text-sm bg-amber-950/20">' + totalVendidosUds.toLocaleString('es-ES') + '</td>' +
+      '<td class="p-3.5 text-right text-slate-400 font-normal text-[11px]">-</td>' +
+      '<td class="p-3.5 text-right text-cyan-300 font-bold">$' + totalVentaUSD.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + '</td>' +
+      '<td class="p-3.5 text-right text-slate-400 font-normal text-[11px]">-</td>' +
+      '<td class="p-3.5 text-right text-emerald-400 font-black text-sm bg-emerald-950/40">$' + totalGananciaUSD.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + '</td>' +
+    '</tr>';
+  }
+
   // Actualizar KPIs superiores
   var kpiEnt = document.getElementById('cuadre-kpi-entradas');
   var kpiReal = document.getElementById('cuadre-kpi-real');
@@ -3909,7 +4027,11 @@ function ejecutarCuadreInventario() {
   if (kpiTeo) kpiTeo.textContent = '$' + totalVentaUSD.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' USD';
 
   var kpiEntVales = document.getElementById('cuadre-kpi-entradas-vales');
-  if (kpiEntVales) kpiEntVales.textContent = valesEntradaReales.length + ' vales de entrada';
+  if (kpiEntVales) {
+    var descVales = valesHastaValeFinal.length + ' vales del ciclo';
+    if (valesPosteriores.length > 0) descVales += ' (+' + valesPosteriores.length + ' nuevos)';
+    kpiEntVales.textContent = descVales;
+  }
 }
 
 function renderizarSeccionCuadre() {
@@ -3947,7 +4069,7 @@ function renderizarSeccionCuadre() {
       try { renderizarHistorialVales(); } catch(e) { console.error(e); }
       try { poblarSelectBajas(); } catch(e) { console.error(e); }
       try { actualizarDatalistProductos(); } catch(e) { console.error(e); }
-      if (window.lucide && typeof lucide.createIcons === 'function') { lucide.createIcons(); }
+      if (typeof window !== 'undefined' && window.lucide && typeof window.lucide.createIcons === 'function') { window.lucide.createIcons(); }
     }
 
     function renderizarSelectorSemanas() {
@@ -4167,7 +4289,7 @@ function renderizarSeccionCuadre() {
         `;
         tbody.appendChild(tr);
       });
-      if (window.lucide && typeof lucide.createIcons === 'function') { lucide.createIcons(); }
+      if (typeof window !== 'undefined' && window.lucide && typeof window.lucide.createIcons === 'function') { window.lucide.createIcons(); }
     }
 
     // ================= EXPORTACIÓN EXCEL =================
@@ -4328,7 +4450,7 @@ function renderizarSeccionCuadre() {
         `;
         tbody.appendChild(tr);
       });
-      if (window.lucide && typeof lucide.createIcons === 'function') { lucide.createIcons(); }
+      if (typeof window !== 'undefined' && window.lucide && typeof window.lucide.createIcons === 'function') { window.lucide.createIcons(); }
     }
 
     function generarReciboRango() {
