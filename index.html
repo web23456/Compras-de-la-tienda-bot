@@ -3644,40 +3644,81 @@ function seleccionarValeFinalParaCuadre(vfId) {
 // ================= MOTOR DE CÁLCULO DE CUADRE DE INVENTARIO =================
 // Entradas (Fecha X hasta Fecha Vale Final) - Ventas Gestores (Fecha X hasta Fecha Vale Final) = Teórico
 // Comparación: Teórico vs Conteo Físico Real (Vale Final con 100% credibilidad)
-function normalizarNombreParaCuadre(n) {
-  var s = (n || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim();
-  if (/milesus|milexus/i.test(s)) return 'Olla Reina Milesus (6L/7L)';
-  if (/bravoking/i.test(s) || (s === 'olla reyna' || s === 'ollas reynas')) return 'Olla Reina Bravoking 5L';
-  if (/houselux/i.test(s)) return 'Olla Reina Houselux 5L';
-  if (/\bjm\b/i.test(s)) return 'Olla Reina JM';
-  if (/eco/i.test(s) && /reina|reyna/i.test(s)) return 'Olla Reina Eco 6L';
-  if (/rca/i.test(s)) return 'Olla Reina RCA';
-  if (/micro.*pres|mircro.*pres/i.test(s)) return 'Ollas de micropresión';
-  if (/1[,\.]5/i.test(s)) return 'Olla Arrocera 1.5L Estelectric';
-  if (/hamilton/i.test(s) && /arrocera/i.test(s)) return 'Olla Arrocera Hamilton Beach';
-  if (/marwa/i.test(s)) return 'Olla Arrocera Marwa';
-  if (/arrocera/i.test(s)) return 'Olla Arrocera 1.8L Estelectric';
-  if (/batidora/i.test(s) && !/hamilton|mano/i.test(s)) return 'Batidora con triturador estándar';
-  if (/batidora.*hamilton|hamilton.*bich/i.test(s)) return 'Batidora Hamilton Beach';
-  if (/batidora.*mano/i.test(s)) return 'Batidora de mano';
-  if (/petroleo/i.test(s)) return 'Fogón / Cocina de petróleo';
-  if (/induc/i.test(s)) return 'Cocinas / Juegos de inducción';
-  if (/freidora/i.test(s)) return 'Freidora de Aire';
-  if (/infrar/i.test(s)) return 'Cocina Infrarroja 2000W';
-  if (/cafetera/i.test(s)) return 'Cafetera eléctrica';
-  if (/sarten/i.test(s)) return 'Juegos de sartenes (4 piezas)';
-  if (/cajita/i.test(s)) return 'Cajitas descodificadoras HD';
-  if (/power.*20/i.test(s)) return 'Power bank 20,000 mAh';
-  if (/power.*50/i.test(s)) return 'Power bank 50,000 mAh';
+function normalizarNombreParaCuadre(nombreRaw) {
+  var s = (nombreRaw || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim();
+
+  // 1. Fogones / Cocinas de petróleo (ENT-7: 12 + ENT-5: 30 = 42 uds)
+  if (/petroleo/i.test(s)) return 'Fogones / Cocinas de petróleo';
+
+  // 2. Mini ciclones (ENT-1: 9 uds)
   if (/ciclon/i.test(s)) return 'Mini ciclones';
+
+  // 3. Cocinas infrarrojas 2000W (ENT-1: 6 Estelectric 2000w + ENT-2: 6 infrarrojas = 12 uds)
+  if (/2000\s*w/i.test(s) || s === 'cocinas infrarrojas' || s === 'infrarroja estelectri de 2000 w') {
+    return 'Cocinas infrarrojas 2000W';
+  }
+  if (/1500/i.test(s)) return 'Cocina Infrarroja Eko 1500W';
+
+  // 4. Ollas Reynas Milesus (ENT-6: 25 + ENT-7: 24 = 49 uds)
+  if (/milesus|milexus/i.test(s)) return 'Ollas Reynas Milesus';
+
+  // 5. Ollas de micropresión estricto (49 uds) vs Mircropresion calabaza (25 uds)
+  if (s === 'ollas de micropresion') return 'Ollas de micropresion';
+  if (/mircro/i.test(s)) return 'Ollas de Mircropresion (Calabaza)';
+
+  // 6. Cocina / Juegos de inducción (ENT-2: 15 uds)
+  if (/induc/i.test(s)) return 'Cocina / Juegos de inducción';
+
+  // 7. Freidora de Aire (ENT-2: 12 + ENT-7: 12 + ENT-5: 12 = 36 uds)
+  if (/freidora/i.test(s)) return 'Freidora de Aire';
+
+  // 8. Batidoras
+  if (s === 'batidora') return 'Batidora con triturador estándar';
+  if (/cristal/i.test(s)) return 'Batidora Cristal';
+  if (/hamilton.*bich|hamilton.*modelo|batidora.*hamilton/i.test(s)) return 'Batidora Hamilton Beach';
+  if (/mano/i.test(s)) return 'Batidora de mano';
+
+  // 9. Cafeteras
+  if (s === 'cafetera') return 'Cafetera (Lote 19)';
+  if (s === 'cafeteras') return 'Cafeteras (Lote 15)';
+
+  // 10. Juegos de sartenes (ENT-2: 9 + 13 + ENT-4: 20 + ENT-3: 20 = 62 uds)
+  if (/sarten/i.test(s)) return 'Juegos de sartenes (4 piezas)';
+
+  // 11. Cajitas descodificadora (ENT-5: 12 uds)
+  if (/cajita/i.test(s)) return 'Cajitas descodificadora';
+
+  // 12. Power banks
+  if (/power.*20/i.test(s)) return 'Power bank 20milAm';
+  if (/power.*50/i.test(s)) return 'Power Bank 50miAm';
+
+  // 13. Ventiladores
+  if (/20 pulg/i.test(s)) return 'Ventilador de 20 pulgadas';
   if (/pared/i.test(s)) return 'Ventilador de Pared Dawang';
   if (/pedest/i.test(s) && /px/i.test(s)) return 'Ventilador de Pedestal PX';
   if (/pedest/i.test(s) && /dawan/i.test(s)) return 'Ventilador de Pedestal Dawang';
-  if (/20 pulg/i.test(s)) return 'Ventilador de 20 pulgadas';
   if (/3 pos/i.test(s)) return 'Ventilador de 3 posiciones';
+
+  // 14. Ollas Arroceras
+  if (/1[,\.]5/i.test(s)) return 'Olla Arrocera 1.5L';
+  if (/hamilton/i.test(s) && /arrocera/i.test(s)) return 'Olla Arrocera Hamilton';
+  if (/marwa/i.test(s)) return 'Olla Arroceras Marwa';
+  if (/1[,\.]8/i.test(s) || /arrocera.*estelectric/i.test(s) || s === 'olla arrocera' || s === 'arroceras') {
+    return 'Olla Arrocera 1.8L Estelectric';
+  }
+
+  // 15. Otras Ollas Reina
+  if (/\bjm\b/i.test(s)) return 'Olla Reyna JM';
+  if (/houselux/i.test(s)) return 'Olla Reyna Houselux';
+  if (/rca/i.test(s)) return 'Olla Reina RCA';
+  if (/eco/i.test(s)) return 'Ollas Reynas Eco';
+  if (/reina|reyna/i.test(s)) return 'Ollas Reynas (Bravoking)';
+
+  // 16. Planchas y cocina gas
+  if (/plancha/i.test(s)) return 'Planchas';
   if (/gas/i.test(s)) return 'Cocina de gas';
-  if (/plancha/i.test(s)) return 'Planchas de ropa';
-  return (n || '').trim();
+
+  return nombreRaw.trim();
 }
 
 function ejecutarCuadreInventario() {
@@ -3719,7 +3760,7 @@ function ejecutarCuadreInventario() {
     return;
   }
 
-  // Filtrar exclusivamente los vales de entrada reales (excluyendo cualquier vale final que estuviera en la misma lista)
+  // Filtrar exclusivamente los 7 vales de entrada reales
   var valesEntradaReales = (sData.valesEntrada || []).filter(function(v){
     return !v.folio || !v.folio.toUpperCase().includes('FINAL');
   });
