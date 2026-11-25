@@ -3549,6 +3549,7 @@ function guardarValeFinalEnSistema() {
 
   persistirEstado();
   actualizarListaValesFinalesGuardados();
+      ejecutarCuadreInventario();
   
   // Seleccionarlo automáticamente para cuadre
   valeFinalSeleccionadoId = nuevoValeFinal.id;
@@ -3577,6 +3578,24 @@ function eliminarValeFinal(id) {
 
 function actualizarListaValesFinalesGuardados() {
   const sData = getSemanaData();
+  if ((!sData.valesFinales || sData.valesFinales.length === 0) && (sData.valesEntrada || []).length > 0) {
+    const vFAuto = sData.valesEntrada.find(v => v.folio && v.folio.toUpperCase().includes('FINAL'));
+    if (vFAuto) {
+      sData.valesFinales = [{
+        id: vFAuto.id,
+        folio: vFAuto.folio,
+        fecha: vFAuto.fecha,
+        responsable: 'Karel',
+        totalUnidades: (vFAuto.items || []).reduce((a, b) => a + (b.cantidad || 0), 0),
+        items: (vFAuto.items || []).map(it => ({
+          producto: it.nombre,
+          cantidadFisica: it.cantidad || 0,
+          precioRef: it.precioVenta || 0,
+          precioCompra: it.precioCompra || 0
+        }))
+      }];
+    }
+  }
   const valesFinales = sData.valesFinales || [];
 
   const badgeNav = document.getElementById('badge-cuadre-count');
