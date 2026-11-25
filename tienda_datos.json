@@ -1204,7 +1204,7 @@
           "transporteUnitario": 0
         },
         {
-          "id": "lote-1795574628610h1c",
+          "id": "lote-1795578600854yca",
           "ordenLlegada": 67,
           "producto": "Olla Arrocera",
           "folioVale": "ENT-1",
@@ -1222,7 +1222,7 @@
           "transporteUnitario": 0
         },
         {
-          "id": "lote-17955746286102o0",
+          "id": "lote-1795578600854lfm",
           "ordenLlegada": 68,
           "producto": "Olla Reyna Houselux",
           "folioVale": "ENT-1",
@@ -1240,7 +1240,7 @@
           "transporteUnitario": 0
         },
         {
-          "id": "lote-1795574628610qu5",
+          "id": "lote-1795578600854nyw",
           "ordenLlegada": 69,
           "producto": "Batidora",
           "folioVale": "ENT-1",
@@ -1258,7 +1258,7 @@
           "transporteUnitario": 0
         },
         {
-          "id": "lote-1795574628610kps",
+          "id": "lote-1795578600854n4d",
           "ordenLlegada": 70,
           "producto": "Cafetera",
           "folioVale": "ENT-1",
@@ -1276,7 +1276,7 @@
           "transporteUnitario": 0
         },
         {
-          "id": "lote-1795574628610q9f",
+          "id": "lote-1795578600854no8",
           "ordenLlegada": 71,
           "producto": "Ventilador de Pared Dawan",
           "folioVale": "ENT-1",
@@ -1294,7 +1294,7 @@
           "transporteUnitario": 0
         },
         {
-          "id": "lote-1795574628610msy",
+          "id": "lote-17955786008549rp",
           "ordenLlegada": 72,
           "producto": "Infrarroja Eko 1500 w",
           "folioVale": "ENT-1",
@@ -1312,17 +1312,17 @@
           "transporteUnitario": 0
         },
         {
-          "id": "lote-1795574628610s3l",
+          "id": "lote-17955786008540jo",
           "ordenLlegada": 73,
           "producto": "Infrarroja Estelectri de 2000 w",
           "folioVale": "ENT-1",
           "fechaEntrada": "2026-10-19",
           "moneda": "USD",
           "inicio": 0,
-          "entradas": 6,
+          "entradas": 12,
           "bajas": 0,
           "dadoDeBaja": false,
-          "finalReal": 6,
+          "finalReal": 12,
           "precioCompra": 28,
           "precioVenta": 33,
           "comisionGestores": 1500,
@@ -1330,17 +1330,17 @@
           "transporteUnitario": 0
         },
         {
-          "id": "lote-17955746286106b4",
+          "id": "lote-17955786008543lt",
           "ordenLlegada": 74,
           "producto": "Ventilador de Pedestar Dawan",
           "folioVale": "ENT-1",
           "fechaEntrada": "2026-10-19",
           "moneda": "USD",
           "inicio": 0,
-          "entradas": 1,
+          "entradas": 3,
           "bajas": 0,
           "dadoDeBaja": false,
-          "finalReal": 1,
+          "finalReal": 3,
           "precioCompra": 20,
           "precioVenta": 25,
           "comisionGestores": 1500,
@@ -1348,17 +1348,17 @@
           "transporteUnitario": 0
         },
         {
-          "id": "lote-1795574628610yzr",
+          "id": "lote-179557860085597p",
           "ordenLlegada": 75,
           "producto": "Ventilador de Pedestar PX",
           "folioVale": "ENT-1",
           "fechaEntrada": "2026-10-19",
           "moneda": "USD",
           "inicio": 0,
-          "entradas": 1,
+          "entradas": 14,
           "bajas": 0,
           "dadoDeBaja": false,
-          "finalReal": 1,
+          "finalReal": 14,
           "precioCompra": 16,
           "precioVenta": 25,
           "comisionGestores": 1500,
@@ -1366,17 +1366,17 @@
           "transporteUnitario": 0
         },
         {
-          "id": "lote-1795574628610511",
+          "id": "lote-1795578600855ihu",
           "ordenLlegada": 76,
           "producto": "Mini ciclones",
           "folioVale": "ENT-1",
           "fechaEntrada": "2026-10-19",
           "moneda": "USD",
           "inicio": 0,
-          "entradas": 9,
+          "entradas": 11,
           "bajas": 0,
           "dadoDeBaja": false,
-          "finalReal": 9,
+          "finalReal": 11,
           "precioCompra": 16,
           "precioVenta": 22,
           "comisionGestores": 1500,
@@ -1384,7 +1384,7 @@
           "transporteUnitario": 0
         },
         {
-          "id": "lote-1795574628610szq",
+          "id": "lote-1795578600855umd",
           "ordenLlegada": 77,
           "producto": "Cocina de gas",
           "folioVale": "ENT-1",
@@ -1402,17 +1402,17 @@
           "transporteUnitario": 0
         },
         {
-          "id": "lote-1795574628610692",
+          "id": "lote-17955786008553xa",
           "ordenLlegada": 78,
           "producto": "Olla Reyna JM",
           "folioVale": "ENT-1",
           "fechaEntrada": "2026-10-19",
           "moneda": "USD",
           "inicio": 0,
-          "entradas": 1,
+          "entradas": 13,
           "bajas": 0,
           "dadoDeBaja": false,
-          "finalReal": 1,
+          "finalReal": 13,
           "precioCompra": 42,
           "precioVenta": 49,
           "comisionGestores": 1500,
@@ -1422,17 +1422,17 @@
       ],
       "valesEntrada": [
         {
-          "id": "vale-1795574628610ppl",
+          "id": "vale-1795578600855y5j",
           "folio": "ENT-1",
           "fecha": "2026-10-19",
           "proveedor": "Proveedor General",
           "moneda": "USD",
           "transporteTotal": 0,
-          "totalCompraUSD": 1531.5,
+          "totalCompraUSD": 2483.5,
           "totalCompraCUP": 0,
           "items": [
             {
-              "id": "it-1795574555337akq",
+              "id": "it-17955780542709yr",
               "nombre": "Olla Arrocera",
               "fechaEntrada": "2026-10-19",
               "cantidad": 12,
@@ -1445,7 +1445,7 @@
               "margenGanancia": 72
             },
             {
-              "id": "it-1795574555337zoy",
+              "id": "it-1795578054270yyi",
               "nombre": "Olla Reyna Houselux",
               "fechaEntrada": "2026-10-19",
               "cantidad": 1,
@@ -1458,7 +1458,7 @@
               "margenGanancia": 6
             },
             {
-              "id": "it-1795574555337sam",
+              "id": "it-17955780542709ea",
               "nombre": "Batidora",
               "fechaEntrada": "2026-10-19",
               "cantidad": 3,
@@ -1471,7 +1471,7 @@
               "margenGanancia": 18
             },
             {
-              "id": "it-1795574555337um1",
+              "id": "it-1795578054270lhv",
               "nombre": "Cafetera",
               "fechaEntrada": "2026-10-19",
               "cantidad": 9,
@@ -1484,7 +1484,7 @@
               "margenGanancia": 27
             },
             {
-              "id": "it-1795574555337q7s",
+              "id": "it-1795578054270o1k",
               "nombre": "Ventilador de Pared Dawan",
               "fechaEntrada": "2026-10-19",
               "cantidad": 18,
@@ -1497,7 +1497,7 @@
               "margenGanancia": 99
             },
             {
-              "id": "it-17955745553371bw",
+              "id": "it-1795578054270s0k",
               "nombre": "Infrarroja Eko 1500 w",
               "fechaEntrada": "2026-10-19",
               "cantidad": 4,
@@ -1510,59 +1510,59 @@
               "margenGanancia": 20
             },
             {
-              "id": "it-1795574555337h78",
+              "id": "it-1795578054270umm",
               "nombre": "Infrarroja Estelectri de 2000 w",
               "fechaEntrada": "2026-10-19",
-              "cantidad": 6,
+              "cantidad": 12,
               "moneda": "USD",
               "precioCompra": 28,
               "precioVenta": 33,
               "comisionGestores": 1500,
               "comisionMoneda": "CUP",
               "transporteUnitario": 0,
-              "margenGanancia": 30
+              "margenGanancia": 60
             },
             {
-              "id": "it-1795574555337xv5",
+              "id": "it-1795578054270ash",
               "nombre": "Ventilador de Pedestar Dawan",
               "fechaEntrada": "2026-10-19",
-              "cantidad": 1,
+              "cantidad": 3,
               "moneda": "USD",
               "precioCompra": 20,
               "precioVenta": 25,
               "comisionGestores": 1500,
               "comisionMoneda": "CUP",
               "transporteUnitario": 0,
-              "margenGanancia": 5
+              "margenGanancia": 15
             },
             {
-              "id": "it-1795574555337jjn",
+              "id": "it-1795578054270wv6",
               "nombre": "Ventilador de Pedestar PX",
               "fechaEntrada": "2026-10-19",
-              "cantidad": 1,
+              "cantidad": 14,
               "moneda": "USD",
               "precioCompra": 16,
               "precioVenta": 25,
               "comisionGestores": 1500,
               "comisionMoneda": "CUP",
               "transporteUnitario": 0,
-              "margenGanancia": 9
+              "margenGanancia": 126
             },
             {
-              "id": "it-1795574555337q8z",
+              "id": "it-1795578054270i1q",
               "nombre": "Mini ciclones",
               "fechaEntrada": "2026-10-19",
-              "cantidad": 9,
+              "cantidad": 11,
               "moneda": "USD",
               "precioCompra": 16,
               "precioVenta": 22,
               "comisionGestores": 1500,
               "comisionMoneda": "CUP",
               "transporteUnitario": 0,
-              "margenGanancia": 54
+              "margenGanancia": 66
             },
             {
-              "id": "it-1795574555337dai",
+              "id": "it-1795578054270h1v",
               "nombre": "Cocina de gas",
               "fechaEntrada": "2026-10-19",
               "cantidad": 1,
@@ -1575,17 +1575,17 @@
               "margenGanancia": 12.5
             },
             {
-              "id": "it-1795574555337xxf",
+              "id": "it-1795578054270uc5",
               "nombre": "Olla Reyna JM",
               "fechaEntrada": "2026-10-19",
-              "cantidad": 1,
+              "cantidad": 13,
               "moneda": "USD",
               "precioCompra": 42,
               "precioVenta": 49,
               "comisionGestores": 1500,
               "comisionMoneda": "CUP",
               "transporteUnitario": 0,
-              "margenGanancia": 7
+              "margenGanancia": 91
             }
           ]
         },
