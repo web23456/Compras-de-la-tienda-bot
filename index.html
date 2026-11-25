@@ -3349,33 +3349,51 @@ let itemsValeFinalEnEdicion = [];
 let valeFinalSeleccionadoId = null;
 
 function inicializarFormularioValeFinal() {
-  const elFolio = document.getElementById('vale-final-folio');
-  if (elFolio) elFolio.value = 'FINAL-' + new Date().toISOString().split('T')[0].replace(/-/g, '');
-  const elFecha = document.getElementById('vale-final-fecha');
-  if (elFecha) elFecha.value = new Date().toISOString().split('T')[0];
-  const elResp = document.getElementById('vale-final-responsable');
-  if (elResp && !elResp.value) elResp.value = 'Karel';
-  const elDesde = document.getElementById('cuadre-fecha-desde');
-  if (elDesde && !elDesde.value) elDesde.value = '2026-10-01'; // Inicio por defecto de operaciones
+  const sData = getSemanaData();
+  const valesFinales = sData.valesFinales || [];
 
-  if (itemsValeFinalEnEdicion.length === 0) {
-    // Si está vacío, precargar productos frecuentes de la tienda para facilitar el conteo rápido
-    const sData = getSemanaData();
-    const prodsInv = Array.from(new Set((sData.lotesInventario || []).map(l => l.producto).filter(Boolean)));
-    if (prodsInv.length > 0) {
-      itemsValeFinalEnEdicion = prodsInv.slice(0, 10).map(p => ({
+  // Si ya existe un vale final guardado, precargar sus datos en el formulario para edición directa
+  if (valesFinales.length > 0) {
+    const vfGuardado = valesFinales[0];
+    const elFolio = document.getElementById('vale-final-folio');
+    if (elFolio) elFolio.value = vfGuardado.folio || 'FINAL-8';
+    const elFecha = document.getElementById('vale-final-fecha');
+    if (elFecha) elFecha.value = vfGuardado.fecha || '2026-11-24';
+    const elResp = document.getElementById('vale-final-responsable');
+    if (elResp) elResp.value = vfGuardado.responsable || 'Karel';
+    const elNotas = document.getElementById('vale-final-notas');
+    if (elNotas) elNotas.value = vfGuardado.notas || 'Vale final de almacén';
+    const elDesde = document.getElementById('cuadre-fecha-desde');
+    if (elDesde && !elDesde.value) elDesde.value = '2026-10-01';
+
+    if (itemsValeFinalEnEdicion.length === 0 && vfGuardado.items && vfGuardado.items.length > 0) {
+      itemsValeFinalEnEdicion = vfGuardado.items.map(it => ({
         id: 'vfi-' + Math.random().toString(36).substring(2, 7),
-        producto: p,
-        cantidadFisica: 0,
-        precioRef: 0
+        producto: it.producto || it.nombre,
+        cantidadFisica: it.cantidadFisica !== undefined ? it.cantidadFisica : (it.cantidad || 0),
+        precioRef: it.precioRef || it.precioVenta || 0
       }));
-    } else {
-      itemsValeFinalEnEdicion = [
-        { id: 'vfi-1', producto: 'Olla arrocera 1.8L estelectric', cantidadFisica: 0, precioRef: 28 },
-        { id: 'vfi-2', producto: 'Cocina infrarroja 3500w', cantidadFisica: 0, precioRef: 35 },
-        { id: 'vfi-3', producto: 'Ventilador de pared Dawang', cantidadFisica: 0, precioRef: 30 },
-        { id: 'vfi-4', producto: 'Olla reina Houselux 5L', cantidadFisica: 0, precioRef: 47 }
-      ];
+    }
+  } else {
+    const elFolio = document.getElementById('vale-final-folio');
+    if (elFolio) elFolio.value = 'FINAL-' + new Date().toISOString().split('T')[0].replace(/-/g, '');
+    const elFecha = document.getElementById('vale-final-fecha');
+    if (elFecha) elFecha.value = new Date().toISOString().split('T')[0];
+    const elResp = document.getElementById('vale-final-responsable');
+    if (elResp && !elResp.value) elResp.value = 'Karel';
+    const elDesde = document.getElementById('cuadre-fecha-desde');
+    if (elDesde && !elDesde.value) elDesde.value = '2026-10-01';
+
+    if (itemsValeFinalEnEdicion.length === 0) {
+      const prodsInv = Array.from(new Set((sData.lotesInventario || []).map(l => l.producto).filter(Boolean)));
+      if (prodsInv.length > 0) {
+        itemsValeFinalEnEdicion = prodsInv.slice(0, 15).map(p => ({
+          id: 'vfi-' + Math.random().toString(36).substring(2, 7),
+          producto: p,
+          cantidadFisica: 0,
+          precioRef: 0
+        }));
+      }
     }
   }
   renderizarFilasValeFinalEdicion();
@@ -3679,6 +3697,30 @@ function seleccionarValeFinalParaCuadre(vfId) {
   valeFinalSeleccionadoId = vfId;
   const selectEl = document.getElementById('select-cuadre-vale-final');
   if (selectEl && vfId) selectEl.value = vfId;
+
+  // Cargar datos del vale final en el formulario de edición por si el usuario desea modificarlo
+  const sData = getSemanaData();
+  const vf = (sData.valesFinales || []).find(v => v.id === vfId);
+  if (vf) {
+    const elFolio = document.getElementById('vale-final-folio');
+    if (elFolio) elFolio.value = vf.folio || '';
+    const elFecha = document.getElementById('vale-final-fecha');
+    if (elFecha) elFecha.value = vf.fecha || '';
+    const elResp = document.getElementById('vale-final-responsable');
+    if (elResp) elResp.value = vf.responsable || '';
+    const elNotas = document.getElementById('vale-final-notas');
+    if (elNotas) elNotas.value = vf.notas || '';
+    if (vf.items && vf.items.length > 0) {
+      itemsValeFinalEnEdicion = vf.items.map(it => ({
+        id: 'vfi-' + Math.random().toString(36).substring(2, 7),
+        producto: it.producto || it.nombre,
+        cantidadFisica: it.cantidadFisica !== undefined ? it.cantidadFisica : (it.cantidad || 0),
+        precioRef: it.precioRef || it.precioVenta || 0
+      }));
+      renderizarFilasValeFinalEdicion();
+    }
+  }
+
   ejecutarCuadreInventario();
 }
 
@@ -4086,6 +4128,7 @@ function renderizarSeccionCuadre() {
 
     function poblarSelectBajas() {
       const sel = document.getElementById('baja-lote-select');
+      if (!sel) return;
       const sData = getSemanaData();
       // FIFO: ordenar por orden de llegada para consumir primero los más antiguos
       const lotesOrdenados = [...sData.lotesInventario]
