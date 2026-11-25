@@ -3913,19 +3913,21 @@ function renderizarSeccionCuadre() {
 
 // ================= RENDERIZADO GENERAL =================
     function renderizarTodo() {
-      renderizarSelectorSemanas();
-      renderizarKPIsBimoneda();
-      renderizarTablaInventario();
-      renderizarTablaVentasGestores();
-      renderizarCatalogoProductos();
-      const badgeInv = document.getElementById('badge-inventario-count');
-      if (badgeInv) badgeInv.textContent = (getSemanaData().lotesInventario.length) + ' lotes';
-      renderizarListasGastosInversionesBajas();
-      renderizarHistorialVales();
-      poblarSelectBajas();
-      actualizarDatalistProductos();
-      actualizarListaValesFinalesGuardados();
-      ejecutarCuadreInventario();
+      try { actualizarListaValesFinalesGuardados(); } catch(e) { console.error('Error lista vales:', e); }
+      try { ejecutarCuadreInventario(); } catch(e) { console.error('Error cuadre:', e); }
+      try { renderizarSelectorSemanas(); } catch(e) { console.error(e); }
+      try { renderizarKPIsBimoneda(); } catch(e) { console.error(e); }
+      try { renderizarTablaInventario(); } catch(e) { console.error(e); }
+      try { renderizarTablaVentasGestores(); } catch(e) { console.error(e); }
+      try { renderizarCatalogoProductos(); } catch(e) { console.error(e); }
+      try {
+        const badgeInv = document.getElementById('badge-inventario-count');
+        if (badgeInv) badgeInv.textContent = (getSemanaData().lotesInventario.length) + ' lotes';
+      } catch(e) {}
+      try { renderizarListasGastosInversionesBajas(); } catch(e) { console.error(e); }
+      try { renderizarHistorialVales(); } catch(e) { console.error(e); }
+      try { poblarSelectBajas(); } catch(e) { console.error(e); }
+      try { actualizarDatalistProductos(); } catch(e) { console.error(e); }
       if (window.lucide && typeof lucide.createIcons === 'function') { lucide.createIcons(); }
     }
 
