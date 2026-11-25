@@ -2716,15 +2716,14 @@ function cambiarPestanaPrincipal(pestana) {
   allSections.forEach(s => {
     if (s) {
       s.classList.add('hidden');
-      s.style.display = 'none';
+      s.style.display = '';
     }
   });
 
-  // Mostrar exclusivamente la sección solicitada
+  // Mostrar exclusivamente la sección solicitada (usando classList sin forzar inline style.display)
   if (pestana === 'cuadre') {
     if (secCuadre) {
       secCuadre.classList.remove('hidden');
-      secCuadre.style.display = 'block';
     }
     try {
       renderizarSeccionCuadre();
@@ -2732,27 +2731,27 @@ function cambiarPestanaPrincipal(pestana) {
       console.error('Error al renderizar cuadre:', e);
     }
   } else if (pestana === 'dashboard') {
-    if (secRecibos) { secRecibos.classList.remove('hidden'); secRecibos.style.display = 'block'; }
-    if (secKpis) { secKpis.classList.remove('hidden'); secKpis.style.display = 'grid'; }
-    if (secGastos) { secGastos.classList.remove('hidden'); secGastos.style.display = 'grid'; }
+    if (secRecibos) secRecibos.classList.remove('hidden');
+    if (secKpis) secKpis.classList.remove('hidden');
+    if (secGastos) secGastos.classList.remove('hidden');
   } else if (pestana === 'productos') {
-    if (secProd) { secProd.classList.remove('hidden'); secProd.style.display = 'block'; }
+    if (secProd) secProd.classList.remove('hidden');
     if (!catalogoFamiliasAgrupadas || catalogoFamiliasAgrupadas.length === 0) {
       renderizarCatalogoProductos();
     } else {
       filtrarCatalogoProductos();
     }
   } else if (pestana === 'fifo') {
-    if (secKpis) { secKpis.classList.remove('hidden'); secKpis.style.display = 'grid'; }
-    if (secFifo) { secFifo.classList.remove('hidden'); secFifo.style.display = 'block'; }
+    if (secKpis) secKpis.classList.remove('hidden');
+    if (secFifo) secFifo.classList.remove('hidden');
   } else if (pestana === 'inventario') {
-    if (secKpis) { secKpis.classList.remove('hidden'); secKpis.style.display = 'grid'; }
-    if (secExtractor) { secExtractor.classList.remove('hidden'); secExtractor.style.display = 'block'; }
-    if (secInv) { secInv.classList.remove('hidden'); secInv.style.display = 'block'; }
-    if (secGastos) { secGastos.classList.remove('hidden'); secGastos.style.display = 'grid'; }
+    if (secKpis) secKpis.classList.remove('hidden');
+    if (secExtractor) secExtractor.classList.remove('hidden');
+    if (secInv) secInv.classList.remove('hidden');
+    if (secGastos) secGastos.classList.remove('hidden');
   } else if (pestana === 'vales') {
-    if (secExtractor) { secExtractor.classList.remove('hidden'); secExtractor.style.display = 'block'; }
-    if (secVales) { secVales.classList.remove('hidden'); secVales.style.display = 'block'; }
+    if (secExtractor) secExtractor.classList.remove('hidden');
+    if (secVales) secVales.classList.remove('hidden');
   }
 
   ejecutarLucideSafe();
