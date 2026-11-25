@@ -1,6 +1,6 @@
 // Soporte 100% Offline Garantizado, Cache Robusto de CDNs y Sincronización Automática
 
-const CACHE_NAME = 'compras-tienda-v36-cerebro-limpio';
+const CACHE_NAME = 'compras-tienda-v37-cerebro-limpio';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
